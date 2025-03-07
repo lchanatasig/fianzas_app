@@ -1,0 +1,130 @@
+﻿@{
+    ViewBag.Title = "Empresas";
+    ViewBag.pTitle = "Creación de Cupo y Empresa";
+    ViewBag.pageTitle = "Empresas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var successMessage = TempData["SuccessMessage"] as string;
+    var errorMessage = TempData["ErrorMessage"] as string;
+}
+
+@model EmpresaRequest
+
+@section styles {
+    <!-- DataTable CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
+}
+
+<br />
+<br />
+
+<div class="row">
+    <form id="crearEmpresaForm">
+        <div class="col-xxl-12">
+            <div class="card mt-xxl-n5">
+                <div class="card-body p-4">
+                    <h2 class="mb-0">Creación de Empresa y Asignación de Cupo</h2>
+                    <div class="divider-with-text"></div>
+
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="personalDetails" role="tabpanel">
+                            <div class="row">
+
+                                <div class="col-lg-3">
+                                    <div class="mb-2">
+                                        <label>Seleccione el tipo de empresa</label>
+                                        <select class="form-control" asp-for="EmpTipoEmpresaId" required>
+                                            <option value="">Seleccione una opción</option>
+                                            @foreach (var tipoEmpresa in ViewBag.TipoEmpresa)
+                                            {
+                                                <option value="@tipoEmpresa.TempId">@tipoEmpresa.TempNombre</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="divider-with-text"><i class="ri-community-fill"></i> Datos del Solicitante/Afianzado/Contratista</div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" asp-for="EmpNombre" required>
+                                    <div class="invalid-feedback">Ingrese un nombre válido.</div>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <label class="form-label">Dirección</label>
+                                    <input type="text" class="form-control" asp-for="EmpUbicacion" required>
+                                    <div class="invalid-feedback">Ingrese una dirección válida.</div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Identificación / RUC</label>
+                                    <input type="text" class="form-control" asp-for="EmpRUC" required>
+                                    <div class="invalid-feedback">Ingrese un RUC válido (13 dígitos).</div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Teléfono</label>
+                                    <input type="text" class="form-control" asp-for="EmpTelefono" required>
+                                    <div class="invalid-feedback">Ingrese un teléfono válido.</div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Correo Electrónico</label>
+                                    <input type="email" class="form-control" asp-for="EmpEmail" required>
+                                    <div class="invalid-feedback">Ingrese un correo válido.</div>
+                                </div>
+
+                                <div class="divider-with-text"><i class="ri-currency-fill"></i> Activos</div>
+
+                                @foreach (var campo in new[] { "EmpfActivoCorriente", "EmpfActivoFijo", "EmpfActivoDiferido", "EmpfOtrosActivos", "EmpfTotalActivos" })
+                                {
+                                    <div class="col-md-3">
+                                        <label class="form-label">@campo.Replace("Empf", "")</label>
+                                        <input type="number" class="form-control" asp-for="@campo" required>
+                                        <div class="invalid-feedback">Ingrese un valor válido.</div>
+                                    </div>
+                                }
+
+                                <div class="divider-with-text"><i class="ri-currency-fill"></i> Pasivos</div>
+
+                                @foreach (var campo in new[] { "EmpfPasivoCorriente", "EmpfPasivoLargoPlazo", "EmpfPasivoDiferido", "EmpfTotalPasivo" })
+                                {
+                                    <div class="col-md-3">
+                                        <label class="form-label">@campo.Replace("Empf", "")</label>
+                                        <input type="number" class="form-control" asp-for="@campo" required>
+                                        <div class="invalid-feedback">Ingrese un valor válido.</div>
+                                    </div>
+                                }
+
+                                <div class="divider-with-text"><i class="ri-currency-fill"></i> Patrimonio</div>
+
+                                @foreach (var campo in new[] { "EmpfCapital", "EmpfReserva", "EmpfOtrasCuentasPatrimonio", "EmpfUtilidadesAcumuladas", "EmpfUtilidadEjercicio", "EmpfPerdida", "EmpfOtrasPerdidas" })
+                                {
+                                    <div class="col-md-4">
+                                        <label class="form-label">@campo.Replace("Empf", "")</label>
+                                        <input type="number" class="form-control" asp-for="@campo" required>
+                                        <div class="invalid-feedback">Ingrese un valor válido.</div>
+                                    </div>
+                                }
+
+                                <div class="divider-with-text"><i class="ri-currency-fill"></i> Resultados</div>
+
+                                @foreach (var campo in new[] { "EmpfVentas", "EmpfUtilidad", "EmpfCupoAsignado", "AnfLiquidez", "AnfSolvencia", "AnfCapCobertura", "AnfEndeudamiento", "AnfCapitalPropio", "AnfROA", "AnfROE" })
+                                {
+                                    <div class="col-md-3">
+                                        <label class="form-label">@campo.Replace("Empf", "").Replace("Anf", "")</label>
+                                        <input type="number" class="form-control" asp-for="@campo" required>
+                                        <div class="invalid-feedback">Ingrese un valor válido.</div>
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

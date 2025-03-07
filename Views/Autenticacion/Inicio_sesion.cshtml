@@ -1,0 +1,171 @@
+﻿@{
+    ViewBag.Title = "Sign In";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    @Html.Partial("~/Views/Shared/_title_meta.cshtml")
+    @Html.Partial("~/Views/Shared/_head_css.cshtml")
+</head>
+
+<body class="bg-light">
+
+    <div class="container min-vh-100 d-flex justify-content-center align-items-center">
+        <div class="row w-100 align-items-center">
+            <div class="col-lg-10 mx-auto">
+                <div class="card border-0 shadow-lg overflow-hidden rounded-4">
+                    <div class="row g-0">
+
+                        <!-- Sección Izquierda -->
+                        <div id="login-foto"
+                            class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center text-light p-5 auth-one-bg position-relative">
+                            <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-10"></div>
+
+                        </div>
+
+                        <!-- Formulario de Inicio de Sesión -->
+                        <div class="col-lg-6">
+                            <div class="p-5">
+                                <div class="text-center">
+                                    <h2 class="text-primary fw-bold">SFU</h2>
+                                    <p class="text-muted">Sistema de Fianzas Unidos</p>
+                                </div>
+
+                                <form id="loginForm">
+                                    <div class="mb-3">
+                                        <label for="username" class="form-label fw-semibold">Usuario</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="ri-user-line"></i></span>
+                                            <input type="text" class="form-control rounded-end" id="nickname"
+                                                name="Nickname" placeholder="Ingrese su usuario" required>
+                                            <div class="invalid-feedback">El usuario no debe estar vacio ingrese un
+                                                valor válido.</div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label fw-semibold">Contraseña</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="ri-lock-line"></i></span>
+                                            <input type="password" class="form-control rounded-end" id="clave"
+                                                name="Clave" placeholder="Ingrese su contraseña" required>
+                                            <div class="invalid-feedback">La clave no debe estar vacia ingrese un valor
+                                                válido.</div>
+
+                                        </div>
+                                    </div>
+
+
+                                    <div class="mt-4">
+                                        <button type="button" id="loginButton"
+                                            class="btn btn-soft-info waves-effect waves-light w-100 rounded-pill">Iniciar
+                                            Sesion</button>
+                                    </div>
+                                </form>
+
+                            </div>
+
+                            <!-- Contenedor para las alertas -->
+                            <div id="alertContainer" class="d-none">
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert"
+                                    id="errorAlert">
+                                    <strong>Error!</strong> <span id="errorMessage">@ViewData["ErrorMessage"]</span>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Pie de Página -->
+                <footer class="text-center py-3 mt-4">
+                    <p class="mb-0 text-muted small">
+                        Copyright &copy; @DateTime.Now.Year SFU. Todos los derechos Reservados
+                    </p>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    @Html.Partial("~/Views/Shared/_vendor_scripts.cshtml")
+    <script>
+
+        // Asegurarse de que el DOM esté completamente cargado
+        document.addEventListener("DOMContentLoaded", function () {
+            // Seleccionar el botón de iniciar sesión
+            var loginButton = document.getElementById("loginButton");
+
+            // Asociar el evento de clic
+            loginButton.addEventListener("click", function (event) {
+                event.preventDefault();  // Prevenir la acción predeterminada del botón (enviar formulario)
+
+
+
+                // Deshabilitar el formulario mientras se realiza la solicitud
+                document.getElementById("loginForm").classList.add("d-none");
+
+
+                // Obtener los valores de los campos de usuario y contraseña
+                var loginUsuario = document.getElementById("nickname").value;
+                var loginPassword = document.getElementById("clave").value;
+
+                // Verificar si los campos están vacíos
+                if (!loginUsuario || !loginPassword) {
+                    document.getElementById("loginForm").classList.remove("d-none");
+                    document.getElementById("alertContainer").classList.remove("d-none");
+                    document.getElementById("errorMessage").textContent = "Por favor, complete todos los campos.";
+
+                    return; // Detener si falta información
+                }
+
+                // Enviar la solicitud AJAX al controlador
+                fetch('@Url.Action("Login", "Autenticacion")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        UsuarioCI: loginUsuario,
+                        UsuarioPassword: loginPassword
+                    })
+                })
+                    .then(response => response.json())  // Esperar la respuesta en formato JSON
+                    .then(data => {
+                        console.log(data); // Log para ver lo que devuelve el servidor
+
+                        if (data.success) {
+                            // Redirigir si el inicio de sesión es exitoso
+                            window.location.href = data.redirectUrl;
+                        } else {
+
+                            document.getElementById("loginForm").classList.remove("d-none");
+                            document.getElementById("alertContainer").classList.remove("d-none");
+                            document.getElementById("errorMessage").textContent = data.errorMessage;
+
+
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+
+                        document.getElementById("loginForm").classList.remove("d-none");
+                        document.getElementById("alertContainer").classList.remove("d-none");
+                        document.getElementById("errorMessage").textContent = "Ocurrió un error inesperado. Por favor, intente de nuevo.";
+
+                    });
+            });
+        });
+    </script>
+    <!-- password-addon init -->
+    <script src="~/assets/js/pages/password-addon.init.js"></script>
+
+</body>
+
+</html>

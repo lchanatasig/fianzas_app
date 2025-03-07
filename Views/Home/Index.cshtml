@@ -1,0 +1,116 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    ViewBag.pTitle = "Inicio";
+    ViewBag.pageTitle = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <!-- Tarjetas de métricas -->
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Fianzas Activas</h5>
+                <h2 class="text-primary">120</h2>
+                <p class="text-muted">En total</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Pendientes de Revisión</h5>
+                <h2 class="text-warning">15</h2>
+                <p class="text-muted">En espera</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Inspecciones en Espera</h5>
+                <h2 class="text-danger">8</h2>
+                <p class="text-muted">Por verificar</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Empresas Registradas</h5>
+                <h2 class="text-success">50</h2>
+                <p class="text-muted">En total</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+
+    <!-- Gráfica de Fianzas Otorgadas -->
+
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Tendencia de Fianzas Otorgadas</h4>
+                    <div style="max-height: 400px;">
+                        <canvas id="chartFianzas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+@section scripts {
+
+    <!-- Script para generar la gráfica mejorada -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var ctx = document.getElementById('chartFianzas').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago'],
+                    datasets: [{
+                        label: 'Fianzas Otorgadas',
+                        data: [5, 12, 18, 25, 27, 29, 30], // Datos más controlados
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointBackgroundColor: 'rgb(75, 192, 192)',
+                        tension: 0.2 // Suaviza la línea sin hacerla exagerada
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            min: 0,  // Valor mínimo fijo
+                            max: 35, // Controla el crecimiento de la curva
+                            ticks: {
+                                stepSize: 5 // Hace que las etiquetas del eje Y sean más legibles
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="~/assets/js/app.js"></script>
+}

@@ -1,0 +1,156 @@
+﻿@{
+    ViewBag.Title = "Usuarios";
+    ViewBag.pTitle = "Actualizar Usuario";
+    ViewBag.pageTitle = "Usuarios";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var successMessage = TempData["SuccessMessage"] as string;
+    var errorMessage = TempData["ErrorMessage"] as string;
+}
+<br />
+<br />
+@model AuthResponse
+
+<div class="row">
+    <form id="actualizarUsuarioForm">
+        <input type="hidden" name="IdUsuario" id="usuarioId" value="@Model.UsuarioId" />
+
+        <div class="col-xxl-12">
+            <div class="card mt-xxl-n5">
+                <div class="card-body p-4">
+                    <h2 class="mb-0">Actualizar Usuario</h2>
+                    <div class="divider-with-text"></div>
+
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="personalDetails" role="tabpanel">
+                            <div class="row">
+                                <div class="col-lg-3">
+                                    <div class="mb-6">
+                                        <label for="profileSelect">Seleccione el perfil</label>
+                                        <select name="UsuarioPerfilId" class="form-control" asp-for="PerfilId" data-choices data-choices-sorting-false required>
+                                            <option value="">Seleccione un perfil</option>
+                                            @foreach (var perfil in ViewBag.Perfiles)
+                                            {
+                                                <option value="@perfil.PerfilId">@perfil.PerfilNombre</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3">
+                                    <div class="mb-3">
+                                        <label for="nombres" class="form-label">Nombres Usuario</label>
+                                        <input type="text" class="form-control" id="nombres" name="UsuarioNombres" value="@Model.UsuarioNombres" required>
+                                        <div class="invalid-feedback">POR FAVOR ESTE CAMPO ES REQUERIDO</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3">
+                                    <div class="mb-3">
+                                        <label for="direccion" class="form-label">Dirección</label>
+                                        <input type="text" class="form-control" id="direccion" name="UsuarioDireccion" value="@Model.UsuarioDireccion" required>
+                                        <div class="invalid-feedback">POR FAVOR ESTE CAMPO ES REQUERIDO</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3">
+                                    <div class="mb-3">
+                                        <label for="documentNumberInput" class="form-label">Número de documento</label>
+                                        <input type="text" class="form-control" id="documentNumberInput" name="UsuarioCi" value="@Model.UsuarioCI" required>
+                                        <div class="invalid-feedback">POR FAVOR ESTE CAMPO ES REQUERIDO</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3">
+                                    <div class="mb-3">
+                                        <label for="passwordInput" class="form-label">Contraseña</label>
+                                        <input type="password" class="form-control" id="passwordInput" name="UsuarioPassword" placeholder="********">
+                                        <div class="invalid-feedback">POR FAVOR ESTE CAMPO ES REQUERIDO</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-12" style="padding-top: 3px">
+                                    <div class="hstack gap-2 justify-content-end">
+                                        <button type="button" id="btnActualizarUsuario" class="btn btn-primary">
+                                            <i class="ri-user-add-line"></i> Actualizar Usuario
+                                        </button>
+                                        <a href="@Url.Action("ListarUsuarios", "Usuario")" class="btn btn-soft-secondary">
+                                            <i class="ri-arrow-go-back-line"></i> Cancelar
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section scripts {
+    <script>
+        document.getElementById("btnActualizarUsuario").addEventListener("click", function (event) {
+            event.preventDefault();
+
+            let usuarioData = {
+                UsuarioId: document.getElementById("usuarioId").value,
+                UsuarioPerfilId: document.querySelector("[name='UsuarioPerfilId']").value,
+                UsuarioNombres: document.getElementById("nombres").value,
+                UsuarioDireccion: document.getElementById("direccion").value,
+                UsuarioCi: document.getElementById("documentNumberInput").value,
+                UsuarioPassword: document.getElementById("passwordInput").value
+            };
+
+            fetch('@Url.Action("ActualizacionUsuario", "Usuario")', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(usuarioData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: "¡Éxito!",
+                        text: data.mensaje,
+                        icon: "success"
+                    }).then(() => {
+                        window.location.href = '@Url.Action("ListarUsuarios", "Usuario")';
+                    });
+                } else {
+                    Swal.fire("Error", data.mensaje, "error");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                Swal.fire("Error", "Ocurrió un error inesperado.", "error");
+            });
+        });
+    </script>
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <script>
+            Swal.fire({
+                title: '¡Éxito!',
+                text: '@successMessage',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        </script>
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <script>
+            Swal.fire({
+                title: 'Error!',
+                text: '@errorMessage',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        </script>
+    }
+}
