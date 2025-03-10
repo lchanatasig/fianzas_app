@@ -83,5 +83,43 @@ namespace fianzas_app.Services
 
             return tipoempresas;
         }
+
+        /// <summary>
+        /// Ejecuta el SP sp_listar_tipos_fianza y retorna la lista de tipos de fianza.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<TipoSolicitud>> ListarTipoFianzasAsync()
+        {
+            var tipofianzas = new List<TipoSolicitud>();
+
+            using (var connection = new SqlConnection(_dbContext.Database.GetConnectionString()))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand("sp_listar_tipos_fianza", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var tipoFianza = new TipoSolicitud
+                            {
+                                TposId = reader["tpos_id"] != DBNull.Value ? Convert.ToInt32(reader["tpos_id"]) : 0,
+                                TposSiglas = reader["tpos_siglas"].ToString(),
+                                TposNombre = reader["tpos_nombre"].ToString(),
+                                TposEstado = reader["tpos_estado"] != DBNull.Value ? Convert.ToByte(reader["tpos_estado"]) : (byte)0
+                            };
+
+
+                            tipofianzas.Add(tipoFianza);
+                        }
+                    }
+                }
+            }
+
+            return tipofianzas;
+        }
+
     }
 }

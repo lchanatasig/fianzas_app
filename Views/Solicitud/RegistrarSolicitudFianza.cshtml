@@ -1,0 +1,361 @@
+﻿@model List<EmpresaResponse>
+
+@{
+    ViewBag.Title = "Solicitar Fianza";
+    ViewBag.pTitle = "Fianzas";
+    ViewBag.pageTitle = "Otorgar Fianza";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var successMessage = TempData["SuccessMessage"] as string;
+    var errorMessage = TempData["ErrorMessage"] as string;
+}
+@using Microsoft.AspNetCore.Http
+@{
+    var usuarioId = ViewContext.HttpContext.Session.GetInt32("UsuarioId");
+    var perfilId = ViewContext.HttpContext.Session.GetInt32("PerfilId");
+    var usuarioNombre = ViewContext.HttpContext.Session.GetString("UsuarioNombre");
+    var usuarioCargo = ViewContext.HttpContext.Session.GetString("UsuarioPerfil");
+
+}
+@using System.Text.Json
+
+<div class="row">
+    <form id="crearEmpresaForm" asp-action="CrearEmpresa" asp-controller="Empresa" method="post" enctype="multipart/form-data" class="row g-3 needs-validation" novalidate>
+        <input type="hidden" name="IdUsuario" id="usuarioId" value="@usuarioId" />
+
+        <div class="col-xxl-12">
+            <div class="card mt-xxl-n5">
+                <div class="card-body p-4">
+                    <h2 class="mb-0">Creación y Validación de Solicitud</h2>
+<hr />
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="personalDetails" role="tabpanel">
+                            <div class="row">
+                                <!-- Selección de la Empresa -->
+                                <div class="col-md-3">
+                                    <label for="empresaSelect" class="form-label">Empresa</label>
+                                    <select class="form-control" data-choices data-choices-sorting-false required id="empresaSelect" name="EmpresaId">
+                                        <option value="">Seleccione una empresa</option>
+                                        @foreach (var empresa in ViewBag.Empresas)
+                                        {
+                                            <option value="@empresa.EmpId">@empresa.EmpNombre</option>
+                                        }
+                                    </select>
+                                    <div class="invalid-feedback">Seleccione una empresa válida.</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="cuposDisponible" class="form-label">Cupo Disponible ($)</label>
+                                    <input type="text" class="form-control" id="cupoDisponible" readonly>
+                                </div>
+
+                                <!-- Tipo de Fianza -->
+                                <div class="col-md-6">
+                                    <label for="tipoFianza" class="form-label">Tipo de Fianza</label>
+                                    <select class="form-control" data-choices data-choices-sorting-false required id="tipoFianza" name="TipoFianzaId">
+                                        <option value="">Seleccione un tipo de fianza...</option>
+                                        @foreach (var tipo in ViewBag.TiposSolicitud)
+                                        {
+                                            <option value="@tipo.TposId">@tipo.TposNombre</option>
+                                        }
+                                    </select>
+                                    <div class="invalid-feedback">Seleccione un tipo de fianza válido.</div>
+                                </div>
+
+                                <!-- Sección para FCC/BUA -->
+                                <div id="datosContrato" class="d-none">
+                                    <hr />
+                                    <div class="row g-3">
+                                        <!-- Información del Solicitante (la empresa se carga de forma automática, no se envía) -->
+                                        <div class="divider-with-text">
+                                            <span>Información del solicitante</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="tipoSector" class="form-label">Tipo de Sector</label>
+                                            <!-- Este valor se usará para sectorFianza -->
+                                            <select class="form-select" id="tipoSector" name="SectorFianza" required>
+                                                <option selected disabled value="">Seleccione un tipo de sector...</option>
+                                                <option value="Público">Público</option>
+                                                <option value="Privado">Privado</option>
+                                            </select>
+                                            <div class="invalid-feedback">Seleccione un tipo de sector válido.</div>
+                                        </div>
+                                        <!-- Los siguientes campos de solicitante son solo informativos y se rellenan con la información de la empresa -->
+                                        <div class="col-md-3">
+                                            <label for="solicitante" class="form-label">Solicitante/Afianzado/Contratista</label>
+                                            <input type="text" class="form-control" id="solicitante" readonly>
+                                            <div class="invalid-feedback">Ingrese el nombre del solicitante.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="direccionSolicitante" class="form-label">Dirección</label>
+                                            <input type="text" class="form-control" id="direccionSolicitante" readonly>
+                                            <div class="invalid-feedback">Ingrese la dirección.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="rucSolicitante" class="form-label">CI/RUC</label>
+                                            <input type="text" class="form-control" id="rucSolicitante" readonly>
+                                            <div class="invalid-feedback">Ingrese el CI o RUC.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="emailSolicitante" class="form-label">E-mail</label>
+                                            <input type="email" class="form-control" id="emailSolicitante" readonly>
+                                            <div class="invalid-feedback">Ingrese un e-mail válido.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="telefonoSolicitante" class="form-label">Teléfono/Celular</label>
+                                            <input type="text" class="form-control" id="telefonoSolicitante" readonly>
+                                            <div class="invalid-feedback">Ingrese un teléfono o celular.</div>
+                                        </div>
+
+                                        <!-- Información del Beneficiario -->
+                                        <div class="divider-with-text">
+                                            <span>Información del beneficiario</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="beneficiario" class="form-label">Beneficiario</label>
+                                            <!-- Mapeado a benefNombre -->
+                                            <input type="text" class="form-control" id="beneficiario" name="NombreBeneficiario" required>
+                                            <div class="invalid-feedback">Ingrese el nombre del beneficiario.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="direccionBeneficiario" class="form-label">Dirección</label>
+                                            <!-- Mapeado a benefDireccion -->
+                                            <input type="text" class="form-control" id="direccionBeneficiario" name="DireccionBeneficiario" required>
+                                            <div class="invalid-feedback">Ingrese la dirección del beneficiario.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="rucBeneficiario" class="form-label">CI/RUC</label>
+                                            <!-- Mapeado a benefCiRuc -->
+                                            <input type="text" class="form-control" id="rucBeneficiario" name="CiRucBeneficiario" required>
+                                            <div class="invalid-feedback">Ingrese el CI o RUC del beneficiario.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="emailBeneficiario" class="form-label">E-mail</label>
+                                            <!-- Mapeado a benefEmail -->
+                                            <input type="email" class="form-control" id="emailBeneficiario" name="EmailBeneficiario" required>
+                                            <div class="invalid-feedback">Ingrese un e-mail válido.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="telefonoBeneficiario" class="form-label">Teléfono/Celular</label>
+                                            <!-- Mapeado a benefTelefono -->
+                                            <input type="text" class="form-control" id="telefonoBeneficiario" name="TelefonoBeneficiario" required>
+                                            <div class="invalid-feedback">Ingrese un teléfono o celular.</div>
+                                        </div>
+                                        <div class="divider-with-text">
+                                            <span>Información adicional</span>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label for="montoFianza" class="form-label">Monto de la Fianza / Garantía ($)</label>
+                                            <!-- Mapeado a montoFianza -->
+                                            <input type="number" class="form-control" id="montoFianza" name="MontoFianza" required disabled>
+                                            <div class="invalid-feedback">Ingrese un monto válido.</div>
+                                            <small id="errorMontoFianza" class="text-danger d-none"></small> <!-- Mensaje de error -->
+
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="montocontrato" class="form-label">Monto del contrato</label>
+                                            <!-- Mapeado a montoContrato -->
+                                            <input type="text" class="form-control" id="montocontrato" name="MontoContrato" required>
+                                            <div class="invalid-feedback">Ingrese el monto del contrato.</div>
+                                        </div>
+                                    
+                                        <div class="col-md-3">
+                                            <label for="plazogarantias" class="form-label">Plazo garantías (Días)</label>
+                                            <!-- Mapeado a plazoGarantiaDias -->
+                                            <input type="text" class="form-control" id="plazogarantias" name="PlazoGarantiaDias" required>
+                                            <div class="invalid-feedback">Ingrese el plazo de garantías.</div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label for="descripcionRiesgo" class="form-label">OBJETO DEL CONTRATO (descripción del riesgo a garantizar):</label>
+                                            <!-- Mapeado a objetoContrato -->
+                                            <textarea class="form-control" rows="3" id="descripcionRiesgo" name="ObjetoContrato" required></textarea>
+                                            <div class="invalid-feedback">Ingrese la descripción del riesgo.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Sección para Garantía Aduanera (GA) -->
+                                <div id="datosAduanera" class="d-none">
+                                    <hr />
+                                    <h3>Datos para Garantía Aduanera</h3>
+                                    <div class="row g-3">
+                                        <div class="col-md-3">
+                                            <label for="tipoSectorGA" class="form-label">Tipo de Sector</label>
+                                            <select class="form-select" id="tipoSectorGA" name="sectorFianza" required>
+                                                <option selected value="Publico">Público</option>
+                                            </select>
+                                            <div class="invalid-feedback">Seleccione un tipo de sector válido.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="solicitanteGA" class="form-label">Solicitante/Afianzado/Contratista</label>
+                                            <!-- Aunque en GA se ingresen estos datos, se pueden mapear a los mismos parámetros del beneficiario -->
+                                            <input type="text" class="form-control" id="solicitanteGA" name="benefNombre" required>
+                                            <div class="invalid-feedback">Ingrese el nombre del solicitante.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="direccionSolicitanteGA" class="form-label">Dirección</label>
+                                            <input type="text" class="form-control" id="direccionSolicitanteGA" name="benefDireccion" required>
+                                            <div class="invalid-feedback">Ingrese la dirección.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="rucSolicitanteGA" class="form-label">CI/RUC</label>
+                                            <input type="text" class="form-control" id="rucSolicitanteGA" name="benefCiRuc" required>
+                                            <div class="invalid-feedback">Ingrese el CI o RUC.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="emailSolicitanteGA" class="form-label">E-mail</label>
+                                            <input type="email" class="form-control" id="emailSolicitanteGA" name="benefEmail" required>
+                                            <div class="invalid-feedback">Ingrese un e-mail válido.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="telefonoSolicitanteGA" class="form-label">Teléfono/Celular</label>
+                                            <input type="text" class="form-control" id="telefonoSolicitanteGA" name="benefTelefono" required>
+                                            <div class="invalid-feedback">Ingrese un teléfono o celular.</div>
+                                        </div>
+                                        <div class="divider-with-text">
+                                            <span>Información adicional</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="montoFianzaGA" class="form-label">Monto de la Fianza ($)</label>
+                                            <!-- En GA se mapea también a montoFianza -->
+                                            <input type="number" class="form-control" id="montoFianzaGA" name="montoFianza" required disabled>
+                                            <div class="invalid-feedback">Ingrese un monto válido.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="montogarantiaGA" class="form-label">Monto de la garantía</label>
+                                            <input type="text" class="form-control" id="montogarantiaGA" name="montoGarantia" required>
+                                            <div class="invalid-feedback">Ingrese el monto de la garantía.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="plazogarantiasGA" class="form-label">Plazo garantías (Días)</label>
+                                            <input type="text" class="form-control" id="plazogarantiasGA" name="plazoGarantiaDias" required>
+                                            <div class="invalid-feedback">Ingrese el plazo de garantías.</div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label for="descripcionRiesgoGA" class="form-label">OBJETO DEL CONTRATO (descripción del riesgo a garantizar):</label>
+                                            <textarea class="form-control" rows="3" id="descripcionRiesgoGA" name="objetoContrato" required></textarea>
+                                            <div class="invalid-feedback">Ingrese la descripción del riesgo.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Documentos Secundarios (Solo si monto > 416K) -->
+                                <div id="documentosSecundarios" class="d-none">
+                                    <div class="alert alert-warning">
+                                        <strong>Importante:</strong> Para montos mayores a $416,000, seleccione <strong>la prenda real</strong>  que desea constituir :
+                                    </div>
+                                    <div class="form-check me-3">
+                                        <input class="form-check-input docSecundario" type="radio" name="prenda" id="prendaComercial" value="Prenda Comercial">
+                                        <label class="form-check-label" for="prendaComercial">Prenda Comercial</label>
+                                    </div>
+                                    <div class="form-check me-3">
+                                        <input class="form-check-input docSecundario" type="radio" name="prenda" id="prendaIndustrial" value="Prenda Industrial">
+                                        <label class="form-check-label" for="prendaIndustrial">Prenda Industrial</label>
+                                    </div>
+                                    <div class="form-check me-3">
+                                        <input class="form-check-input docSecundario" type="radio" name="prenda" id="prendaHipotecaria" value="Prenda Hipotecaria">
+                                        <label class="form-check-label" for="prendaHipotecaria">Prenda Hipotecaria</label>
+                                    </div>
+
+                                    <div class="form-check me-3">
+                                        <input class="form-check-input docSecundario" type="radio" name="prenda" id="prendaCartaAval" value="Prenda Carta Aval">
+                                        <label class="form-check-label" for="prendaCartaAval">Prenda Carta Aval</label>
+                                    </div>
+
+                                    <div class="invalid-feedback d-block" id="documentosSecundariosFeedback" style="display: none;">
+                                        Seleccione un documento adicional.
+                                    </div>
+
+                                    <!-- Formulario adicional para Prenda Comercial -->
+                                    <!-- Formulario Prenda Comercial -->
+                                    <div id="formPrendaComercial" class="d-none">
+                                        <hr />
+                                        <h4>Datos para Prenda Comercial</h4>
+
+                                        
+                                        <!-- Handsontable Prendas -->
+                                        <div id="prendasExcel" class="col-md-12" style="width: 100%; height: 400px; overflow: hidden; margin-bottom: 20px;"></div>
+
+                                        <!-- Campo oculto para enviar los datos de Handsontable -->
+                                        <input type="hidden" name="PrendasJson" id="PrendasJson" />
+                                    </div>
+
+                                    <!-- Formulario adicional para Prenda Industrial -->
+                                    <div id="formPrendaIndustrial" class="d-none">
+                                        <hr>
+                                        <h4>Datos para Prenda Industrial</h4>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="observacionesPH" class="form-label">Subir Archivo</label>
+                                                <input type="file" class="form-control" id="observacionesPH" name="prendaArchivo">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Formulario adicional para Prenda Hipotecaria -->
+                                    <div id="formPrendaHipotecaria" class="d-none">
+                                        <hr>
+                                        <h4>Datos para Prenda Hipotecaria</h4>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="observacionesPH2" class="form-label">Subir Archivo</label>
+                                                <input type="file" class="form-control" id="observacionesPH2" name="prendaArchivo">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Formulario adicional para carta aval -->
+                                    <div id="formPrendaCartaAval" class="d-none">
+                                        <hr>
+                                        <h4>Datos para Carta Aval</h4>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="observacionesPH2" class="form-label">Subir Archivo</label>
+                                                <input type="file" class="form-control" id="observacionesPH2" name="prendaArchivo">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+
+@section scripts {
+    <script>
+        var empresasData = @Html.Raw(JsonSerializer.Serialize(ViewBag.Empresas));
+    </script>
+    <script src="~/assets/js/Fianzas.js"></script>
+
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <script>
+            Swal.fire({
+                title: '¡Exito!',
+                text: '@successMessage',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                timer: 3000
+            });
+        </script>
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <script>
+            Swal.fire({
+                title: 'Error!',
+                text: '@errorMessage',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        </script>
+    }
+}

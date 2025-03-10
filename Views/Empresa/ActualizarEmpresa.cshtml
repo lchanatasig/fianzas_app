@@ -20,10 +20,11 @@
 <br />
 
 <div class="row">
-    <form id="crearEmpresaForm" asp-action="CrearEmpresa" asp-controller="Empresa" method="post" enctype="multipart/form-data" class="row g-3 needs-validation" novalidate>
+    <form id="crearEmpresaForm" asp-action="EditarEmpresa" asp-controller="Empresa" method="post" enctype="multipart/form-data" class="row g-3 needs-validation" novalidate>
         <div class="col-xxl-12">
             <div class="card mt-xxl-n5">
-                
+                <input asp-for="EmpresaId" />
+
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2 class="mb-0">Creación de Empresa y Asignación de Cupo</h2>
@@ -249,7 +250,7 @@
 
                                 <div class="col-md-3">
                                     <label class="form-label">Cupo Asignado</label>
-                                    <input type="number" class="form-control" id="EmpfCupoAsignado" asp-for="EmpfCupoAsignado" required>
+                                    <input type="number" class="form-control" id="EmpfCupoAsignado" asp-for="EmpfCupoAsignado">
                                     <div class="invalid-feedback">Ingrese un valor válido.</div>
                                 </div>
 
@@ -272,12 +273,12 @@
 
                                 <div class="col-md-3">
                                     <label class="form-label">Endeudamiento</label>
-                                    <input type="number" class="form-control" id="AnfEndeudamiento" asp-for="AnfEndeudamiento" readonly >
+                                    <input type="number" class="form-control" id="AnfEndeudamiento" asp-for="AnfEndeudamiento" readonly>
                                 </div>
 
                                 <div class="col-md-3">
                                     <label class="form-label">Capital Propio</label>
-                                    <input type="number" class="form-control" id="AnfCapitalPropio" asp-for="AnfCapitalPropio" readonly >
+                                    <input type="number" class="form-control" id="AnfCapitalPropio" asp-for="AnfCapitalPropio" readonly>
                                 </div>
 
                                 <div class="col-md-3">
@@ -293,31 +294,57 @@
                                 <div class="col-md-12">
                                     <label class="form-label">OBSERVACIONES :  Análisis Situación Financiera.</label>
                                     <textarea type="text" class="form-control" rows="3" asp-for="AnfAnalisisSf" required></textarea>
-                                </div>
+                                </div> 
+                               
                                 <div class="divider-with-text"><i class="ri-currency-fill"></i>  Clasificacion</div>
 
                                 <div class="col-md-12">
                                     <div class="form-check form-switch d-flex align-items-center mb-2">
-                                        <input class="form-check-input" type="checkbox" value="A" asp-for="ClempClasificacion" role="switch" id="SwitchCheckA">
+                                        <input class="form-check-input" type="checkbox"
+                                               value="A"
+                                               role="switch"
+                                               id="SwitchCheckA"
+                                               name="Clasificacion.Clasificacion"
+                                        @(Model.ClempClasificacion == "A" ? "checked" : "") />
+
                                         <label class="form-check-label ms-2 me-2" for="SwitchCheckA">A</label>
                                         <label class="form-check-label" for="SwitchCheckA">MAYOR A 500.000 EN CONTRATOS</label>
-                                        <input type="hidden" asp-for="ClempRango" class="form-control" value="Mayor a 500.000" />
+
+                                        <input type="hidden" asp-for="ClempRango"
+                                               value="Mayor a 500.000" />
                                     </div>
 
                                     <div class="form-check form-switch d-flex align-items-center mb-2">
-                                        <input class="form-check-input" type="checkbox" value="B" asp-for="ClempClasificacion" role="switch" id="SwitchCheckB">
+                                        <input class="form-check-input" type="checkbox"
+                                               value="B"
+                                               role="switch"
+                                               id="SwitchCheckB"
+                                               name="Clasificacion.Clasificacion"
+                                        @(Model.ClempClasificacion == "B" ? "checked" : "") />
+
                                         <label class="form-check-label ms-2 me-2" for="SwitchCheckB">B</label>
                                         <label class="form-check-label" for="SwitchCheckB">ENTRE 120.000 Y 500.000 EN CONTRATOS</label>
-                                        <input type="hidden" asp-for="ClempRango" class="form-control" value="120.000 / 500.000" />
+
+                                        <input type="hidden" asp-for="ClempRango"
+                                               value="120.000 / 500.000" />
                                     </div>
 
                                     <div class="form-check form-switch d-flex align-items-center">
-                                        <input class="form-check-input" type="checkbox" value="C" asp-for="ClempClasificacion" role="switch" id="SwitchCheckC">
+                                        <input class="form-check-input" type="checkbox"
+                                               value="C"
+                                               role="switch"
+                                               id="SwitchCheckC"
+                                               name="Clasificacion.Clasificacion"
+                                        @(Model.ClempClasificacion == "C" ? "checked" : "") />
+
                                         <label class="form-check-label ms-2 me-2" for="SwitchCheckC">C</label>
                                         <label class="form-check-label" for="SwitchCheckC">MENOR A 120.000 EN CONTRATOS</label>
-                                        <input type="hidden" asp-for="ClempRango" class="form-control" value="120000" />
+
+                                        <input type="hidden" asp-for="ClempRango"
+                                               value="120000" />
                                     </div>
                                 </div>
+
 
                                 <br />
                                 <div class="col-md-12">
@@ -327,7 +354,11 @@
                                     <div class="invalid-feedback">Ingrese un valor válido.</div>
 
                                 </div>
-                               
+
+                                <div class="col-md-12">
+                                    <label class="form-label">OBSERVACIONES : Indique la razòn de la actualizacion</label>
+                                    <textarea type="text" class="form-control" rows="3" asp-for="HistObservacion" required></textarea>
+                                </div>
                             </div>
                             <br />
                             <br />
@@ -338,9 +369,9 @@
                     </div>
                 </div>
             </div>
-          
+
         </div>
-        
+
     </form>
 </div>
 

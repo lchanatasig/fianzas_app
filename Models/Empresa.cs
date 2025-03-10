@@ -27,6 +27,10 @@ public partial class Empresa
 
     public bool? EmpEstado { get; set; }
 
+    public virtual ICollection<AnalisisFinanciero> AnalisisFinancieros { get; set; } = new List<AnalisisFinanciero>();
+
+    public virtual ICollection<ClasificacionEmpresa> ClasificacionEmpresas { get; set; } = new List<ClasificacionEmpresa>();
+
     public virtual TipoEmpresa EmpTipoEmpresa { get; set; } = null!;
 
     public virtual ICollection<EmpresaFinanza> EmpresaFinanzas { get; set; } = new List<EmpresaFinanza>();

@@ -18300,7 +18300,7 @@ span.flatpickr-weekday {
     align-items: center;
     text-align: center;
     margin: 20px 0;
-    font-size: 15px;color: #2e2f91;
+    font-size: 16px;color: #2e2f91;
     
 }
 
@@ -18316,3 +18316,42 @@ span.flatpickr-weekday {
         
         text-transform: uppercase;
     }
+
+    #iconos{
+        font-size:20px
+
+
+    }
+
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+}
+
+.fade-out {
+    opacity: 1;
+    animation: fadeOut 0.5s forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+    }
+}
+
+
+.valido {
+    border: 2px solid green;
+    background-color: #e6ffe6; /* Verde suave */
+}
+
+.invalido {
+    border: 2px solid red;
+    background-color: #ffe6e6; /* Rojo suave */
+}

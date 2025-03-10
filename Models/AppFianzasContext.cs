@@ -6,23 +6,104 @@ namespace fianzas_app.Models;
 
 public partial class AppFianzasContext : DbContext
 {
+    public AppFianzasContext()
+    {
+    }
+
     public AppFianzasContext(DbContextOptions<AppFianzasContext> options)
         : base(options)
     {
     }
 
+    public virtual DbSet<AnalisisFinanciero> AnalisisFinancieros { get; set; }
+
+    public virtual DbSet<ClasificacionEmpresa> ClasificacionEmpresas { get; set; }
+
     public virtual DbSet<Empresa> Empresas { get; set; }
 
     public virtual DbSet<EmpresaFinanza> EmpresaFinanzas { get; set; }
+
+    public virtual DbSet<HistorialEmpresa> HistorialEmpresas { get; set; }
 
     public virtual DbSet<Perfil> Perfils { get; set; }
 
     public virtual DbSet<TipoEmpresa> TipoEmpresas { get; set; }
 
+    public virtual DbSet<TipoSolicitud> TipoSolicituds { get; set; }
+
     public virtual DbSet<Usuario> Usuarios { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=app_fianzas;User Id=sa;Password=Sur2o22--;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<AnalisisFinanciero>(entity =>
+        {
+            entity.HasKey(e => e.AnfId).HasName("PK__analisis__B2AD49D17A05BF45");
+
+            entity.ToTable("analisis_financiero");
+
+            entity.Property(e => e.AnfId).HasColumnName("anf_id");
+            entity.Property(e => e.AnfAnalisisSf)
+                .HasMaxLength(1000)
+                .HasColumnName("anf_analisis_sf");
+            entity.Property(e => e.AnfCapCobertura)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("anf_cap_cobertura");
+            entity.Property(e => e.AnfCapitalPropio)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("anf_capital_propio");
+            entity.Property(e => e.AnfEmpresaId).HasColumnName("anf_empresa_id");
+            entity.Property(e => e.AnfEndeudamiento)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("anf_endeudamiento");
+            entity.Property(e => e.AnfLiquidez)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("anf_liquidez");
+            entity.Property(e => e.AnfRoa)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("anf_ROA");
+            entity.Property(e => e.AnfRoe)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("anf_ROE");
+            entity.Property(e => e.AnfSolvencia)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("anf_solvencia");
+
+            entity.HasOne(d => d.AnfEmpresa).WithMany(p => p.AnalisisFinancieros)
+                .HasForeignKey(d => d.AnfEmpresaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_analisis_financiero_empresa");
+        });
+
+        modelBuilder.Entity<ClasificacionEmpresa>(entity =>
+        {
+            entity.HasKey(e => e.ClempId).HasName("PK__clasific__BB50B9E9321C54CF");
+
+            entity.ToTable("clasificacion_empresa");
+
+            entity.Property(e => e.ClempId).HasColumnName("clemp_id");
+            entity.Property(e => e.ClempArchivoSoporte).HasColumnName("clemp_archivo_soporte");
+            entity.Property(e => e.ClempClasificacion)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength()
+                .HasColumnName("clemp_clasificacion");
+            entity.Property(e => e.ClempClienteC)
+                .HasMaxLength(100)
+                .HasColumnName("clemp_cliente_c");
+            entity.Property(e => e.ClempEmpresaId).HasColumnName("clemp_empresa_id");
+            entity.Property(e => e.ClempRango)
+                .HasMaxLength(255)
+                .HasColumnName("clemp_rango");
+
+            entity.HasOne(d => d.ClempEmpresa).WithMany(p => p.ClasificacionEmpresas)
+                .HasForeignKey(d => d.ClempEmpresaId)
+                .HasConstraintName("FK_clasificacion_empresa_empresa");
+        });
+
         modelBuilder.Entity<Empresa>(entity =>
         {
             entity.HasKey(e => e.EmpId).HasName("PK__empresa__1299A8617D71E496");
@@ -151,6 +232,121 @@ public partial class AppFianzasContext : DbContext
                 .HasConstraintName("FK_empresa_fianza_id");
         });
 
+        modelBuilder.Entity<HistorialEmpresa>(entity =>
+        {
+            entity.HasKey(e => e.HistId).HasName("PK__historia__D478390DE3F2A7A0");
+
+            entity.ToTable("historial_empresas");
+
+            entity.Property(e => e.HistId).HasColumnName("hist_id");
+            entity.Property(e => e.HistActivoC)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_activoC");
+            entity.Property(e => e.HistActivoD)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_activoD");
+            entity.Property(e => e.HistActivoF)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_activoF");
+            entity.Property(e => e.HistActivoO)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_activoO");
+            entity.Property(e => e.HistActivoT)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_activoT");
+            entity.Property(e => e.HistAnfAnalisisSf)
+                .HasMaxLength(1000)
+                .HasColumnName("hist_anf_analisis_sf");
+            entity.Property(e => e.HistAnfCapCobertura)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_anf_cap_cobertura");
+            entity.Property(e => e.HistAnfCapitalPropio)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_anf_capital_propio");
+            entity.Property(e => e.HistAnfEndeudamiento)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_anf_endeudamiento");
+            entity.Property(e => e.HistAnfLiquidez)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_anf_liquidez");
+            entity.Property(e => e.HistAnfRoa)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_anf_ROA");
+            entity.Property(e => e.HistAnfRoe)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_anf_ROE");
+            entity.Property(e => e.HistAnfSolvencia)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_anf_solvencia");
+            entity.Property(e => e.HistCapital)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_capital");
+            entity.Property(e => e.HistClempClasificacion)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength()
+                .HasColumnName("hist_clemp_clasificacion");
+            entity.Property(e => e.HistClempClienteC)
+                .HasMaxLength(100)
+                .HasColumnName("hist_clemp_cliente_c");
+            entity.Property(e => e.HistClempRango)
+                .HasMaxLength(255)
+                .HasColumnName("hist_clemp_rango");
+            entity.Property(e => e.HistCupoRestante)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_cupo_restante");
+            entity.Property(e => e.HistEmpresaId).HasColumnName("hist_empresa_id");
+            entity.Property(e => e.HistFechaActualizacion)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnName("hist_fecha_actualizacion");
+            entity.Property(e => e.HistObservacion)
+                .HasMaxLength(1000)
+                .HasColumnName("hist_observacion");
+            entity.Property(e => e.HistOtrasCp)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_otrasCP");
+            entity.Property(e => e.HistOtrasPer)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_otrasPer");
+            entity.Property(e => e.HistPasivoC)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_pasivoC");
+            entity.Property(e => e.HistPasivoD)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_pasivoD");
+            entity.Property(e => e.HistPasivoLp)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_pasivoLP");
+            entity.Property(e => e.HistPasivoT)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_pasivoT");
+            entity.Property(e => e.HistPatrimonioPasivo)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_patrimonio_pasivo");
+            entity.Property(e => e.HistPatrimonioT)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_patrimonioT");
+            entity.Property(e => e.HistPerdidas)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_perdidas");
+            entity.Property(e => e.HistReserva)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_reserva");
+            entity.Property(e => e.HistUsuarioId).HasColumnName("hist_usuario_id");
+            entity.Property(e => e.HistUtilidad)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_utilidad");
+            entity.Property(e => e.HistUtilidadE)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_utilidadE");
+            entity.Property(e => e.HistUtilidadesA)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_utilidadesA");
+            entity.Property(e => e.HistVentas)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("hist_ventas");
+        });
+
         modelBuilder.Entity<Perfil>(entity =>
         {
             entity.HasKey(e => e.PerfilId).HasName("PK__perfil__638DD32C543E1E4A");
@@ -182,6 +378,24 @@ public partial class AppFianzasContext : DbContext
             entity.Property(e => e.TempNombre)
                 .HasMaxLength(100)
                 .HasColumnName("temp_nombre");
+        });
+
+        modelBuilder.Entity<TipoSolicitud>(entity =>
+        {
+            entity.HasKey(e => e.TposId).HasName("PK__tipo_sol__58C73FCF367A4E23");
+
+            entity.ToTable("tipo_solicitud");
+
+            entity.Property(e => e.TposId).HasColumnName("tpos_id");
+            entity.Property(e => e.TposEstado)
+                .HasDefaultValue(1)
+                .HasColumnName("tpos_estado");
+            entity.Property(e => e.TposNombre)
+                .HasMaxLength(255)
+                .HasColumnName("tpos_nombre");
+            entity.Property(e => e.TposSiglas)
+                .HasMaxLength(255)
+                .HasColumnName("tpos_siglas");
         });
 
         modelBuilder.Entity<Usuario>(entity =>

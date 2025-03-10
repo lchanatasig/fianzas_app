@@ -29,6 +29,7 @@ builder.Services.AddScoped<AutenticacionService>();
 builder.Services.AddScoped<ListaService>();
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<EmpresaService>();
+builder.Services.AddScoped<SolicitudService>();
 
 var app = builder.Build();
 

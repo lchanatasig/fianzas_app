@@ -57,9 +57,12 @@
         public string ClempClienteC { get; set; }
         public string ClempClasificacion { get; set; }
         public string ClempRango { get; set; }
-        public byte[] ClempArchivoSoporte { get; set; }
+        public IFormFile ClempArchivoSoporte { get; set; }
 
         // Observación inicial
         public string HistObservacion { get; set; }
+        public decimal? CupoRestante { get; set; }
+        public DateTime? HistFechaActualizacion { get; set; }
+
     }
 }

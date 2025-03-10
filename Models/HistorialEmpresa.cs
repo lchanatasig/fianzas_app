@@ -47,6 +47,8 @@ public partial class HistorialEmpresa
 
     public decimal? HistPatrimonioT { get; set; }
 
+    public decimal? HistPatrimonioPasivo { get; set; }
+
     public decimal? HistVentas { get; set; }
 
     public decimal? HistUtilidad { get; set; }

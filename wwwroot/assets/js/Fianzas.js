@@ -69,59 +69,64 @@
     });
 
 
-    // Variable empresasData definida globalmente en la vista (si no, la puedes declarar aquí)
-    // Por ejemplo: var empresasData = window.empresasData;
     if (typeof empresasData !== 'undefined') {
-        // Al cambiar la selección de empresa, se actualizan el cupo disponible y los datos del solicitante
-        // Al cambiar la selección de empresa, se actualizan el cupo disponible, los datos del solicitante y se activa el campo montoFianza
         const empresaSelect = document.getElementById("empresaSelect");
+
         if (empresaSelect) {
             empresaSelect.addEventListener("change", function () {
-                var selectedId = this.value;
-                var cupo = 0;
-                if (selectedId) {
-                    var emp = empresasData.find(e => e.EmpresaId == parseInt(selectedId));
-                    if (emp) {
-                        // Si hay historial, obtenemos el cupo restante
-                        if (emp.HistorialEmpresas && emp.HistorialEmpresas.length > 0) {
-                            cupo = emp.HistorialEmpresas[0].HistorialCupoRestante;
-                        }
-                        // Asignamos los datos de la empresa a los campos del solicitante
-                        document.getElementById("solicitante").value = emp.NombreEmpresa || "";
-                        document.getElementById("direccionSolicitante").value = emp.DireccionEmpresa || "";
-                        document.getElementById("rucSolicitante").value = emp.CiEmpresa || "";
-                        document.getElementById("emailSolicitante").value = emp.EmailEmpresa || "";
-                        document.getElementById("telefonoSolicitante").value = emp.TelefonoEmpresa || "";
+                const selectedId = this.value;
+                let cupo = 0;
 
-                        // Asignamos los datos de la empresa a los campos del solicitante
-                        document.getElementById("solicitanteGA").value = emp.NombreEmpresa || "";
-                        document.getElementById("direccionSolicitanteGA").value = emp.DireccionEmpresa || "";
-                        document.getElementById("rucSolicitanteGA").value = emp.CiEmpresa || "";
-                        document.getElementById("emailSolicitanteGA").value = emp.EmailEmpresa || "";
-                        document.getElementById("telefonoSolicitanteGA").value = emp.TelefonoEmpresa || "";
-                        // Activar el campo montoFianza
+                if (selectedId) {
+                    // Encuentra la empresa seleccionada por su EmpId
+                    const emp = empresasData.find(e => e.EmpId === parseInt(selectedId));
+
+                    if (emp) {
+                        // Validación de Historial (por si trae más de un historial en el futuro)
+                        if (emp.Historial && emp.Historial.CupoRestante !== null) {
+                            cupo = emp.Historial.CupoRestante;
+                        }
+
+                        // Asignar valores al formulario de Solicitud
+                        document.getElementById("solicitante").value = emp.EmpNombre || "";
+                        document.getElementById("direccionSolicitante").value = emp.EmpUbicacion || "";
+                        document.getElementById("rucSolicitante").value = emp.EmpRUC || "";
+                        document.getElementById("emailSolicitante").value = emp.EmpEmail || "";
+                        document.getElementById("telefonoSolicitante").value = emp.EmpTelefono || "";
+
+                        // Asignar valores al formulario de Garantía Aduanera (GA)
+                        document.getElementById("solicitanteGA").value = emp.EmpNombre || "";
+                        document.getElementById("direccionSolicitanteGA").value = emp.EmpUbicacion || "";
+                        document.getElementById("rucSolicitanteGA").value = emp.EmpRUC || "";
+                        document.getElementById("emailSolicitanteGA").value = emp.EmpEmail || "";
+                        document.getElementById("telefonoSolicitanteGA").value = emp.EmpTelefono || "";
+
+                        // Habilitar los campos de monto de fianza
                         document.getElementById("montoFianza").disabled = false;
                         document.getElementById("montoFianzaGA").disabled = false;
                     }
                 } else {
-                    // Si no se selecciona empresa, limpiamos los campos
+                    // Limpiar campos si no se selecciona una empresa
                     document.getElementById("solicitante").value = "";
                     document.getElementById("direccionSolicitante").value = "";
                     document.getElementById("rucSolicitante").value = "";
                     document.getElementById("emailSolicitante").value = "";
                     document.getElementById("telefonoSolicitante").value = "";
 
-                    // Desactivar el campo montoFianza si no hay empresa seleccionada
                     document.getElementById("montoFianza").disabled = true;
+                    document.getElementById("montoFianzaGA").disabled = true;
                 }
-                // Actualizamos el campo de cupo disponible con formato 'es-ES'
+
+                // Mostrar el cupo disponible en el campo correspondiente
                 document.getElementById("cupoDisponible").value = parseFloat(cupo).toLocaleString('es-ES', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                 });
+
+                console.log("Empresa seleccionada ID:", selectedId);
+                console.log("Cupo restante:", cupo);
             });
         }
-
     }
 
 
@@ -225,6 +230,47 @@ document.addEventListener("DOMContentLoaded", function () {
     window.abrirRevision = abrirRevision;
 
     // Las funciones de aprobación y rechazo siguen igual...
+
+    const container = document.getElementById('prendasExcel');
+
+    const hot = new Handsontable(container, {
+        data: [],
+        colHeaders: [
+            'Tipo',
+            'Bien',
+            'Descripción',
+            'Valor',
+            'Ubicación',
+            'Custodio',
+            'Fecha de Constatación',
+            'Responsable de Constatación'
+        ],
+        columns: [
+            { data: 'PrendaTipo', type: 'text' },
+            { data: 'PrendaBien', type: 'text' },
+            { data: 'PrendaDescripcion', type: 'text' },
+            { data: 'PrendaValor', type: 'numeric', numericFormat: { pattern: '0,0.00' } },
+            { data: 'PrendaUbicacion', type: 'text' },
+            { data: 'PrendaCustodio', type: 'text' },
+            { data: 'PrendaFechaConstatacion', type: 'date', dateFormat: 'YYYY-MM-DD' },
+            { data: 'PrendaResponsableConstatacion', type: 'text' }
+        ],
+        rowHeaders: true,
+        minSpareRows: 1,
+        height: 'auto',
+        licenseKey: 'non-commercial-and-evaluation'
+    });
+
+    const form = document.getElementById('crearEmpresaForm');
+
+    form.addEventListener('submit', function (event) {
+        const prendasData = hot.getData();
+        const prendasJsonField = document.getElementById('PrendasJson');
+
+        prendasJsonField.value = JSON.stringify(prendasData);
+
+        console.log("Datos a enviar:", prendasJsonField.value);
+    });
 });
 
 // Función para validar monto de fianza y mostrar error si supera el cupo disponible
