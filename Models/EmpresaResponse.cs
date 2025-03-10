@@ -19,6 +19,8 @@
         public AnalisisFinancieroDto AnalisisFinanciero { get; set; }
         public ClasificacionEmpresaDto Clasificacion { get; set; }
         public HistorialEmpresaDto Historial { get; set; }  // Solo el campo cupo_restante
+
+        public SolicitudCompletaRequest SolicitudCompletaRequest { get; set; }
     }
 
     public class EmpresaFinanzasDto

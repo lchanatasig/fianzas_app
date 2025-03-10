@@ -9,6 +9,7 @@ public class AuthResponse
     public string UsuarioPassword { get; set; }
     public int? UsuarioEstado { get; set; }
     public int? PerfilId { get; set; }
+    public int? IdGenerado { get; set; }
     public string PerfilNombre { get; set; }
     public int? PerfilEstado { get; set; }
 }

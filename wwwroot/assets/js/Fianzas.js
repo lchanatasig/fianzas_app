@@ -1,16 +1,19 @@
-﻿document.addEventListener('DOMContentLoaded', function () {
+﻿// Porcentaje máximo de contrato según el tipo seleccionado
+let porcentajeMaximoContrato = 0;
+let contadorPrendas = 0;
 
-    // Función que oculta todos los formularios de prenda y muestra el correspondiente al valor seleccionado
+document.addEventListener('DOMContentLoaded', function () {
+
+    // ---------- MOSTRAR FORMULARIOS DE PRENDA ----------
     function mostrarFormularioPrenda() {
-        // Ocultar todos los formularios
         document.getElementById("formPrendaComercial").classList.add("d-none");
         document.getElementById("formPrendaIndustrial").classList.add("d-none");
         document.getElementById("formPrendaHipotecaria").classList.add("d-none");
+        document.getElementById("formPrendaCartaAval").classList.add("d-none");
 
-        // Verificar cuál radio está seleccionado
         const prendaSeleccionada = document.querySelector('input[name="prenda"]:checked');
+
         if (prendaSeleccionada) {
-            // Según el valor del radio, mostramos el formulario correspondiente
             switch (prendaSeleccionada.value) {
                 case "Prenda Comercial":
                     document.getElementById("formPrendaComercial").classList.remove("d-none");
@@ -21,218 +24,225 @@
                 case "Prenda Hipotecaria":
                     document.getElementById("formPrendaHipotecaria").classList.remove("d-none");
                     break;
+                case "Prenda Carta Aval":
+                    document.getElementById("formPrendaCartaAval").classList.remove("d-none");
+                    break;
                 default:
                     break;
             }
         }
     }
 
-    // Asignar el event listener a cada radio button con nombre "prenda"
     const radiosPrenda = document.querySelectorAll('input[name="prenda"]');
     radiosPrenda.forEach(radio => {
         radio.addEventListener("change", mostrarFormularioPrenda);
     });
 
-    // Función para mostrar/ocultar el apartado de documentos secundarios (prendas)
-    function validarMontoFianza() {
-        const monto = parseFloat(document.getElementById("montoFianza").value) || 0;
-        const documentosSecundarios = document.getElementById("documentosSecundarios");
+    // ---------- EVENTO CAMBIO DE TIPO DE FIANZA ----------
+    const tipoFianzaSelect = document.getElementById("tipoFianza");
+    tipoFianzaSelect.addEventListener("change", function () {
+        document.getElementById("datosContrato").classList.add("d-none");
+        document.getElementById("datosAduanera").classList.add("d-none");
 
-        if (monto > 416000) {
+        const tipoSeleccionado = parseInt(this.value, 10);
+        porcentajeMaximoContrato = 0;
+
+        if (tipoSeleccionado === 1) {
+            porcentajeMaximoContrato = 15; // FCC
+            document.getElementById("datosContrato").classList.remove("d-none");
+        } else if (tipoSeleccionado === 2) {
+            porcentajeMaximoContrato = 100; // GA
+            document.getElementById("datosAduanera").classList.remove("d-none");
+        } else if (tipoSeleccionado === 3) {
+            porcentajeMaximoContrato = 50; // BUA
+            document.getElementById("datosContrato").classList.remove("d-none");
+        }
+
+        console.log("Tipo Fianza Seleccionado:", tipoSeleccionado);
+        console.log("Porcentaje máximo permitido para el contrato:", porcentajeMaximoContrato);
+
+        document.getElementById("montocontrato").value = "";
+        document.getElementById("montoFianza").value = "";
+
+        validarMontoContrato();
+        validarMontoFianza();
+    });
+
+    // ---------- EVENTO CAMBIO DE EMPRESA ----------
+    if (typeof empresasData !== 'undefined') {
+        const empresaSelect = document.getElementById("empresaSelect");
+
+        empresaSelect.addEventListener("change", function () {
+            const selectedId = parseInt(this.value, 10);
+            let cupo = 0;
+
+            if (selectedId) {
+                const emp = empresasData.find(e => e.EmpId === selectedId);
+
+                if (emp && emp.Historial && emp.Historial.CupoRestante !== null) {
+                    cupo = emp.Historial.CupoRestante;
+                }
+
+                document.getElementById("solicitante").value = emp.EmpNombre || "";
+                document.getElementById("direccionSolicitante").value = emp.EmpUbicacion || "";
+                document.getElementById("rucSolicitante").value = emp.EmpRUC || "";
+                document.getElementById("emailSolicitante").value = emp.EmpEmail || "";
+                document.getElementById("telefonoSolicitante").value = emp.EmpTelefono || "";
+
+                document.getElementById("solicitanteGA").value = emp.EmpNombre || "";
+                document.getElementById("direccionSolicitanteGA").value = emp.EmpUbicacion || "";
+                document.getElementById("rucSolicitanteGA").value = emp.EmpRUC || "";
+                document.getElementById("emailSolicitanteGA").value = emp.EmpEmail || "";
+                document.getElementById("telefonoSolicitanteGA").value = emp.EmpTelefono || "";
+
+                document.getElementById("montoFianza").disabled = false;
+                document.getElementById("montoFianzaGA").disabled = false;
+
+                const cupoInput = document.getElementById("cupoDisponible");
+                cupoInput.value = parseFloat(cupo).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                cupoInput.dataset.valorNumerico = cupo;
+
+            } else {
+                limpiarCamposEmpresa();
+            }
+
+            validarMontoContrato();
+            validarMontoFianza();
+        });
+    }
+
+    function limpiarCamposEmpresa() {
+        const campos = ["solicitante", "direccionSolicitante", "rucSolicitante", "emailSolicitante", "telefonoSolicitante"];
+        const camposGA = ["solicitanteGA", "direccionSolicitanteGA", "rucSolicitanteGA", "emailSolicitanteGA", "telefonoSolicitanteGA"];
+
+        campos.forEach(id => document.getElementById(id).value = "");
+        camposGA.forEach(id => document.getElementById(id).value = "");
+
+        document.getElementById("montoFianza").disabled = true;
+        document.getElementById("montoFianzaGA").disabled = true;
+        document.getElementById("cupoDisponible").value = "";
+        document.getElementById("cupoDisponible").dataset.valorNumerico = 0;
+    }
+
+    // ---------- VALIDACIÓN DEL MONTO DEL CONTRATO ----------
+    function validarMontoContrato() {
+        const montocontratoElem = document.getElementById("montocontrato");
+        const cupoDisponibleElem = document.getElementById("cupoDisponible");
+        const errorMontoContrato = document.getElementById("errorMontoContrato");
+
+        const cupoDisponible = parseFloat(cupoDisponibleElem.dataset.valorNumerico) || 0;
+        const montoContrato = parseFloat(montocontratoElem.value) || 0;
+
+        if (porcentajeMaximoContrato === 0 || cupoDisponible === 0) {
+            mostrarError(errorMontoContrato, montocontratoElem, "Debe seleccionar una empresa y un tipo de fianza.");
+            return;
+        }
+
+        const maxPermitido = (cupoDisponible * porcentajeMaximoContrato) / 100;
+
+        if (montoContrato > maxPermitido) {
+            mostrarError(errorMontoContrato, montocontratoElem, `El monto del contrato supera el ${porcentajeMaximoContrato}% del cupo disponible ($${maxPermitido.toFixed(2)}).`);
+        } else {
+            ocultarError(errorMontoContrato, montocontratoElem);
+        }
+
+        console.log("Monto de Contrato:", montoContrato);
+        console.log("Máximo permitido:", maxPermitido);
+    }
+
+    // ---------- VALIDACIÓN DEL MONTO DE FIANZA ----------
+    function validarMontoFianza() {
+        const montoFianzaElem = document.getElementById("montoFianza");
+        const cupoDisponibleElem = document.getElementById("cupoDisponible");
+        const documentosSecundarios = document.getElementById("documentosSecundarios");
+        const errorMontoFianza = document.getElementById("errorMontoFianza");
+
+        const cupoDisponible = parseFloat(cupoDisponibleElem.dataset.valorNumerico) || 0;
+        const montoFianza = parseFloat(montoFianzaElem.value) || 0;
+
+        if (cupoDisponible === 0) {
+            mostrarError(errorMontoFianza, montoFianzaElem, "Debe seleccionar una empresa válida.");
+            return;
+        }
+
+        if (montoFianza > cupoDisponible) {
+            mostrarError(errorMontoFianza, montoFianzaElem, `El monto de la fianza no puede superar el cupo disponible ($${cupoDisponible.toFixed(2)}).`);
+        } else {
+            ocultarError(errorMontoFianza, montoFianzaElem);
+        }
+
+        if (montoFianza > 416000) {
             documentosSecundarios.classList.remove("d-none");
         } else {
             documentosSecundarios.classList.add("d-none");
         }
+
+        console.log("Monto de Fianza:", montoFianza);
+        console.log("Cupo disponible:", cupoDisponible);
     }
 
-    // Escuchar el evento "input" en el campo montoFianza
+    // ---------- CÁLCULO AUTOMÁTICO DEL PLAZO DE GARANTÍA EN DÍAS ----------
+    const inicioVigenciaElem = document.getElementById("inicioVigencia");
+    const finVigenciaElem = document.getElementById("finVigencia");
+    const plazoGarantiaDiasElem = document.getElementById("plazoGarantiaDias");
+
+    function calcularPlazoEnDias() {
+        const inicioVigencia = inicioVigenciaElem.value;
+        const finVigencia = finVigenciaElem.value;
+
+        if (!inicioVigencia || !finVigencia) {
+            plazoGarantiaDiasElem.value = "";
+            return;
+        }
+
+        const inicioDate = new Date(inicioVigencia);
+        const finDate = new Date(finVigencia);
+
+        const diferenciaMs = finDate - inicioDate;
+        const diferenciaDias = Math.ceil(diferenciaMs / (1000 * 60 * 60 * 24));
+
+        if (diferenciaDias < 0) {
+            plazoGarantiaDiasElem.value = "";
+            alert("La fecha de fin debe ser posterior a la de inicio.");
+            return;
+        }
+
+        plazoGarantiaDiasElem.value = diferenciaDias;
+
+        console.log("Inicio Vigencia:", inicioVigencia);
+        console.log("Fin Vigencia:", finVigencia);
+        console.log("Plazo de Garantía en días:", diferenciaDias);
+    }
+
+    inicioVigenciaElem.addEventListener("change", calcularPlazoEnDias);
+    finVigenciaElem.addEventListener("change", calcularPlazoEnDias);
+
+    // ---------- FUNCIONES AUXILIARES ----------
+    function mostrarError(errorElem, inputElem, mensaje) {
+        errorElem.textContent = mensaje;
+        errorElem.classList.remove("d-none");
+        inputElem.classList.add("is-invalid");
+    }
+
+    function ocultarError(errorElem, inputElem) {
+        errorElem.textContent = "";
+        errorElem.classList.add("d-none");
+        inputElem.classList.remove("is-invalid");
+    }
+
+    // ---------- EVENTOS INPUT PARA VALIDACIÓN EN TIEMPO REAL ----------
+    const montocontratoElem = document.getElementById("montocontrato");
+    if (montocontratoElem) {
+        montocontratoElem.addEventListener("input", validarMontoContrato);
+    }
+
     const montoFianzaElem = document.getElementById("montoFianza");
     if (montoFianzaElem) {
         montoFianzaElem.addEventListener("input", validarMontoFianza);
     }
 
-    // Event listener para el select tipoFianza para mostrar el formulario correspondiente
-    document.getElementById("tipoFianza").addEventListener("change", function () {
-        // Ocultar ambas secciones inicialmente
-        document.getElementById("datosContrato").classList.add("d-none");
-        document.getElementById("datosAduanera").classList.add("d-none");
-
-        // Obtener y convertir el valor seleccionado a número
-        var tipoSeleccionado = parseInt(this.value, 10);
-
-        // Suponiendo que para FCC (1) y BUA (3) se muestra "datosContrato" y para GA (2) "datosAduanera"
-        if (tipoSeleccionado === 1 || tipoSeleccionado === 3) {
-            document.getElementById("datosContrato").classList.remove("d-none");
-        } else if (tipoSeleccionado === 2) {
-            document.getElementById("datosAduanera").classList.remove("d-none");
-        }
-    });
-
-
-    if (typeof empresasData !== 'undefined') {
-        const empresaSelect = document.getElementById("empresaSelect");
-
-        if (empresaSelect) {
-            empresaSelect.addEventListener("change", function () {
-                const selectedId = this.value;
-                let cupo = 0;
-
-                if (selectedId) {
-                    // Encuentra la empresa seleccionada por su EmpId
-                    const emp = empresasData.find(e => e.EmpId === parseInt(selectedId));
-
-                    if (emp) {
-                        // Validación de Historial (por si trae más de un historial en el futuro)
-                        if (emp.Historial && emp.Historial.CupoRestante !== null) {
-                            cupo = emp.Historial.CupoRestante;
-                        }
-
-                        // Asignar valores al formulario de Solicitud
-                        document.getElementById("solicitante").value = emp.EmpNombre || "";
-                        document.getElementById("direccionSolicitante").value = emp.EmpUbicacion || "";
-                        document.getElementById("rucSolicitante").value = emp.EmpRUC || "";
-                        document.getElementById("emailSolicitante").value = emp.EmpEmail || "";
-                        document.getElementById("telefonoSolicitante").value = emp.EmpTelefono || "";
-
-                        // Asignar valores al formulario de Garantía Aduanera (GA)
-                        document.getElementById("solicitanteGA").value = emp.EmpNombre || "";
-                        document.getElementById("direccionSolicitanteGA").value = emp.EmpUbicacion || "";
-                        document.getElementById("rucSolicitanteGA").value = emp.EmpRUC || "";
-                        document.getElementById("emailSolicitanteGA").value = emp.EmpEmail || "";
-                        document.getElementById("telefonoSolicitanteGA").value = emp.EmpTelefono || "";
-
-                        // Habilitar los campos de monto de fianza
-                        document.getElementById("montoFianza").disabled = false;
-                        document.getElementById("montoFianzaGA").disabled = false;
-                    }
-                } else {
-                    // Limpiar campos si no se selecciona una empresa
-                    document.getElementById("solicitante").value = "";
-                    document.getElementById("direccionSolicitante").value = "";
-                    document.getElementById("rucSolicitante").value = "";
-                    document.getElementById("emailSolicitante").value = "";
-                    document.getElementById("telefonoSolicitante").value = "";
-
-                    document.getElementById("montoFianza").disabled = true;
-                    document.getElementById("montoFianzaGA").disabled = true;
-                }
-
-                // Mostrar el cupo disponible en el campo correspondiente
-                document.getElementById("cupoDisponible").value = parseFloat(cupo).toLocaleString('es-ES', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                });
-
-                console.log("Empresa seleccionada ID:", selectedId);
-                console.log("Cupo restante:", cupo);
-            });
-        }
-    }
-
-
-});
-(function () {
-    'use strict';
-    window.addEventListener('load', function () {
-        // Obtener todos los formularios que tienen la clase "needs-validation"
-        var forms = document.getElementsByClassName('needs-validation');
-
-        Array.prototype.filter.call(forms, function (form) {
-            form.addEventListener('submit', function (event) {
-                // Deshabilitar los controles que están en secciones ocultas para que no se validen
-                var hiddenControls = form.querySelectorAll('.d-none input, .d-none select, .d-none textarea');
-                hiddenControls.forEach(function (control) {
-                    control.disabled = true;
-                });
-
-                if (form.checkValidity() === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-
-                form.classList.add('was-validated');
-            }, false);
-        });
-    }, false);
-})();
-document.addEventListener("DOMContentLoaded", function () {
-
-    function abrirRevision(solicitudId, revisionTipo) {
-        var url = window.urlDetalleSolicitud + "?solicitudFianzaId=" + solicitudId;
-
-        fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Error al obtener la solicitud.");
-                }
-                return response.json();
-            })
-            .then(data => {
-                document.getElementById("solicitudIdRevision").value = data.solicitudFianzaId;
-                document.getElementById("solicitudIdLabel").innerText = data.solicitudFianzaId;
-                document.getElementById("empresaRevision").innerText = data.empresa;
-                let tipoId = data.tipoFianzaId;
-                if (tipoId === 1) {
-                    document.getElementById("tipoFianzaRevision").innerText = "Fiel Cumplimiento del Contrato";
-                } else if (tipoId === 2) {
-                    document.getElementById("tipoFianzaRevision").innerText = "Garantía Aduanera";
-                } else if (tipoId === 3) {
-                    document.getElementById("tipoFianzaRevision").innerText = "Buen Uso del Anticipo";
-                } else {
-                    document.getElementById("tipoFianzaRevision").innerText = "Sin datos";
-                }
-                document.getElementById("montoRevision").innerText = "$" + data.montoFianza.toLocaleString();
-
-                let documentosLista = document.getElementById("documentosListaRevision");
-                // En este caso, para pdfFCCSolicitud, concatenamos el parámetro de forma dinámica:
-                if (tipoId === 1) {
-                    documentosLista.innerHTML = `
-                        <li><a href="${window.pdfFCCSolicitud}?solicitudFianzaId=${solicitudId}" download>Solicitud de Fianza (FCC PDF)</a></li>
-                        <li><a href="${window.pdfFCCConvenio}?solicitudFianzaId=${solicitudId}"" download>Convenio de Fianza (FCC PDF)</a></li>
-                        <li><a href="${window.pdfFCCPagare}" download>Pagaré (FCC PDF)</a></li>
-                    `;
-                } else if (tipoId === 2) {
-                    documentosLista.innerHTML = `
-                        <li><a href="${window.pdfGASolicitud}" download>Solicitud de Fianza (GA PDF)</a></li>
-                        <li><a href="${window.pdfGAConvenio}" download>Convenio de Fianza (GA PDF)</a></li>
-                        <li><a href="${window.pdfGAPagare}" download>Pagaré (GA PDF)</a></li>
-                    `;
-                } else if (tipoId === 3) {
-                    documentosLista.innerHTML = `
-                        <li><a href="${window.pdfBUASolicitud}" download>Solicitud de Fianza (BUA PDF)</a></li>
-                        <li><a href="${window.pdfBUAConvenio}" download>Convenio de Fianza (BUA PDF)</a></li>
-                        <li><a href="${window.pdfBUAPagare}" download>Pagaré (BUA PDF)</a></li>
-                    `;
-                } else {
-                    documentosLista.innerHTML = `
-                        <li><a href="#" download>Solicitud de Fianza (PDF)</a></li>
-                        <li><a href="#" download>Convenio de Fianza (PDF)</a></li>
-                        <li><a href="#" download>Pagaré (PDF)</a></li>
-                    `;
-                }
-
-                if (data.montoFianza > 416000) {
-                    documentosLista.innerHTML += `<li><a href="${window.pdfDocumentoAdicional}" download>Documento Adicional (PDF)</a></li>`;
-                }
-
-                if (revisionTipo === 'Tecnico') {
-                    document.getElementById("revisionLabel").innerText = "Revisión Técnica de Solicitud";
-                } else if (revisionTipo === 'Legal') {
-                    document.getElementById("revisionLabel").innerText = "Revisión Legal de Solicitud";
-                }
-            })
-            .catch(error => {
-                console.error("Error al cargar la solicitud:", error);
-                alert("No se pudieron cargar los datos de la solicitud.");
-            });
-    }
-
-    window.abrirRevision = abrirRevision;
-
-    // Las funciones de aprobación y rechazo siguen igual...
-
+    // ============= HANDSONTABLE PARA LAS PRENDAS =============
     const container = document.getElementById('prendasExcel');
-
     const hot = new Handsontable(container, {
         data: [],
         colHeaders: [
@@ -246,14 +256,14 @@ document.addEventListener("DOMContentLoaded", function () {
             'Responsable de Constatación'
         ],
         columns: [
-            { data: 'PrendaTipo', type: 'text' },
-            { data: 'PrendaBien', type: 'text' },
-            { data: 'PrendaDescripcion', type: 'text' },
-            { data: 'PrendaValor', type: 'numeric', numericFormat: { pattern: '0,0.00' } },
-            { data: 'PrendaUbicacion', type: 'text' },
-            { data: 'PrendaCustodio', type: 'text' },
-            { data: 'PrendaFechaConstatacion', type: 'date', dateFormat: 'YYYY-MM-DD' },
-            { data: 'PrendaResponsableConstatacion', type: 'text' }
+            { data: 'PrenTipo', type: 'text' },
+            { data: 'PrenBien', type: 'text' },
+            { data: 'PrenDescripcion', type: 'text' },
+            { data: 'PrenValor', type: 'numeric', numericFormat: { pattern: '0,0.00' } },
+            { data: 'PrenUbicacion', type: 'text' },
+            { data: 'PrenCustodio', type: 'text' },
+            { data: 'PrenFechaConstatacion', type: 'date', dateFormat: 'YYYY-MM-DD' },
+            { data: 'PrenResponsableConstatacion', type: 'text' }
         ],
         rowHeaders: true,
         minSpareRows: 1,
@@ -261,54 +271,45 @@ document.addEventListener("DOMContentLoaded", function () {
         licenseKey: 'non-commercial-and-evaluation'
     });
 
-    const form = document.getElementById('crearEmpresaForm');
+    const form = document.getElementById('solicitudFianzaForm');
 
     form.addEventListener('submit', function (event) {
-        const prendasData = hot.getData();
+        // Cambia getData() a getSourceData()
+        const prendasData = hot.getSourceData();
+
+        // Opcionalmente filtra filas vacías
+        const prendasFiltradas = prendasData.filter(prenda =>
+            Object.values(prenda).some(x => x !== null && x !== '')
+        );
+
         const prendasJsonField = document.getElementById('PrendasJson');
 
-        prendasJsonField.value = JSON.stringify(prendasData);
+        prendasJsonField.value = JSON.stringify(prendasFiltradas);
 
-        console.log("Datos a enviar:", prendasJsonField.value);
+        console.log("Prendas JSON a enviar:", prendasJsonField.value);
     });
+
+
 });
 
-// Función para validar monto de fianza y mostrar error si supera el cupo disponible
-function validarMontoFianza() {
-    const montoFianzaElem = document.getElementById("montoFianza");
-    const cupoDisponibleElem = document.getElementById("cupoDisponible");
-    const documentosSecundarios = document.getElementById("documentosSecundarios");
-    const errorMontoFianza = document.getElementById("errorMontoFianza"); // Mensaje de error
+// ---------- BOOTSTRAP VALIDACIÓN GENERAL ----------
+(function () {
+    'use strict';
+    window.addEventListener('load', function () {
+        const forms = document.getElementsByClassName('needs-validation');
 
-    const montoFianza = parseFloat(montoFianzaElem.value) || 0;
-    const cupoDisponible = parseFloat(cupoDisponibleElem.value.replace(/\./g, '').replace(',', '.')) || 0; // Convertir formato europeo
+        Array.prototype.filter.call(forms, function (form) {
+            form.addEventListener('submit', function (event) {
+                const hiddenControls = form.querySelectorAll('.d-none input, .d-none select, .d-none textarea');
+                hiddenControls.forEach(control => control.disabled = true);
 
-    // Si el monto de la fianza es mayor que el cupo disponible, mostrar error
-    if (montoFianza > cupoDisponible) {
-        errorMontoFianza.textContent = "El monto de la fianza supera el cupo disponible.";
-        errorMontoFianza.classList.remove("d-none"); // Mostrar el mensaje de error
-        montoFianzaElem.classList.add("is-invalid"); // Resaltar el campo con error
-    } else {
-        errorMontoFianza.textContent = "";
-        errorMontoFianza.classList.add("d-none"); // Ocultar el mensaje de error
-        montoFianzaElem.classList.remove("is-invalid"); // Remover el error del campo
-    }
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
 
-    // Si el monto es mayor a 416000, mostrar documentos secundarios
-    if (montoFianza > 416000) {
-        documentosSecundarios.classList.remove("d-none");
-    } else {
-        documentosSecundarios.classList.add("d-none");
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    // Llamar a la función automáticamente al cargar la página
-    validarMontoFianza();
-
-    // Asignar el evento para que se ejecute en cada cambio del monto
-    const montoFianzaElem = document.getElementById("montoFianza");
-    if (montoFianzaElem) {
-        montoFianzaElem.addEventListener("input", validarMontoFianza);
-    }
-});
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
