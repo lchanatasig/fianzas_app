@@ -38,13 +38,51 @@ document.addEventListener('DOMContentLoaded', function () {
         radio.addEventListener("change", mostrarFormularioPrenda);
     });
 
-    // ---------- EVENTO CAMBIO DE TIPO DE FIANZA ----------
-    const tipoFianzaSelect = document.getElementById("tipoFianza");
-    tipoFianzaSelect.addEventListener("change", function () {
+    // ---------- FUNCIONES SEPARADAS PARA MAYOR CLARIDAD ----------
+
+    function cargarDatosEmpresa(empresaId) {
+        const selectedId = parseInt(empresaId, 10);
+        let cupo = 0;
+
+        if (selectedId) {
+            const emp = empresasData.find(e => e.EmpId === selectedId);
+            if (emp && emp.Historial && emp.Historial.CupoRestante !== null) {
+                cupo = emp.Historial.CupoRestante;
+            }
+
+            document.getElementById("solicitante").value = emp.EmpNombre || "";
+            document.getElementById("direccionSolicitante").value = emp.EmpUbicacion || "";
+            document.getElementById("rucSolicitante").value = emp.EmpRUC || "";
+            document.getElementById("emailSolicitante").value = emp.EmpEmail || "";
+            document.getElementById("telefonoSolicitante").value = emp.EmpTelefono || "";
+
+            document.getElementById("solicitanteGA").value = emp.EmpNombre || "";
+            document.getElementById("direccionSolicitanteGA").value = emp.EmpUbicacion || "";
+            document.getElementById("rucSolicitanteGA").value = emp.EmpRUC || "";
+            document.getElementById("emailSolicitanteGA").value = emp.EmpEmail || "";
+            document.getElementById("telefonoSolicitanteGA").value = emp.EmpTelefono || "";
+
+            document.getElementById("montoFianza").disabled = false;
+            document.getElementById("montoFianzaGA").disabled = false;
+
+            const cupoInput = document.getElementById("cupoDisponible");
+            cupoInput.value = parseFloat(cupo).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            cupoInput.dataset.valorNumerico = cupo;
+
+        } else {
+            limpiarCamposEmpresa();
+        }
+
+        validarMontoContrato();
+        validarMontoFianza();
+    }
+
+    function cargarTipoFianza(tipoSeleccionado) {
+        tipoSeleccionado = parseInt(tipoSeleccionado, 10);
+
         document.getElementById("datosContrato").classList.add("d-none");
         document.getElementById("datosAduanera").classList.add("d-none");
 
-        const tipoSeleccionado = parseInt(this.value, 10);
         porcentajeMaximoContrato = 0;
 
         if (tipoSeleccionado === 1) {
@@ -58,14 +96,17 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById("datosContrato").classList.remove("d-none");
         }
 
-        console.log("Tipo Fianza Seleccionado:", tipoSeleccionado);
-        console.log("Porcentaje máximo permitido para el contrato:", porcentajeMaximoContrato);
-
         document.getElementById("montocontrato").value = "";
         document.getElementById("montoFianza").value = "";
 
         validarMontoContrato();
         validarMontoFianza();
+    }
+
+    // ---------- EVENTO CAMBIO DE TIPO DE FIANZA ----------
+    const tipoFianzaSelect = document.getElementById("tipoFianza");
+    tipoFianzaSelect.addEventListener("change", function () {
+        cargarTipoFianza(this.value);
     });
 
     // ---------- EVENTO CAMBIO DE EMPRESA ----------
@@ -73,41 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const empresaSelect = document.getElementById("empresaSelect");
 
         empresaSelect.addEventListener("change", function () {
-            const selectedId = parseInt(this.value, 10);
-            let cupo = 0;
-
-            if (selectedId) {
-                const emp = empresasData.find(e => e.EmpId === selectedId);
-
-                if (emp && emp.Historial && emp.Historial.CupoRestante !== null) {
-                    cupo = emp.Historial.CupoRestante;
-                }
-
-                document.getElementById("solicitante").value = emp.EmpNombre || "";
-                document.getElementById("direccionSolicitante").value = emp.EmpUbicacion || "";
-                document.getElementById("rucSolicitante").value = emp.EmpRUC || "";
-                document.getElementById("emailSolicitante").value = emp.EmpEmail || "";
-                document.getElementById("telefonoSolicitante").value = emp.EmpTelefono || "";
-
-                document.getElementById("solicitanteGA").value = emp.EmpNombre || "";
-                document.getElementById("direccionSolicitanteGA").value = emp.EmpUbicacion || "";
-                document.getElementById("rucSolicitanteGA").value = emp.EmpRUC || "";
-                document.getElementById("emailSolicitanteGA").value = emp.EmpEmail || "";
-                document.getElementById("telefonoSolicitanteGA").value = emp.EmpTelefono || "";
-
-                document.getElementById("montoFianza").disabled = false;
-                document.getElementById("montoFianzaGA").disabled = false;
-
-                const cupoInput = document.getElementById("cupoDisponible");
-                cupoInput.value = parseFloat(cupo).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                cupoInput.dataset.valorNumerico = cupo;
-
-            } else {
-                limpiarCamposEmpresa();
-            }
-
-            validarMontoContrato();
-            validarMontoFianza();
+            cargarDatosEmpresa(this.value);
         });
     }
 
@@ -145,9 +152,6 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             ocultarError(errorMontoContrato, montocontratoElem);
         }
-
-        console.log("Monto de Contrato:", montoContrato);
-        console.log("Máximo permitido:", maxPermitido);
     }
 
     // ---------- VALIDACIÓN DEL MONTO DE FIANZA ----------
@@ -176,9 +180,6 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             documentosSecundarios.classList.add("d-none");
         }
-
-        console.log("Monto de Fianza:", montoFianza);
-        console.log("Cupo disponible:", cupoDisponible);
     }
 
     // ---------- CÁLCULO AUTOMÁTICO DEL PLAZO DE GARANTÍA EN DÍAS ----------
@@ -208,10 +209,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         plazoGarantiaDiasElem.value = diferenciaDias;
-
-        console.log("Inicio Vigencia:", inicioVigencia);
-        console.log("Fin Vigencia:", finVigencia);
-        console.log("Plazo de Garantía en días:", diferenciaDias);
     }
 
     inicioVigenciaElem.addEventListener("change", calcularPlazoEnDias);
@@ -272,23 +269,26 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const form = document.getElementById('solicitudFianzaForm');
-
     form.addEventListener('submit', function (event) {
-        // Cambia getData() a getSourceData()
         const prendasData = hot.getSourceData();
-
-        // Opcionalmente filtra filas vacías
         const prendasFiltradas = prendasData.filter(prenda =>
             Object.values(prenda).some(x => x !== null && x !== '')
         );
-
         const prendasJsonField = document.getElementById('PrendasJson');
-
         prendasJsonField.value = JSON.stringify(prendasFiltradas);
-
-        console.log("Prendas JSON a enviar:", prendasJsonField.value);
     });
 
+    // ---------- DISPARAR EVENTOS 'CHANGE' AL CARGAR LA VISTA ----------
+    if (typeof empresasData !== 'undefined') {
+        const empresaSelect = document.getElementById("empresaSelect");
+        if (empresaSelect && empresaSelect.value) {
+            cargarDatosEmpresa(empresaSelect.value);
+        }
+    }
+
+    if (tipoFianzaSelect && tipoFianzaSelect.value) {
+        cargarTipoFianza(tipoFianzaSelect.value);
+    }
 
 });
 
@@ -297,7 +297,6 @@ document.addEventListener('DOMContentLoaded', function () {
     'use strict';
     window.addEventListener('load', function () {
         const forms = document.getElementsByClassName('needs-validation');
-
         Array.prototype.filter.call(forms, function (form) {
             form.addEventListener('submit', function (event) {
                 const hiddenControls = form.querySelectorAll('.d-none input, .d-none select, .d-none textarea');

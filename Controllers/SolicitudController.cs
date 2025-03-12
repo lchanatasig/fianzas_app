@@ -23,6 +23,20 @@ namespace fianzas_app.Controllers
             _empresaService = empresaService;
         }
 
+
+        // GET: solicitudes/listar
+        [HttpGet("Listado-Solicitudes")]
+        public async Task<IActionResult> ListarSolicitudes()
+        {
+            var solicitudes = await _solicitudService.ListarSolicitudesCompletasAsync();
+
+            // Leer TempData para mensajes de éxito/error que vengan de otras acciones (crear/editar/eliminar)
+            ViewBag.MensajeExito = TempData["SuccessMessage"];
+            ViewBag.MensajeError = TempData["ErrorMessage"];
+
+            return View("ListarSolicitudes", solicitudes); // Vista Razor en Views/Solicitudes/ListarSolicitudes.cshtml
+        }
+
         [HttpGet("Registro-Fianza")]
         public async Task<IActionResult> RegistrarSolicitudFianza()
         {
@@ -40,7 +54,7 @@ namespace fianzas_app.Controllers
             if (request == null || request.SfEmpId <= 0 || request.SfMontoFianza <= 0)
             {
                 TempData["Error"] = "Datos inválidos para registrar la solicitud.";
-                return RedirectToAction(nameof(CrearSolicitud));
+                return RedirectToAction(nameof(RegistrarSolicitudFianza));
             }
 
             // ✅ DESERIALIZACIÓN DEL JSON (PrendasJson viene del input hidden)
@@ -53,36 +67,50 @@ namespace fianzas_app.Controllers
                 catch (Exception ex)
                 {
                     TempData["Error"] = "Error al procesar las prendas: " + ex.Message;
-                    return RedirectToAction(nameof(CrearSolicitud));
+                    return RedirectToAction(nameof(RegistrarSolicitudFianza));
                 }
             }
 
-            // ✅ PROCESAR ARCHIVO SUBIDO
-            if (PrenArchivo != null && PrenArchivo.Length > 0)
+            // ✅ LÓGICA PARA VERIFICAR SI REQUIERE PRENDA
+            bool requierePrenda = request.SfMontoFianza > 416000; // Aquí la regla de negocio, ajústala si cambia.
+
+            if (requierePrenda)
             {
+                // Si requiere prenda y no hay ninguna asociada, error.
+                if (request.Prendas == null || request.Prendas.Count == 0)
+                {
+                    TempData["ErrorMessage"] = "Debe registrar al menos una prenda para este tipo de solicitud.";
+                    return RedirectToAction(nameof(RegistrarSolicitudFianza));
+                }
+
+                // Si requiere archivo y no se subió, error.
+                if (PrenArchivo == null || PrenArchivo.Length == 0)
+                {
+                    TempData["ErrorMessage"] = "Debe adjuntar un archivo para la prenda.";
+                    return RedirectToAction(nameof(RegistrarSolicitudFianza));
+                }
+
+                // ✅ Si todo bien, procesamos el archivo y lo asignamos a la prenda (a la primera en este caso).
                 using (var memoryStream = new MemoryStream())
                 {
                     await PrenArchivo.CopyToAsync(memoryStream);
                     var archivoBytes = memoryStream.ToArray();
 
-                    // 🔥 Aquí decides a qué prenda asignarlo.
-                    // Si hay una prenda, se lo asignamos a la primera.
-                    if (request.Prendas != null && request.Prendas.Count > 0)
-                    {
-                        request.Prendas[0].PrenArchivo = archivoBytes;  // Puedes cambiar el índice según la lógica que prefieras.
-                    }
-                    else
-                    {
-                        TempData["Error"] = "No se encontraron prendas para asociar el archivo.";
-                        return RedirectToAction(nameof(RegistrarSolicitudFianza));
-                    }
+                    request.Prendas[0].PrenArchivo = archivoBytes; // Puedes cambiar el índice según lógica.
                 }
             }
             else
             {
-                // Opcional: validar si es obligatorio subir el archivo
-                TempData["Error"] = "Debe adjuntar un archivo para la prenda.";
-                return RedirectToAction(nameof(RegistrarSolicitudFianza));
+                // Si NO requiere prenda, pero subieron un archivo, es opcional hacer algo o ignorarlo.
+                if (PrenArchivo != null && PrenArchivo.Length > 0)
+                {
+                    // Puedes ignorarlo o dar una advertencia.
+                    TempData["WarningMessage"] = "Archivo adjunto cargado, pero no es necesario para esta solicitud.";
+                    // O si quieres, puedes eliminar el archivo: no hacemos nada.
+                }
+
+                // Y puedes también ignorar el request.Prendas si no es necesario.
+                request.Prendas = new List<PrendaDto>(); // Aseguramos que no pase null si el servicio lo espera como lista vacía.
             }
 
             // ✅ LLAMAR AL SERVICIO
@@ -95,8 +123,28 @@ namespace fianzas_app.Controllers
             }
 
             TempData["Success"] = response.Mensaje;
-            return RedirectToAction(nameof(RegistrarSolicitudFianza));
+            return RedirectToAction(nameof(ListarSolicitudes));
         }
+
+        [HttpGet("editar-solicitud/{id}")]
+        public async Task<IActionResult> EditarSolicitudFianza(int id)
+        {
+            var solicitud = await _solicitudService.ObtenerSolicitudPorIdAsync(id);
+            var empresas = await _empresaService.ListarEmpresasAsync();
+            ViewBag.TiposSolicitud = await _listaService.ListarTipoFianzasAsync();
+
+            ViewBag.Empresas = empresas;
+            
+            if (solicitud == null || solicitud.SfId == 0)
+            {
+                TempData["ErrorMessage"] = "Solicitud no encontrada.";
+                return RedirectToAction("Index");
+            }
+            ModelState.Clear();
+
+            return View(solicitud);
+        }
+
 
 
     }

@@ -1,8 +1,8 @@
-﻿@model List<EmpresaResponse>
+﻿@model SolicitudFianzaDetalleResponse
 
 
 @{
-    ViewBag.Title = "Solicitar Fianza";
+    ViewBag.Title = "Editar Fianza";
     ViewBag.pTitle = "Fianzas";
     ViewBag.pageTitle = "Otorgar Fianza";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -20,27 +20,27 @@
 @using System.Text.Json
 
 <div class="row">
-    <form id="solicitudFianzaForm" asp-action="CrearSolicitud" asp-controller="Solicitud" method="post" enctype="multipart/form-data" class="row g-3 needs-validation" novalidate>
+    <form id="solicitudFianzaForm" asp-action="EditarSolicitud" asp-controller="Solicitud" method="post" enctype="multipart/form-data" class="row g-3 needs-validation" novalidate>
         <input type="hidden" name="SfUsuarioId" id="usuarioId" value="@usuarioId" />
 
         <div class="col-xxl-12">
             <div class="card mt-xxl-n5">
                 <div class="card-body p-4">
-                    <h2 class="mb-0">Creación y Validación de Solicitud</h2>
-<hr />
+                    <h2 class="mb-0">Editar y validar la Solicitud</h2>
+                    <hr />
                     <div class="tab-content">
                         <div class="tab-pane active" id="personalDetails" role="tabpanel">
                             <div class="row">
                                 <!-- Selección de la Empresa -->
                                 <div class="col-md-3">
                                     <label for="empresaSelect" class="form-label">Empresa</label>
-                                    <select class="form-control" data-choices data-choices-sorting-false required id="empresaSelect" name="SfEmpId">
+                                    <select class="form-control" data-choices data-choices-sorting-false required asp-for="SfEmpId" id="empresaSelect" name="SfEmpId">
                                         <option value="">Seleccione una empresa</option>
                                         @foreach (var empresa in ViewBag.Empresas)
                                         {
                                             <option value="@empresa.EmpId">@empresa.EmpNombre</option>
                                         }
-                                    </select>
+                                    </select> 
                                     <div class="invalid-feedback">Seleccione una empresa válida.</div>
                                 </div>
                                 <div class="col-md-3">
@@ -51,7 +51,7 @@
                                 <!-- Tipo de Fianza -->
                                 <div class="col-md-6">
                                     <label for="tipoFianza" class="form-label">Tipo de Fianza</label>
-                                    <select class="form-control" data-choices data-choices-sorting-false required id="tipoFianza" name="SfTposId">
+                                    <select class="form-control" data-choices data-choices-sorting-false required id="tipoFianza" asp-for="SfTposId" name="SfTposId">
                                         <option value="">Seleccione un tipo de fianza...</option>
                                         @foreach (var tipo in ViewBag.TiposSolicitud)
                                         {
@@ -72,8 +72,8 @@
                                         <div class="col-md-3">
                                             <label for="tipoSector" class="form-label">Tipo de Sector</label>
                                             <!-- Este valor se usará para sectorFianza -->
-                                            <select class="form-select" id="tipoSector" name="SfSectorFianza" required>
-                                                <option selected disabled  value="">Seleccione un tipo de sector...</option>
+                                            <select class="form-select" id="tipoSector" name="SfSectorFianza" asp-for="SfSectorFianza" required>
+                                                <option selected disabled value="">Seleccione un tipo de sector...</option>
                                                 <option value="Público">Público</option>
                                                 <option value="Privado">Privado</option>
                                             </select>
@@ -113,31 +113,31 @@
                                         <div class="col-md-3">
                                             <label for="beneficiario" class="form-label">Beneficiario</label>
                                             <!-- Mapeado a benefNombre -->
-                                            <input type="text" class="form-control" id="beneficiario" name="BenNombre" required>
+                                            <input type="text" class="form-control" id="beneficiario" asp-for="BenNombre" name="BenNombre" required>
                                             <div class="invalid-feedback">Ingrese el nombre del beneficiario.</div>
                                         </div>
                                         <div class="col-md-3">
                                             <label for="direccionBeneficiario" class="form-label">Dirección</label>
                                             <!-- Mapeado a benefDireccion -->
-                                            <input type="text" class="form-control" id="direccionBeneficiario" name="BenDireccion" required>
+                                            <input type="text" class="form-control" id="direccionBeneficiario" asp-for="BenDireccion" name="BenDireccion" required>
                                             <div class="invalid-feedback">Ingrese la dirección del beneficiario.</div>
                                         </div>
                                         <div class="col-md-3">
                                             <label for="rucBeneficiario" class="form-label">CI/RUC</label>
                                             <!-- Mapeado a benefCiRuc -->
-                                            <input type="text" class="form-control" id="rucBeneficiario" name="BenCiRuc" required>
+                                            <input type="text" class="form-control" id="rucBeneficiario" asp-for="BenCiRuc" name="BenCiRuc" required>
                                             <div class="invalid-feedback">Ingrese el CI o RUC del beneficiario.</div>
                                         </div>
                                         <div class="col-md-3">
                                             <label for="emailBeneficiario" class="form-label">E-mail</label>
                                             <!-- Mapeado a benefEmail -->
-                                            <input type="email" class="form-control" id="emailBeneficiario" name="BenEmail" required>
+                                            <input type="email" class="form-control" id="emailBeneficiario" asp-for="BenEmail" name="BenEmail" required>
                                             <div class="invalid-feedback">Ingrese un e-mail válido.</div>
                                         </div>
                                         <div class="col-md-3">
                                             <label for="telefonoBeneficiario" class="form-label">Teléfono/Celular</label>
                                             <!-- Mapeado a benefTelefono -->
-                                            <input type="text" class="form-control" id="telefonoBeneficiario" name="BenTelefono" required>
+                                            <input type="text" class="form-control" id="telefonoBeneficiario" asp-for="BenTelefono" name="BenTelefono" required>
                                             <div class="invalid-feedback">Ingrese un teléfono o celular.</div>
                                         </div>
                                         <div class="divider-with-text">
@@ -145,39 +145,41 @@
                                         </div>
                                         <div class="col-md-3">
                                             <label for="montocontrato" class="form-label">Monto del contrato ($)</label>
-                                            <input type="text" class="form-control" id="montocontrato" name="SfMontoContrato" required>
+                                            <input type="number" class="form-control" id="montocontrato" name="SfMontoContrato" asp-for="SfMontoContrato" required>
                                             <div class="invalid-feedback">Ingrese el monto del contrato.</div>
                                             <small id="errorMontoContrato" class="text-danger d-none"></small>
                                         </div>
 
                                         <div class="col-md-3">
                                             <label for="montoFianza" class="form-label">Monto de la Fianza / Garantía ($)</label>
-                                            <input type="number" class="form-control" id="montoFianza" name="SfMontoFianza" required disabled>
+                                            <input type="number" class="form-control" id="montoFianza" name="SfMontoFianza"
+                                                   value="@(Model.SfMontoFianza.Value.ToString("F2", System.Globalization.CultureInfo.InvariantCulture))"
+                                                   step="any" required readonly />
                                             <div class="invalid-feedback">Ingrese un monto válido.</div>
                                             <small id="errorMontoFianza" class="text-danger d-none"></small>
                                         </div>
 
-                                     
-                                    
+
+
                                         <div class="col-md-3">
                                             <label for="inicioVigencia" class="form-label">Inicio Vigencia</label>
-                                            <input type="date" class="form-control" id="inicioVigencia" name="SfInicioVigencia" required>
+                                            <input type="date" class="form-control" id="inicioVigencia" name="SfInicioVigencia" asp-for="SfInicioVigencia" required>
                                         </div>
 
                                         <div class="col-md-3">
                                             <label for="finVigencia" class="form-label">Fin de Vigencia</label>
-                                            <input type="date" class="form-control" id="finVigencia" name="SfFinVigencia" required>
+                                            <input type="date" class="form-control" id="finVigencia" name="SfFinVigencia" asp-for="SfFinVigencia" required>
                                         </div>
 
                                         <div class="col-md-3">
                                             <label for="plazoGarantiaDias" class="form-label">Plazo de Garantías (Días)</label>
-                                            <input type="number" class="form-control" id="plazoGarantiaDias" name="SfPlazoGarantiaDias" readonly>
+                                            <input type="number" class="form-control" id="plazoGarantiaDias" name="SfPlazoGarantiaDias" asp-for="SfPlazoGarantiaDias" readonly>
                                         </div>
 
                                         <div class="col-md-12">
                                             <label for="descripcionRiesgo" class="form-label">OBJETO DEL CONTRATO (descripción del riesgo a garantizar):</label>
                                             <!-- Mapeado a objetoContrato -->
-                                            <textarea class="form-control" rows="3" id="descripcionRiesgo" name="SfObjetoContrato" required></textarea>
+                                            <textarea class="form-control" rows="3" id="descripcionRiesgo" name="SfObjetoContrato" asp-for="SfObjetoContrato" required></textarea>
                                             <div class="invalid-feedback">Ingrese la descripción del riesgo.</div>
                                         </div>
                                     </div>
@@ -287,7 +289,7 @@
                                         <hr />
                                         <h4>Datos para Prenda Comercial</h4>
 
-                                        
+
                                         <!-- Handsontable Prendas -->
                                         <div id="prendasExcel" class="col-md-12" style="width: 100%; height: 400px; overflow: hidden; margin-bottom: 20px;"></div>
 
@@ -339,7 +341,7 @@
                                     </div>
 
 
-                               
+
                                 </div>
                             </div>
                         </div>

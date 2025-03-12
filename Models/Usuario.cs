@@ -19,5 +19,7 @@ public partial class Usuario
 
     public int? UsuarioEstado { get; set; }
 
+    public virtual ICollection<SolicitudHistorialFianza> SolicitudHistorialFianzas { get; set; } = new List<SolicitudHistorialFianza>();
+
     public virtual Perfil? UsuarioPerfil { get; set; }
 }

@@ -34,4 +34,6 @@ public partial class Empresa
     public virtual TipoEmpresa EmpTipoEmpresa { get; set; } = null!;
 
     public virtual ICollection<EmpresaFinanza> EmpresaFinanzas { get; set; } = new List<EmpresaFinanza>();
+
+    public virtual ICollection<SolicitudFianza> SolicitudFianzas { get; set; } = new List<SolicitudFianza>();
 }

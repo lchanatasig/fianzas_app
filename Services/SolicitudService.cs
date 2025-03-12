@@ -35,63 +35,52 @@ namespace fianzas_app.Services
                     {
                         command.CommandType = CommandType.StoredProcedure;
 
-                        // --- Agregar parámetros ---
-                        command.Parameters.AddWithValue("@ben_id", request.BenId ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@ben_nombre", request.BenNombre ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@ben_direccion", request.BenDireccion ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@ben_ci_ruc", request.BenCiRuc ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@ben_email", request.BenEmail ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@ben_telefono", request.BenTelefono ?? (object)DBNull.Value);
+                        // 1. Beneficiario
+                        command.Parameters.Add("@ben_id", SqlDbType.Int).Value = (object?)request.BenId ?? DBNull.Value;
+                        command.Parameters.Add("@ben_nombre", SqlDbType.NVarChar, 255).Value = (object?)request.BenNombre ?? DBNull.Value;
+                        command.Parameters.Add("@ben_direccion", SqlDbType.NVarChar, 255).Value = (object?)request.BenDireccion ?? DBNull.Value;
+                        command.Parameters.Add("@ben_ci_ruc", SqlDbType.NVarChar, 13).Value = (object?)request.BenCiRuc ?? DBNull.Value;
+                        command.Parameters.Add("@ben_email", SqlDbType.NVarChar, 255).Value = (object?)request.BenEmail ?? DBNull.Value;
+                        command.Parameters.Add("@ben_telefono", SqlDbType.NVarChar, 10).Value = (object?)request.BenTelefono ?? DBNull.Value;
 
-                        command.Parameters.AddWithValue("@sf_emp_id", request.SfEmpId);
-                        command.Parameters.AddWithValue("@sf_tpos_id", request.SfTposId);
-                        command.Parameters.AddWithValue("@sf_estf_id", request.SfEstfId);
-                        command.Parameters.AddWithValue("@sf_fecha_solicitud", DateTime.Now);
-                        command.Parameters.AddWithValue("@sf_inicio_vigencia", request.SfInicioVigencia);
-                        command.Parameters.AddWithValue("@sf_fin_vigencia", request.SfFinVigencia);
-                        command.Parameters.AddWithValue("@sf_plazo_garantia_dias", request.SfPlazoGarantiaDias);
-                        command.Parameters.AddWithValue("@sf_sector_fianza", request.SfSectorFianza ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@sf_monto_fianza", request.SfMontoFianza);
-                        command.Parameters.AddWithValue("@sf_monto_contrato", request.SfMontoContrato);
-                        command.Parameters.AddWithValue("@sf_objeto_contrato", request.SfObjetoContrato ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@sf_aprobacion_legal", request.SfAprobacionLegal ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@sf_aprobacion_tecnica", request.SfAprobacionTecnica ?? (object)DBNull.Value);
+                        // 2. Solicitud Fianza
+                        command.Parameters.Add("@sf_emp_id", SqlDbType.Int).Value = request.SfEmpId;
+                        command.Parameters.Add("@sf_tpos_id", SqlDbType.Int).Value = request.SfTposId;
+                        command.Parameters.Add("@sf_fecha_solicitud", SqlDbType.DateTime).Value = DateTime.Now;
+                        command.Parameters.Add("@sf_inicio_vigencia", SqlDbType.DateTime).Value = request.SfInicioVigencia;
+                        command.Parameters.Add("@sf_fin_vigencia", SqlDbType.DateTime).Value = request.SfFinVigencia;
+                        command.Parameters.Add("@sf_plazo_garantia_dias", SqlDbType.Int).Value = request.SfPlazoGarantiaDias;
+                        command.Parameters.Add("@sf_sector_fianza", SqlDbType.NVarChar, 255).Value = (object?)request.SfSectorFianza ?? DBNull.Value;
+                        command.Parameters.Add("@sf_monto_fianza", SqlDbType.Decimal).Value = request.SfMontoFianza;
+                        command.Parameters.Add("@sf_monto_contrato", SqlDbType.Decimal).Value = request.SfMontoContrato;
+                        command.Parameters.Add("@sf_objeto_contrato", SqlDbType.NVarChar, 255).Value = (object?)request.SfObjetoContrato ?? DBNull.Value;
 
-                        command.Parameters.AddWithValue("@sfd_solicitud", request.SfdSolicitud ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@sfd_convenio", request.SfdConvenio ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@sfd_pagare", request.SfdPagare ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@sfd_prenda", request.SfdPrenda ?? (object)DBNull.Value);
+                        // 3. Documentos
+                        command.Parameters.Add("@sfd_solicitud", SqlDbType.VarBinary, -1).Value = (object?)request.SfdSolicitud ?? DBNull.Value;
+                        command.Parameters.Add("@sfd_convenio", SqlDbType.VarBinary, -1).Value = (object?)request.SfdConvenio ?? DBNull.Value;
+                        command.Parameters.Add("@sfd_pagare", SqlDbType.VarBinary, -1).Value = (object?)request.SfdPagare ?? DBNull.Value;
+                        command.Parameters.Add("@sfd_prenda", SqlDbType.VarBinary, -1).Value = (object?)request.SfdPrenda ?? DBNull.Value;
+                        command.Parameters.Add("@sfd_fecha_subida", SqlDbType.DateTime).Value = request.SfdFechaSubida ?? (object)DBNull.Value;
+                        command.Parameters.Add("@sfd_fecha_vencimiento", SqlDbType.DateTime).Value = request.SfdFechaVencimiento ?? (object)DBNull.Value;
+                        command.Parameters.Add("@sfd_poliza", SqlDbType.NVarChar, 255).Value = (object?)request.SfdPoliza ?? DBNull.Value;
 
-                        command.Parameters.AddWithValue("@sfd_fecha_subida",
-                            request.SfdFechaSubida.HasValue && request.SfdFechaSubida.Value > (DateTime)SqlDateTime.MinValue
-                            ? request.SfdFechaSubida.Value
-                            : (object)DBNull.Value);
-
-                        command.Parameters.AddWithValue("@sfd_fecha_vencimiento",
-                            request.SfdFechaVencimiento.HasValue && request.SfdFechaVencimiento.Value > (DateTime)SqlDateTime.MinValue
-                            ? request.SfdFechaVencimiento.Value
-                            : (object)DBNull.Value);
-
-                        command.Parameters.AddWithValue("@sfd_poliza", request.SfdPoliza ?? (object)DBNull.Value);
-
+                        // 4. Prendas (TVP)
                         var tablePrendas = CrearDataTablePrendas(request.Prendas);
                         var prendasParam = command.Parameters.AddWithValue("@Prendas", tablePrendas);
                         prendasParam.SqlDbType = SqlDbType.Structured;
                         prendasParam.TypeName = "TVP_PRENDA";
 
+                        // 5. Usuario que crea (AUDITORIA)
+                        command.Parameters.Add("@sf_usuario_id", SqlDbType.Int).Value = request.SfUsuarioId;
+
+                        // 6. OUTPUT
                         var sfIdOutParam = new SqlParameter("@sf_id_out", SqlDbType.Int)
                         {
                             Direction = ParameterDirection.Output
                         };
                         command.Parameters.Add(sfIdOutParam);
 
-                        // --- LOG PARÁMETROS antes de ejecutar ---
-                        foreach (SqlParameter p in command.Parameters)
-                        {
-                            Console.WriteLine($"Nombre: {p.ParameterName}, Tipo SQL: {p.SqlDbType}, Valor .NET: {p.Value?.GetType().Name ?? "NULL"}");
-                        }
-
-                        // --- Ejecutar ---
+                        // Ejecutar el SP
                         await command.ExecuteNonQueryAsync();
 
                         var solicitudId = (int)sfIdOutParam.Value;
@@ -107,36 +96,272 @@ namespace fianzas_app.Services
             }
             catch (SqlException ex)
             {
-                Console.WriteLine("************** SQL EXCEPTION **************");
-                Console.WriteLine($"Mensaje      : {ex.Message}");
-                Console.WriteLine($"Número       : {ex.Number}");
-                Console.WriteLine($"Procedimiento: {ex.Procedure}");
-                Console.WriteLine($"Origen       : {ex.Source}");
-                Console.WriteLine($"Estado       : {ex.State}");
-                Console.WriteLine($"Línea        : {ex.LineNumber}");
-                Console.WriteLine($"StackTrace   : {ex.StackTrace}");
-
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine("************** INNER EXCEPTION **************");
-                    Console.WriteLine($"Mensaje      : {ex.InnerException.Message}");
-                }
-
-                throw; // Opcional, para que el error suba a capas superiores si lo necesitas
+                Console.WriteLine($"SQL EXCEPTION: {ex.Message}");
+                throw;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("************** EXCEPTION **************");
-                Console.WriteLine($"Mensaje      : {ex.Message}");
-                Console.WriteLine($"StackTrace   : {ex.StackTrace}");
-
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine("************** INNER EXCEPTION **************");
-                    Console.WriteLine($"Mensaje      : {ex.InnerException.Message}");
-                }
-
+                Console.WriteLine($"EXCEPTION: {ex.Message}");
                 throw;
+            }
+        }
+
+        public async Task<SolicitudFianzaDetalleResponse> ObtenerSolicitudPorIdAsync(int solicitudId)
+        {
+            var solicitudDetalle = new SolicitudFianzaDetalleResponse();
+
+            using (SqlConnection connection = new SqlConnection(_dbContext.Database.GetConnectionString()))
+            {
+                await connection.OpenAsync();
+                using (SqlCommand command = new SqlCommand("sp_obtener_solicitud_fianza_por_id", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@sf_id", solicitudId);
+
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+                        // Primera tabla: solicitud y documentos
+                        if (await reader.ReadAsync())
+                        {
+                            solicitudDetalle.SfId = reader.GetInt32(reader.GetOrdinal("sf_id"));
+                            solicitudDetalle.SfEmpId = reader.GetInt32(reader.GetOrdinal("sf_emp_id"));
+                            solicitudDetalle.EmpresaNombre = reader["emp_nombre"].ToString();
+                            solicitudDetalle.SfTposId = reader.GetInt32(reader.GetOrdinal("sf_tpos_id"));
+                            solicitudDetalle.TipoSolicitudNombre = reader["tpos_nombre"].ToString();
+                            solicitudDetalle.SfEstfId = reader.GetInt32(reader.GetOrdinal("sf_estf_id"));
+                            solicitudDetalle.EstadoFianzaNombre = reader["estf_nombre"].ToString();
+                            solicitudDetalle.SfBenId = reader.GetInt32(reader.GetOrdinal("sf_ben_id"));
+                            solicitudDetalle.BenNombre = reader["ben_nombre"].ToString();
+                            solicitudDetalle.BenDireccion = reader["ben_direccion"].ToString();
+                            solicitudDetalle.BenCiRuc = reader["ben_ci_ruc"].ToString();
+                            solicitudDetalle.BenEmail = reader["ben_email"].ToString();
+                            solicitudDetalle.BenTelefono = reader["ben_telefono"].ToString();
+                            solicitudDetalle.SfFechaSolicitud = reader.GetDateTime(reader.GetOrdinal("sf_fecha_solicitud"));
+                            solicitudDetalle.SfInicioVigencia = reader.GetDateTime(reader.GetOrdinal("sf_inicio_vigencia"));
+                            solicitudDetalle.SfFinVigencia = reader.IsDBNull(reader.GetOrdinal("sf_fin_vigencia")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("sf_fin_vigencia"));
+                            solicitudDetalle.SfPlazoGarantiaDias = reader.GetInt32(reader.GetOrdinal("sf_plazo_garantia_dias"));
+                            solicitudDetalle.SfSectorFianza = reader["sf_sector_fianza"].ToString();
+                            solicitudDetalle.SfMontoFianza = reader.GetDecimal(reader.GetOrdinal("sf_monto_fianza"));
+                            solicitudDetalle.SfMontoContrato = reader.GetDecimal(reader.GetOrdinal("sf_monto_contrato"));
+                            solicitudDetalle.SfObjetoContrato = reader["sf_objeto_contrato"].ToString();
+                            solicitudDetalle.SfAprobacionLegal = reader.IsDBNull(reader.GetOrdinal("sf_aprobacion_legal"))
+      ? (int?)null
+      : reader.GetInt32(reader.GetOrdinal("sf_aprobacion_legal"));
+
+                            solicitudDetalle.SfAprobacionTecnica = reader.IsDBNull(reader.GetOrdinal("sf_aprobacion_tecnica"))
+                                ? (int?)null
+                                : reader.GetInt32(reader.GetOrdinal("sf_aprobacion_tecnica"));
+
+                            // Documentos
+                            solicitudDetalle.SfdId = reader.GetInt32(reader.GetOrdinal("sfd_id"));
+                            solicitudDetalle.SfdFechaSubida = reader.IsDBNull(reader.GetOrdinal("sfd_fecha_subida")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("sfd_fecha_subida"));
+                            solicitudDetalle.SfdFechaVencimiento = reader.IsDBNull(reader.GetOrdinal("sfd_fecha_vencimiento")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("sfd_fecha_vencimiento"));
+                            solicitudDetalle.SfdPoliza = reader["sfd_poliza"].ToString();
+                        }
+
+                        Console.WriteLine($"MontoContrato: {solicitudDetalle.SfMontoContrato}");
+                        Console.WriteLine($"MontoFianza: {solicitudDetalle.SfMontoFianza}");
+
+                        // Segunda tabla: prendas
+                        if (await reader.NextResultAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var prenda = new PrendaResponse
+                                {
+                                    PrenId = reader.GetInt32(reader.GetOrdinal("pren_id")),
+                                    PrenFechaCreacion = reader.GetDateTime(reader.GetOrdinal("pren_fecha_creacino")),
+                                    PrenTipo = reader["pren_tipo"].ToString(),
+                                    PrenBien = reader["pren_bien"].ToString(),
+                                    PrenDescripcion = reader["pren_descripcion"].ToString(),
+                                    PrenValor = reader.GetDecimal(reader.GetOrdinal("pren_valor")),
+                                    PrenUbicacion = reader["pren_ubicacion"].ToString(),
+                                    PrenCustodio = reader["pren_custodio"].ToString(),
+                                    PrenFechaConstatacion = reader.GetDateTime(reader.GetOrdinal("pren_fecha_constatacion")),
+                                    PrenResponsableConstatacion = reader["pren_responsable_constatacion"].ToString()
+                                };
+
+                                solicitudDetalle.Prendas.Add(prenda);
+                            }
+                        }
+
+                        // Tercera tabla: historial
+                        if (await reader.NextResultAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var historial = new HistorialSolicitudResponse
+                                {
+                                    SfhId = reader.GetInt32(reader.GetOrdinal("sfh_id")),
+                                    SfhSfId = reader.GetInt32(reader.GetOrdinal("sfh_sf_id")),
+                                    SfhEsfId = reader.GetInt32(reader.GetOrdinal("sfh_esf_id")),
+                                    EstadoNombre = reader["estado_nombre"].ToString(),
+                                    SfhUsuarioId = reader.GetInt32(reader.GetOrdinal("sfh_usuario_id")),
+                                    UsuarioNombre = reader["usuario_nombre"].ToString(),
+                                    SfhFechaCambio = reader.GetDateTime(reader.GetOrdinal("sfh_fecha_cambio")),
+                                    SfhObservacion = reader["sfh_observacion"].ToString()
+                                };
+
+                                solicitudDetalle.Historial.Add(historial);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return solicitudDetalle;
+        }
+        public async Task<List<SolicitudCompletaResponse>> ListarSolicitudesCompletasAsync()
+        {
+            var solicitudes = new List<SolicitudCompletaResponse>();
+
+            using (SqlConnection connection = new SqlConnection(_dbContext.Database.GetConnectionString()))
+            {
+                await connection.OpenAsync();
+
+                using (SqlCommand command = new SqlCommand("sp_listar_solicitudes_completas", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+                        // 🚀 Debug: lista de columnas para validar
+                        Console.WriteLine("🔍 Columnas devueltas por el SP:");
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            Console.WriteLine($"   {i}: {reader.GetName(i)}");
+                        }
+
+                        int idxSfhObservacion = -1;
+                        try
+                        {
+                            idxSfhObservacion = reader.GetOrdinal("sfh_observacion");
+                        }
+                        catch (IndexOutOfRangeException)
+                        {
+                            Console.WriteLine("⚠️  La columna 'sfh_observacion' no se encuentra en el resultado del SP.");
+                            // Si no está, puedes manejarlo como prefieras, por ejemplo:
+                            // return solicitudes;
+                            // o simplemente asignar un valor default más adelante.
+                        }
+
+                        while (await reader.ReadAsync())
+                        {
+                            var solicitud = new SolicitudCompletaResponse
+                            {
+                                SfId = reader.GetInt32(reader.GetOrdinal("sf_id")),
+                                SfEmpId = reader.GetInt32(reader.GetOrdinal("sf_emp_id")),
+                                EmpresaNombre = reader["emp_nombre"]?.ToString(),
+
+                                SfTposId = reader.GetInt32(reader.GetOrdinal("sf_tpos_id")),
+                                TipoSolicitudNombre = reader["tpos_nombre"]?.ToString(),
+
+                                SfEstfId = reader.GetInt32(reader.GetOrdinal("sf_estf_id")),
+                                EstadoFianzaNombre = reader["estf_nombre"]?.ToString(),
+
+                                SfBenId = reader.IsDBNull(reader.GetOrdinal("sf_ben_id"))
+                                          ? (int?)null
+                                          : reader.GetInt32(reader.GetOrdinal("sf_ben_id")),
+
+                                BeneficiarioNombre = reader["ben_nombre"]?.ToString(),
+
+                                SfFechaSolicitud = reader.GetDateTime(reader.GetOrdinal("sf_fecha_solicitud")),
+                                SfInicioVigencia = reader.GetDateTime(reader.GetOrdinal("sf_inicio_vigencia")),
+
+                                SfFinVigencia = reader.IsDBNull(reader.GetOrdinal("sf_fin_vigencia"))
+                                                ? (DateTime?)null
+                                                : reader.GetDateTime(reader.GetOrdinal("sf_fin_vigencia")),
+
+                                SfPlazoGarantiaDias = reader.GetInt32(reader.GetOrdinal("sf_plazo_garantia_dias")),
+
+                                SfSectorFianza = reader["sf_sector_fianza"]?.ToString(),
+                                SfMontoFianza = reader.GetDecimal(reader.GetOrdinal("sf_monto_fianza")),
+                                SfMontoContrato = reader.GetDecimal(reader.GetOrdinal("sf_monto_contrato")),
+                                SfObjetoContrato = reader["sf_objeto_contrato"]?.ToString(),
+
+                                SfAprobacionLegal = reader.IsDBNull(reader.GetOrdinal("sf_aprobacion_legal"))
+                                                    ? (int?)null
+                                                    : reader.GetInt32(reader.GetOrdinal("sf_aprobacion_legal")),
+
+                                SfAprobacionTecnica = reader.IsDBNull(reader.GetOrdinal("sf_aprobacion_tecnica"))
+                                                      ? (int?)null
+                                                      : reader.GetInt32(reader.GetOrdinal("sf_aprobacion_tecnica")),
+
+                                // Documentos
+                                SfdId = reader.IsDBNull(reader.GetOrdinal("sfd_id"))
+                                        ? (int?)null
+                                        : reader.GetInt32(reader.GetOrdinal("sfd_id")),
+
+                                SfdFechaSubida = reader.IsDBNull(reader.GetOrdinal("sfd_fecha_subida"))
+                                                 ? (DateTime?)null
+                                                 : reader.GetDateTime(reader.GetOrdinal("sfd_fecha_subida")),
+
+                                SfdFechaVencimiento = reader.IsDBNull(reader.GetOrdinal("sfd_fecha_vencimiento"))
+                                                      ? (DateTime?)null
+                                                      : reader.GetDateTime(reader.GetOrdinal("sfd_fecha_vencimiento")),
+
+                                SfdPoliza = reader["sfd_poliza"]?.ToString()
+                            };
+
+                            // ✅ Asignación segura de la observación
+                            if (idxSfhObservacion >= 0)
+                            {
+                                solicitud.SfhObservacion = reader.IsDBNull(idxSfhObservacion)
+                                    ? "Sin observación"  // Valor default si el campo está null
+                                    : reader.GetString(idxSfhObservacion);
+                            }
+                            else
+                            {
+                                solicitud.SfhObservacion = "Observación no disponible";  // Valor si no se encontró la columna
+                            }
+
+                            // 🔥 Debug info para validar que la observación llegó bien
+                            Console.WriteLine($"Solicitud ID: {solicitud.SfId} | Observación: {solicitud.SfhObservacion}");
+
+                            solicitudes.Add(solicitud);
+                        }
+                    }
+                }
+            }
+
+            return solicitudes;
+        }
+
+        public async Task<AuthResponse> AprobarSolicitudFianzaAsync(AprobarSolicitudRequest request)
+        {
+            using (SqlConnection connection = new SqlConnection(_dbContext.Database.GetConnectionString()))
+            {
+                await connection.OpenAsync();
+
+                using (SqlCommand command = new SqlCommand("sp_aprobar_solicitud_fianza", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.AddWithValue("@sf_id", request.SfId);
+                    command.Parameters.AddWithValue("@tipo_aprobacion", request.TipoAprobacion?.ToUpper());
+                    command.Parameters.AddWithValue("@aprobado", request.Aprobado ? 1 : 0);
+                    command.Parameters.AddWithValue("@sfh_usuario_id", request.UsuarioId);
+                    command.Parameters.AddWithValue("@sfh_observacion", string.IsNullOrWhiteSpace(request.Observacion) ? (object)DBNull.Value : request.Observacion);
+
+                    try
+                    {
+                        await command.ExecuteNonQueryAsync();
+
+                        return new AuthResponse
+                        {
+                            Estado = "Exito",
+                            Mensaje = $"Solicitud {request.TipoAprobacion} procesada correctamente."
+                        };
+                    }
+                    catch (SqlException ex)
+                    {
+                        return new AuthResponse
+                        {
+                            Estado = "Error",
+                            Mensaje = $"Error al aprobar la solicitud: {ex.Message}"
+                        };
+                    }
+                }
             }
         }
 

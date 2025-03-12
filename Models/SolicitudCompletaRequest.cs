@@ -12,6 +12,7 @@
 
         // Datos Solicitud Fianza
         public int SfEmpId { get; set; }
+        public int SfUsuarioId { get; set; }
         public int SfTposId { get; set; }
         public int SfEstfId { get; set; }
         public DateTime SfFechaSolicitud { get; set; }
@@ -42,6 +43,8 @@
 
     public class PrendaDto
     {
+        public int PrenId { get; set; }
+
         public DateTime? PrenFechaCreacion { get; set; }
         public string PrenTipo { get; set; }
         public string PrenBien { get; set; }

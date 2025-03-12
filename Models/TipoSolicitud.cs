@@ -12,4 +12,6 @@ public partial class TipoSolicitud
     public string TposNombre { get; set; } = null!;
 
     public int? TposEstado { get; set; }
+
+    public virtual ICollection<SolicitudFianza> SolicitudFianzas { get; set; } = new List<SolicitudFianza>();
 }
