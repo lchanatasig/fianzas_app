@@ -187,6 +187,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const finVigenciaElem = document.getElementById("finVigencia");
     const plazoGarantiaDiasElem = document.getElementById("plazoGarantiaDias");
 
+    const inicioVigenciaElem = document.getElementById("inicioVigenciaGA");
+    const finVigenciaElem = document.getElementById("finVigenciaGA");
+    const plazoGarantiaDiasElem = document.getElementById("plazoGarantiaDiasGA");
     function calcularPlazoEnDias() {
         const inicioVigencia = inicioVigenciaElem.value;
         const finVigencia = finVigenciaElem.value;
