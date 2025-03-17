@@ -77,9 +77,11 @@
                                         <button class="btn btn-primary btn-sm"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#gestionDocumentosModal"
-                                                onclick="abrirModal(@solicitud.SfEstfId, @solicitud.SfMontoFianza, @solicitud.SfEstfId)">
+                                                data-tipofianza="@solicitud.TipoSolicitudNombre"
+                                                onclick="abrirModal(@solicitud.SfEstfId, @solicitud.SfMontoFianza, this.getAttribute('data-tipofianza'))">
                                             Gestión Documentos
                                         </button>
+
                                     }
                                     else if (solicitud.SfEstfId == 5)
                                     {
@@ -91,14 +93,32 @@
                                     else
                                     {
                                         <button class="btn btn-secondary btn-sm" disabled>Sin accion</button>
-
                                     }
                                 </td>
+
                             </tr>
                         }
                     </tbody>
                 </table>
 
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Ejemplo de Modal (asegúrate de tener algo similar en tu página) -->
+<div class="modal fade" id="gestionDocumentosModal" tabindex="-1" aria-labelledby="gestionDocumentosModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gestionDocumentosModalLabel">Gestión de Documentos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Aquí se inyectará contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary">Guardar cambios</button>
             </div>
         </div>
     </div>
@@ -148,6 +168,87 @@
             });
         </script>
     }
+    <script>
+        function abrirModal(estfId, montoFianza, tipoFianza) {
+            var modalElement = document.getElementById('gestionDocumentosModal');
+
+            // Actualiza el título del modal según el estado
+            var modalTitle = modalElement.querySelector('.modal-title');
+            if (modalTitle) {
+                if (estfId === 2) {
+                    modalTitle.textContent = "Gestión de Documentos - Aprobada sin documentación";
+                } else if (estfId === 3) {
+                    modalTitle.textContent = "Gestión de Documentos - Aprobada y documentada";
+                } else {
+                    modalTitle.textContent = "Gestión de Documentos";
+                }
+            }
+
+            // Aseguramos que tipoFianza es una cadena, le quitamos espacios y la convertimos a mayúsculas
+            var tipoFianzaSafe = (tipoFianza || "").toString().trim();
+            var tipoFianzaUpper = tipoFianzaSafe.toUpperCase();
+            console.log("Tipo Fianza (original y en mayúsculas):", tipoFianzaSafe, tipoFianzaUpper);
+
+            // Define los nombres de los documentos y el tipo de firma según el tipo de fianza
+            var documentNames = [];
+            var firmaTipo = "";
+            if (tipoFianzaUpper === "FIEL CUMPLIMIENTO DEL CONTRATO") {
+                documentNames = ['Solicitud Contrato', 'Convenio Contrato', 'Pagaré Contrato', 'Prenda Contrato'];
+                firmaTipo = "Firma Digital";
+            } else if (tipoFianzaUpper === "GARANTIA ADUANERA") {
+                documentNames = ['Solicitud Aduanera', 'Convenio Aduanera', 'Pagaré Aduanera', 'Garantía Aduanera'];
+                firmaTipo = "Firma Manual";
+            } else if (tipoFianzaUpper === "BUEN USO DEL ANTICIPO") {
+                documentNames = ['Solicitud Anticipo', 'Convenio Anticipo', 'Pagaré Anticipo', 'Buen Uso Anticipo'];
+                firmaTipo = "Firma Digital";
+            } else {
+                documentNames = ['Documento 1', 'Documento 2', 'Documento 3', 'Documento 4'];
+                firmaTipo = "Firma Manual";
+            }
+            console.log("Nombres de Documentos:", documentNames);
+            console.log("Tipo de firma:", firmaTipo);
+               console.log("Nombres de Documentos:", documentNames);
+            console.log("Tipo de fianza:", tipoFianza);
+            var downloadUrlTemplate = '@Url.Action("Download", "Documentos", new { id = "DOCUMENT_ID" })';
+
+            // Construye el contenido del modal
+            var modalBody = modalElement.querySelector('.modal-body');
+            if (modalBody) {
+                var montoFormateado = montoFianza.toLocaleString('es-ES', { style: 'currency', currency: 'USD' });
+                var contenido = "<p>Monto de fianza: " + montoFormateado + "</p>";
+
+                // Sección de descarga de documentos
+                contenido += "<h6>Documentos Disponibles:</h6>";
+                // Si montoFianza es mayor a 416,000 se muestran 4 documentos, de lo contrario 3
+                var numDocumentos = (montoFianza > 416000) ? 4 : 3;
+                for (var i = 0; i < numDocumentos; i++) {
+                    // Reemplaza el placeholder "DOCUMENT_ID" para obtener la URL de cada documento
+                    var urlDescarga = downloadUrlTemplate.replace("DOCUMENT_ID", (i + 1));
+                    contenido += '<p><a href="' + urlDescarga + '">' + documentNames[i] + '</a></p>';
+                }
+
+                // Muestra el tipo de firma determinado
+                contenido += "<p><strong>Tipo de firma: " + firmaTipo + "</strong></p>";
+
+                // Sección para subir documentos firmados
+                contenido += "<h6>Subir Documentos Firmados:</h6>";
+                for (var j = 0; j < numDocumentos; j++) {
+                    contenido += '<div class="mb-3">';
+                    contenido += '<label for="fileInput' + (j + 1) + '">Documento ' + (j + 1) + ' (' + documentNames[j] + ')</label>';
+                    contenido += '<input type="file" id="fileInput' + (j + 1) + '" name="documento' + (j + 1) + '" class="form-control" />';
+                    contenido += '</div>';
+                }
+
+                modalBody.innerHTML = contenido;
+            }
+
+            // Inicializa y muestra el modal usando Bootstrap 5
+            var myModal = new bootstrap.Modal(modalElement);
+            myModal.show();
+        }
+    </script>
+
+
 
 
 }
