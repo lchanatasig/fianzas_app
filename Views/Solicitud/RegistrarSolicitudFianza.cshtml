@@ -182,6 +182,7 @@
                                         </div>
                                     </div>
                                 </div>
+                            
                                 <!-- Sección para Garantía Aduanera (GA) -->
                                 <div id="datosAduanera" class="d-none">
                                     <hr />
@@ -196,7 +197,6 @@
                                         </div>
                                         <div class="col-md-3">
                                             <label for="solicitanteGA" class="form-label">Solicitante/Afianzado/Contratista</label>
-                                            <!-- Aunque en GA se ingresen estos datos, se pueden mapear a los mismos parámetros del beneficiario -->
                                             <input type="text" class="form-control" id="solicitanteGA" name="BenNombre" required>
                                             <div class="invalid-feedback">Ingrese el nombre del solicitante.</div>
                                         </div>
@@ -220,30 +220,54 @@
                                             <input type="text" class="form-control" id="telefonoSolicitanteGA" name="BenTelefono" required>
                                             <div class="invalid-feedback">Ingrese un teléfono o celular.</div>
                                         </div>
+                                        <!-- Información del Beneficiario (usa ids únicos en GA) -->
+                                        <div class="divider-with-text">
+                                            <span>Información del beneficiario</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="beneficiarioGA" class="form-label">Beneficiario</label>
+                                            <input type="text" class="form-control" id="beneficiarioGA" name="BenNombreGA" required>
+                                            <div class="invalid-feedback">Ingrese el nombre del beneficiario.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="direccionBeneficiarioGA" class="form-label">Dirección</label>
+                                            <input type="text" class="form-control" id="direccionBeneficiarioGA" name="BenDireccionGA" required>
+                                            <div class="invalid-feedback">Ingrese la dirección del beneficiario.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="rucBeneficiarioGA" class="form-label">CI/RUC</label>
+                                            <input type="text" class="form-control" id="rucBeneficiarioGA" name="BenCiRucGA" required>
+                                            <div class="invalid-feedback">Ingrese el CI o RUC del beneficiario.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="emailBeneficiarioGA" class="form-label">E-mail</label>
+                                            <input type="email" class="form-control" id="emailBeneficiarioGA" name="BenEmailGA" required>
+                                            <div class="invalid-feedback">Ingrese un e-mail válido.</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="telefonoBeneficiarioGA" class="form-label">Teléfono/Celular</label>
+                                            <input type="text" class="form-control" id="telefonoBeneficiarioGA" name="BenTelefonoGA" required>
+                                            <div class="invalid-feedback">Ingrese un teléfono o celular.</div>
+                                        </div>
                                         <div class="divider-with-text">
                                             <span>Información adicional</span>
                                         </div>
                                         <div class="col-md-3">
                                             <label for="montoFianzaGA" class="form-label">Monto de la Fianza / Garantía ($)</label>
-                                            <!-- En GA se mapea también a montoFianza -->
                                             <input type="number" class="form-control" id="montoFianzaGA" name="SfMontoFianza" required disabled>
                                             <div class="invalid-feedback">Ingrese un monto válido.</div>
                                         </div>
-
-
                                         <div class="col-md-3">
-                                            <label for="inicioVigencia" class="form-label">Inicio Vigencia</label>
+                                            <label for="inicioVigenciaGA" class="form-label">Inicio Vigencia</label>
                                             <input type="date" class="form-control" id="inicioVigenciaGA" name="SfInicioVigencia" required>
                                         </div>
-
                                         <div class="col-md-3">
-                                            <label for="finVigencia" class="form-label">Fin de Vigencia</label>
+                                            <label for="finVigenciaGA" class="form-label">Fin de Vigencia</label>
                                             <input type="date" class="form-control" id="finVigenciaGA" name="SfFinVigencia" required>
                                         </div>
-
                                         <div class="col-md-3">
-                                            <label for="plazogarantiasGA" class="form-label">Plazo garantías (Días)</label>
-                                            <input type="text" class="form-control" id="plazogarantiasGA" name="plazoGarantiaDias" required>
+                                            <label for="plazoGarantiaDiasGA" class="form-label">Plazo garantías (Días)</label>
+                                            <input type="text" class="form-control" id="plazoGarantiaDiasGA" name="plazoGarantiaDias" required>
                                             <div class="invalid-feedback">Ingrese el plazo de garantías.</div>
                                         </div>
                                         <div class="col-md-12">

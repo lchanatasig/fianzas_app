@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // ---------- FUNCIONES SEPARADAS PARA MAYOR CLARIDAD ----------
-
     function cargarDatosEmpresa(empresaId) {
         const selectedId = parseInt(empresaId, 10);
         let cupo = 0;
@@ -50,12 +49,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 cupo = emp.Historial.CupoRestante;
             }
 
+            // Sección FCC/BUA
             document.getElementById("solicitante").value = emp.EmpNombre || "";
             document.getElementById("direccionSolicitante").value = emp.EmpUbicacion || "";
             document.getElementById("rucSolicitante").value = emp.EmpRUC || "";
             document.getElementById("emailSolicitante").value = emp.EmpEmail || "";
             document.getElementById("telefonoSolicitante").value = emp.EmpTelefono || "";
 
+            // Sección GA
             document.getElementById("solicitanteGA").value = emp.EmpNombre || "";
             document.getElementById("direccionSolicitanteGA").value = emp.EmpUbicacion || "";
             document.getElementById("rucSolicitanteGA").value = emp.EmpRUC || "";
@@ -68,7 +69,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const cupoInput = document.getElementById("cupoDisponible");
             cupoInput.value = parseFloat(cupo).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             cupoInput.dataset.valorNumerico = cupo;
-
         } else {
             limpiarCamposEmpresa();
         }
@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function cargarTipoFianza(tipoSeleccionado) {
         tipoSeleccionado = parseInt(tipoSeleccionado, 10);
 
+        // Ocultar ambas secciones inicialmente
         document.getElementById("datosContrato").classList.add("d-none");
         document.getElementById("datosAduanera").classList.add("d-none");
 
@@ -98,6 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.getElementById("montocontrato").value = "";
         document.getElementById("montoFianza").value = "";
+        document.getElementById("montoFianzaGA").value = "";
 
         validarMontoContrato();
         validarMontoFianza();
@@ -156,11 +158,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ---------- VALIDACIÓN DEL MONTO DE FIANZA ----------
     function validarMontoFianza() {
-        const montoFianzaElem = document.getElementById("montoFianza");
-        const cupoDisponibleElem = document.getElementById("cupoDisponible");
-        const documentosSecundarios = document.getElementById("documentosSecundarios");
-        const errorMontoFianza = document.getElementById("errorMontoFianza");
+        let montoFianzaElem, errorMontoFianza;
+        // Detectamos qué sección está activa
+        if (!document.getElementById("datosAduanera").classList.contains("d-none")) {
+            montoFianzaElem = document.getElementById("montoFianzaGA");
+            // Si tienes un error específico para GA, usa ese id; de lo contrario, reutiliza el común
+            errorMontoFianza = document.getElementById("errorMontoFianzaGA") || document.getElementById("errorMontoFianza");
+        } else {
+            montoFianzaElem = document.getElementById("montoFianza");
+            errorMontoFianza = document.getElementById("errorMontoFianza");
+        }
 
+        const cupoDisponibleElem = document.getElementById("cupoDisponible");
         const cupoDisponible = parseFloat(cupoDisponibleElem.dataset.valorNumerico) || 0;
         const montoFianza = parseFloat(montoFianzaElem.value) || 0;
 
@@ -175,6 +184,7 @@ document.addEventListener('DOMContentLoaded', function () {
             ocultarError(errorMontoFianza, montoFianzaElem);
         }
 
+        const documentosSecundarios = document.getElementById("documentosSecundarios");
         if (montoFianza > 416000) {
             documentosSecundarios.classList.remove("d-none");
         } else {
@@ -183,39 +193,60 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ---------- CÁLCULO AUTOMÁTICO DEL PLAZO DE GARANTÍA EN DÍAS ----------
-    const inicioVigenciaElem = document.getElementById("inicioVigencia");
-    const finVigenciaElem = document.getElementById("finVigencia");
-    const plazoGarantiaDiasElem = document.getElementById("plazoGarantiaDias");
-
-    const inicioVigenciaElem = document.getElementById("inicioVigenciaGA");
-    const finVigenciaElem = document.getElementById("finVigenciaGA");
-    const plazoGarantiaDiasElem = document.getElementById("plazoGarantiaDiasGA");
+    // Para FCC/BUA: inicioVigencia, finVigencia, plazoGarantiaDias
+    // Para GA: inicioVigenciaGA, finVigenciaGA, plazoGarantiaDiasGA
     function calcularPlazoEnDias() {
-        const inicioVigencia = inicioVigenciaElem.value;
-        const finVigencia = finVigenciaElem.value;
+        let inicio, fin, plazoElem;
 
-        if (!inicioVigencia || !finVigencia) {
-            plazoGarantiaDiasElem.value = "";
+        if (!document.getElementById("datosAduanera").classList.contains("d-none")) {
+            // Sección GA activa
+            inicio = document.getElementById("inicioVigenciaGA").value;
+            fin = document.getElementById("finVigenciaGA").value;
+            plazoElem = document.getElementById("plazoGarantiaDiasGA");
+        } else {
+            // Sección FCC/BUA activa
+            inicio = document.getElementById("inicioVigencia").value;
+            fin = document.getElementById("finVigencia").value;
+            plazoElem = document.getElementById("plazoGarantiaDias");
+        }
+
+        if (!inicio || !fin) {
+            plazoElem.value = "";
             return;
         }
 
-        const inicioDate = new Date(inicioVigencia);
-        const finDate = new Date(finVigencia);
-
+        const inicioDate = new Date(inicio);
+        const finDate = new Date(fin);
         const diferenciaMs = finDate - inicioDate;
         const diferenciaDias = Math.ceil(diferenciaMs / (1000 * 60 * 60 * 24));
 
         if (diferenciaDias < 0) {
-            plazoGarantiaDiasElem.value = "";
+            plazoElem.value = "";
             alert("La fecha de fin debe ser posterior a la de inicio.");
             return;
         }
 
-        plazoGarantiaDiasElem.value = diferenciaDias;
+        plazoElem.value = diferenciaDias;
     }
 
-    inicioVigenciaElem.addEventListener("change", calcularPlazoEnDias);
-    finVigenciaElem.addEventListener("change", calcularPlazoEnDias);
+    // Añadir event listeners para ambos conjuntos de campos de fecha
+    const inicioVigenciaElem = document.getElementById("inicioVigencia");
+    const finVigenciaElem = document.getElementById("finVigencia");
+    const inicioVigenciaGAElem = document.getElementById("inicioVigenciaGA");
+    const finVigenciaGAElem = document.getElementById("finVigenciaGA");
+
+    if (inicioVigenciaElem) {
+        inicioVigenciaElem.addEventListener("change", calcularPlazoEnDias);
+    }
+    if (finVigenciaElem) {
+        finVigenciaElem.addEventListener("change", calcularPlazoEnDias);
+    }
+    if (inicioVigenciaGAElem) {
+        inicioVigenciaGAElem.addEventListener("change", calcularPlazoEnDias);
+    }
+    if (finVigenciaGAElem) {
+        finVigenciaGAElem.addEventListener("change", calcularPlazoEnDias);
+    }
 
     // ---------- FUNCIONES AUXILIARES ----------
     function mostrarError(errorElem, inputElem, mensaje) {
@@ -236,9 +267,13 @@ document.addEventListener('DOMContentLoaded', function () {
         montocontratoElem.addEventListener("input", validarMontoContrato);
     }
 
-    const montoFianzaElem = document.getElementById("montoFianza");
-    if (montoFianzaElem) {
-        montoFianzaElem.addEventListener("input", validarMontoFianza);
+    const montoFianzaInput = document.getElementById("montoFianza");
+    if (montoFianzaInput) {
+        montoFianzaInput.addEventListener("input", validarMontoFianza);
+    }
+    const montoFianzaGAInput = document.getElementById("montoFianzaGA");
+    if (montoFianzaGAInput) {
+        montoFianzaGAInput.addEventListener("input", validarMontoFianza);
     }
 
     // ============= HANDSONTABLE PARA LAS PRENDAS =============
