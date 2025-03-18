@@ -2,13 +2,12 @@
 
 @{
     ViewBag.Title = "Solicitudes";
-    ViewBag.pTitle = "Revicion de solicitudes";
+    ViewBag.pTitle = "Revición de solicitudes";
     ViewBag.pageTitle = "Solicitudes";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var successMessage = TempData["SuccessMessage"] as string;
     var errorMessage = TempData["ErrorMessage"] as string;
 }
-
 
 @using Microsoft.AspNetCore.Http
 @{
@@ -23,13 +22,10 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
 }
 
-
 <div class="row">
     <div class="col-lg-12">
         <div class="card">
-         
             <h2>Gestión de solicitudes</h2>
-
             <div class="card-body">
                 <table id="alternative-pagination" class="table table-bordered dt-responsive nowrap table-striped align-middle" style="width:100%">
                     <thead>
@@ -59,7 +55,6 @@
                         }
                     </tbody>
                 </table>
-
             </div>
         </div>
     </div>
@@ -82,15 +77,17 @@
 
                 <h5>Documentos:</h5>
                 <ul id="documentosListaModal">
-                    <li><a href="@Url.Action("DescargarPdf", "Documentos", new { tipo = "solicitud" })" download>Solicitud de Fianza (PDF)</a></li>
-                    <li><a href="@Url.Action("DescargarPdf", "Documentos", new { tipo = "convenio" })" download>Convenio de Fianza (PDF)</a></li>
-                    <li><a href="@Url.Action("DescargarPdf", "Documentos", new { tipo = "pagare" })" download>Pagaré (PDF)</a></li>
+                    <li><a href="@Url.Action("Download", "Document", new { id = 2 })" download>Solicitud de Fianza (PDF)</a></li>
+                    <li><a href="@Url.Action("Download", "Document", new { id = 1 })" download>Convenio de Fianza (PDF)</a></li>
+                    <li><a href="@Url.Action("Download", "Document", new { id = 3 })" download>Pagaré (PDF)</a></li>
                 </ul>
                 <!-- Documento Adicional (Prenda) si el monto es mayor a 416,000 -->
                 <div id="documentoPrendaContainer" class="mt-3 d-none">
                     <h6>Documento Adicional:</h6>
                     <ul>
-                        <li id="documentoAdicional" class="d-none"><a href="@Url.Action("DescargarPdf", "Documentos", new { tipo = "prenda" })" download>Documento Adicional (Prenda PDF)</a></li>
+                        <li id="documentoAdicional" class="d-none">
+                            <a href="@Url.Action("Download", "Documentos", new { id = 4 })" download>Documento Adicional (Prenda PDF)</a>
+                        </li>
                     </ul>
                 </div>
 
@@ -101,12 +98,10 @@
             <div class="modal-footer">
                 @if (perfilId == 3)
                 {
-
                     <button type="button" class="btn btn-success"
                             onclick="procesarSolicitud('@Url.Action("AprobarSolicitud", "Revision")', 'TECNICA', true)">
                         Aprobar Técnico
                     </button>
-
                     <button type="button" class="btn btn-danger"
                             onclick="procesarSolicitud('@Url.Action("AprobarSolicitud", "Revision")', 'TECNICA', false)">
                         Rechazar Técnico
@@ -118,7 +113,6 @@
                             onclick="procesarSolicitud('@Url.Action("AprobarSolicitud", "Revision")', 'LEGAL', true)">
                         Aprobar Legal
                     </button>
-
                     <button type="button" class="btn btn-danger"
                             onclick="procesarSolicitud('@Url.Action("AprobarSolicitud", "Revision")', 'LEGAL', false)">
                         Rechazar Legal
@@ -130,17 +124,14 @@
                             onclick="procesarSolicitud('@Url.Action("AprobarSolicitud", "Revision")', 'LEGAL', true)">
                         Aprobar Legal
                     </button>
-
                     <button type="button" class="btn btn-danger"
                             onclick="procesarSolicitud('@Url.Action("AprobarSolicitud", "Revision")', 'LEGAL', false)">
                         Rechazar Legal
                     </button>
-
                     <button type="button" class="btn btn-success"
                             onclick="procesarSolicitud('@Url.Action("AprobarSolicitud", "Revision")', 'TECNICA', true)">
                         Aprobar Técnico
                     </button>
-
                     <button type="button" class="btn btn-danger"
                             onclick="procesarSolicitud('@Url.Action("AprobarSolicitud", "Revision")', 'TECNICA', false)">
                         Rechazar Técnico
@@ -172,7 +163,7 @@
         const usuarioLogueadoId = @usuarioId;
     </script>
     <script>
-               function abrirRevision(solicitudId, empresa, tipoFianza, montoFianza, tipoFianzaId) {
+        function abrirRevision(solicitudId, empresa, tipoFianza, montoFianza, tipoFianzaId) {
             document.getElementById("solicitudIdRevision").value = solicitudId;
             document.getElementById("solicitudIdLabel").innerText = solicitudId;
             document.getElementById("empresaRevision").innerText = empresa;
@@ -193,7 +184,7 @@
                 document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
                 document.body.classList.remove('modal-open');
                 document.body.style = '';
-            }, { once: true }); // Se ejecuta solo una vez
+            }, { once: true });
         }
 
         async function procesarSolicitud(url, tipoAprobacion, aprobado) {
@@ -214,7 +205,7 @@
                 sfId: parseInt(solicitudId),
                 tipoAprobacion: tipoAprobacion,
                 aprobado: aprobado,
-                usuarioId: usuarioLogueadoId,  // Define esto arriba con Razor
+                usuarioId: usuarioLogueadoId,
                 observacion: observaciones
             };
 
@@ -238,7 +229,6 @@
                 } else {
                     Swal.fire('Error', result.mensaje, 'error');
                 }
-
             } catch (error) {
                 Swal.fire('Error', 'Error al conectar con el servidor.', 'error');
             }
@@ -256,7 +246,7 @@
     {
         <script>
             Swal.fire({
-                title: '¡Exito!',
+                title: '¡Éxito!',
                 text: '@successMessage',
                 icon: 'success',
                 confirmButtonText: 'OK'
