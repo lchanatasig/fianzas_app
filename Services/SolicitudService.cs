@@ -126,6 +126,10 @@ namespace fianzas_app.Services
                             solicitudDetalle.SfId = reader.GetInt32(reader.GetOrdinal("sf_id"));
                             solicitudDetalle.SfEmpId = reader.GetInt32(reader.GetOrdinal("sf_emp_id"));
                             solicitudDetalle.EmpresaNombre = reader["emp_nombre"].ToString();
+                            solicitudDetalle.EmpUbicacion = reader["emp_ubicacion"].ToString();
+                            solicitudDetalle.EmpRuc = reader["emp_RUC"].ToString();
+                            solicitudDetalle.EmpEmail = reader["emp_email"].ToString();
+                            solicitudDetalle.EmpTelefono = reader["emp_telefono"].ToString();
                             solicitudDetalle.SfTposId = reader.GetInt32(reader.GetOrdinal("sf_tpos_id"));
                             solicitudDetalle.TipoSolicitudNombre = reader["tpos_nombre"].ToString();
                             solicitudDetalle.SfEstfId = reader.GetInt32(reader.GetOrdinal("sf_estf_id"));
@@ -170,16 +174,22 @@ namespace fianzas_app.Services
                                 var prenda = new PrendaResponse
                                 {
                                     PrenId = reader.GetInt32(reader.GetOrdinal("pren_id")),
-                                    PrenFechaCreacion = reader.GetDateTime(reader.GetOrdinal("pren_fecha_creacino")),
+                                    PrenFechaCreacion = reader.IsDBNull(reader.GetOrdinal("pren_fecha_creacino"))
+                        ? DateTime.MinValue
+                        : reader.GetDateTime(reader.GetOrdinal("pren_fecha_creacino")),
                                     PrenTipo = reader["pren_tipo"].ToString(),
                                     PrenBien = reader["pren_bien"].ToString(),
                                     PrenDescripcion = reader["pren_descripcion"].ToString(),
                                     PrenValor = reader.GetDecimal(reader.GetOrdinal("pren_valor")),
                                     PrenUbicacion = reader["pren_ubicacion"].ToString(),
                                     PrenCustodio = reader["pren_custodio"].ToString(),
-                                    PrenFechaConstatacion = reader.GetDateTime(reader.GetOrdinal("pren_fecha_constatacion")),
+                                    PrenFechaConstatacion = reader.IsDBNull(reader.GetOrdinal("pren_fecha_constatacion"))
+                        ? DateTime.MinValue
+                        : reader.GetDateTime(reader.GetOrdinal("pren_fecha_constatacion")),
                                     PrenResponsableConstatacion = reader["pren_responsable_constatacion"].ToString()
                                 };
+
+
 
                                 solicitudDetalle.Prendas.Add(prenda);
                             }

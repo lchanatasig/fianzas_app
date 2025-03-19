@@ -6,6 +6,15 @@
         public int SfId { get; set; }
         public int SfEmpId { get; set; }
         public string EmpresaNombre { get; set; }
+        public string? EmpCiudad { get; set; }
+
+        public string? EmpUbicacion { get; set; }
+
+        public string EmpRuc { get; set; } = null!;
+
+        public string EmpTelefono { get; set; } = null!;
+
+        public string EmpEmail { get; set; } = null!;
         public int SfTposId { get; set; }
         public string TipoSolicitudNombre { get; set; }
         public int SfEstfId { get; set; }

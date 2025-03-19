@@ -102,22 +102,50 @@ namespace fianzas_app.Controllers
             PdfStamper pdfStamper = new PdfStamper(pdfReader, memoryStream);
             AcroFields formFields = pdfStamper.AcroFields;
 
-            // Rellenar los campos de la plantilla con los datos obtenidos.
-            formFields.SetField("txt_publico", solicitudDetalle.SfSectorFianza);
-            formFields.SetField("txt_privado", solicitudDetalle.SfSectorFianza);
+            if (solicitudDetalle.SfSectorFianza.Equals("Público", StringComparison.OrdinalIgnoreCase))
+            {
+                formFields.SetField("txt_publico", "X");
+                formFields.SetField("txt_privado", "");
+            }
+            else if (solicitudDetalle.SfSectorFianza.Equals("Privado", StringComparison.OrdinalIgnoreCase))
+            {
+                formFields.SetField("txt_publico", "");
+                formFields.SetField("txt_privado", "X");
+            }
+
             formFields.SetField("txt_legal", (solicitudDetalle.SfAprobacionLegal.HasValue && solicitudDetalle.SfAprobacionLegal.Value == 1) ? "X" : "");
             formFields.SetField("txt_tecnica", (solicitudDetalle.SfAprobacionTecnica.HasValue && solicitudDetalle.SfAprobacionTecnica.Value == 1) ? "X" : "");
             formFields.SetField("txt_empresa_nombre", solicitudDetalle.EmpresaNombre);
+            formFields.SetField("txt_direccion_empresa", solicitudDetalle.EmpUbicacion);
+            formFields.SetField("txt_ci_empresa", solicitudDetalle.EmpRuc);
+            formFields.SetField("txt_email_empresa", solicitudDetalle.EmpEmail);
+            formFields.SetField("txt_telefono_empresa", solicitudDetalle.EmpTelefono);
+            formFields.SetField("txt_beneficiario_nombre", solicitudDetalle.BenNombre);
+            formFields.SetField("txt_direccion_beneficiario", solicitudDetalle.BenDireccion);
+            formFields.SetField("txt_ci_beneficiario", solicitudDetalle.BenCiRuc);
+            formFields.SetField("txt_email_beneficiario", solicitudDetalle.BenEmail);
+            formFields.SetField("txt_telefono_beneficiario", solicitudDetalle.BenTelefono);
             formFields.SetField("campo_fecha", solicitudDetalle.SfFechaSolicitud.ToShortDateString());
             formFields.SetField("campo_tipo_fianza", solicitudDetalle.TipoSolicitudNombre);
             // O, si prefieres mostrar solo números con dos decimales:
-            formFields.SetField("campo_monto_fianza", solicitudDetalle.SfMontoFianza.HasValue
+            formFields.SetField("txt_monto_contrato", solicitudDetalle.SfMontoFianza.HasValue
       ? solicitudDetalle.SfMontoFianza.Value.ToString("C")
       : "0");
-            formFields.SetField("campo_monto_contrato", solicitudDetalle.SfMontoContrato.HasValue
+            formFields.SetField("txt_monto_garantia", solicitudDetalle.SfMontoContrato.HasValue
                 ? solicitudDetalle.SfMontoContrato.Value.ToString("C")
                 : "0");
 
+            if (solicitudDetalle.SfMontoContrato.HasValue &&
+    solicitudDetalle.SfMontoFianza.HasValue &&
+    solicitudDetalle.SfMontoContrato.Value != 0)
+            {
+                decimal porcentaje = (solicitudDetalle.SfMontoContrato.Value / solicitudDetalle.SfMontoFianza.Value) * 100;
+                formFields.SetField("txt_porcentaje_monto", porcentaje.ToString("N2") + "%");
+            }
+            else
+            {
+                formFields.SetField("txt_porcentaje_monto", "0%");
+            }
 
             // Puedes agregar más campos, por ejemplo:
             // formFields.SetField("campo_direccion", solicitudDetalle.BenDireccion);
