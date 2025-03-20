@@ -126,7 +126,9 @@ namespace fianzas_app.Controllers
             formFields.SetField("txt_email_beneficiario", solicitudDetalle.BenEmail);
             formFields.SetField("txt_telefono_beneficiario", solicitudDetalle.BenTelefono);
             formFields.SetField("campo_fecha", solicitudDetalle.SfFechaSolicitud.ToShortDateString());
-            formFields.SetField("campo_tipo_fianza", solicitudDetalle.TipoSolicitudNombre);
+
+            formFields.SetField("txt_objeto_contrato", solicitudDetalle.SfObjetoContrato);
+            formFields.SetField("txt_plazo_dias", solicitudDetalle.SfPlazoGarantiaDias.ToString());
             // O, si prefieres mostrar solo números con dos decimales:
             formFields.SetField("txt_monto_contrato", solicitudDetalle.SfMontoFianza.HasValue
       ? solicitudDetalle.SfMontoFianza.Value.ToString("C")
