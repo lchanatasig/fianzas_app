@@ -281,17 +281,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const hot = new Handsontable(container, {
         data: [],
         colHeaders: [
-            'Tipo',
-            'Bien',
-            'Descripción',
-            'Valor',
-            'Ubicación',
-            'Custodio',
-            'Fecha de Constatación',
-            'Responsable de Constatación'
+            'N. ÍTEM',
+            'BIEN',
+            'CONTENIDO/DESCRIPCIÓN',
+            'VALOR',
+            'UBICACIÓN',
+            'CUSTODIO',
+            'FECHA DE CONSTATACIÓN',
+            'RESPONSABLE DE CONSTATACIÓN'
         ],
         columns: [
-            { data: 'PrenTipo', type: 'text' },
+            { data: 'PrenNumeroItem', type: 'numeric' },
             { data: 'PrenBien', type: 'text' },
             { data: 'PrenDescripcion', type: 'text' },
             { data: 'PrenValor', type: 'numeric', numericFormat: { pattern: '0,0.00' } },
@@ -307,14 +307,47 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const form = document.getElementById('solicitudFianzaForm');
+
     form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
         const prendasData = hot.getSourceData();
+
         const prendasFiltradas = prendasData.filter(prenda =>
             Object.values(prenda).some(x => x !== null && x !== '')
         );
+
+        const tipoPrendaSeleccionada = document.querySelector('input[name="prenda"]:checked');
+
+        if (!tipoPrendaSeleccionada) {
+            const feedback = document.getElementById('documentosSecundariosFeedback');
+            feedback.style.display = 'block';
+            feedback.textContent = 'Seleccione un documento adicional.';
+            return;
+        }
+
+        const tipoPrenda = tipoPrendaSeleccionada.value;
+
+        prendasFiltradas.forEach((prenda, index) => {
+            prenda.PrenTipo = tipoPrenda;
+            prenda.PrenNumeroItem = index + 1;
+            prenda.PrenFechaCreacino = new Date().toISOString(); // ISO para formato SQL compatible
+        });
+
+        const valorTotal = prendasFiltradas.reduce((total, prenda) => {
+            return total + (parseFloat(prenda.PrenValor) || 0);
+        }, 0);
+
+        prendasFiltradas.forEach(prenda => {
+            prenda.PrenValorTotal = valorTotal;
+        });
+
         const prendasJsonField = document.getElementById('PrendasJson');
         prendasJsonField.value = JSON.stringify(prendasFiltradas);
+
+        form.submit();
     });
+
 
     // ---------- DISPARAR EVENTOS 'CHANGE' AL CARGAR LA VISTA ----------
     if (typeof empresasData !== 'undefined') {

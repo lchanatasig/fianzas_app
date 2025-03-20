@@ -29,8 +29,9 @@
                 <table id="alternative-pagination" class="table table-bordered dt-responsive nowrap table-striped align-middle" style="width:100%">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th hidden>ID</th>
                             <th>Empresa</th>
+                            <th>Beneficiario</th>
                             <th>Tipo de Fianza</th>
                             <th>Monto</th>
                             <th>Acción</th>
@@ -40,8 +41,9 @@
                         @foreach (var solicitud in Model.Where(s => s.SfEstfId == 1))
                         {
                             <tr>
-                                <td>@solicitud.SfId</td>
+                                <td hidden>@solicitud.SfId</td>
                                 <td>@solicitud.EmpresaNombre</td>
+                                <td>@solicitud.BeneficiarioNombre</td>
                                 <td>@solicitud.TipoSolicitudNombre</td>
                                 <td>@String.Format("{0:C}", solicitud.SfMontoFianza)</td>
                                 <td>
@@ -84,7 +86,7 @@
                     <h6>Documento Adicional:</h6>
                     <ul>
                         <li>
-                            <a href="@Url.Action("Download", "Documentos", new { id = 4 })" download>Documento Adicional (Prenda PDF)</a>
+                            <a href="@Url.Action("Download", "Document", new { id = 4 })" download>Documento Adicional (Prenda PDF)</a>
                         </li>
                     </ul>
                 </div>

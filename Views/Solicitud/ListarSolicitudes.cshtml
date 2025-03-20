@@ -10,9 +10,9 @@
 }
 
 @section styles {
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
 }
 
 <div class="row">
@@ -24,7 +24,7 @@
                 <table id="alternative-pagination" class="table table-bordered dt-responsive nowrap table-striped align-middle" style="width:100%">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th hidden>ID</th>
                             <th>Beneficiario</th>
                             <th>Tipo de Fianza</th>
                             <th>Monto</th>
@@ -37,7 +37,7 @@
                         @foreach (var solicitud in Model)
                         {
                             <tr>
-                                <td>@solicitud.SfId</td>
+                                <td hidden>@solicitud.SfId</td>
                                 <td>@(solicitud.BeneficiarioNombre ?? "No definido")</td>
                                 <td>@(solicitud.TipoSolicitudNombre ?? "Sin datos")</td>
                                 <td>@String.Format("{0:C}", solicitud.SfMontoFianza)</td>
@@ -66,19 +66,33 @@
                                 </td>
                                 <td>@(string.IsNullOrEmpty(solicitud.SfhObservacion) ? "Sin observaciones" : solicitud.SfhObservacion)</td>
                                 <td>
-                                    @if (solicitud.SfEstfId == 2 || solicitud.SfEstfId == 3)
+                                    @if (solicitud.SfEstfId == 2)
                                     {
                                         <button class="btn btn-primary btn-sm"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#gestionDocumentosModal"
-                                                onclick="abrirModal(@solicitud.SfId, @solicitud.SfMontoFianza, @solicitud.SfTposId)">
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#gestionDocumentosModal"
+                                        onclick="abrirModal(@solicitud.SfId, @solicitud.SfMontoFianza, @solicitud.SfTposId)">
                                             Gestión Documentos
                                         </button>
                                     }
+                                    else if (solicitud.SfEstfId == 3)
+                                    {
+                                        <!-- Buttons with Label -->
+                                        <button class="btn btn-primary btn-label waves-effect waves-light btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#gestionDocumentosModal"
+                                                onclick="abrirModal(@solicitud.SfId, @solicitud.SfMontoFianza, @solicitud.SfTposId)">
+                                            <i class="ri-file-download-fill label-icon align-middle fs-16 me-2"></i>
+                                            Descargar Documentos Firmados
+                                        </button>
+
+                                        <!-- Buttons with Label -->
+                                    }
                                     else if (solicitud.SfEstfId == 5)
                                     {
-                                        <a class="btn btn-secondary btn-sm"
+                                        <a class="btn btn-secondary btn-label waves-effect waves-light btn-sm"
                                            href="@Url.Action("EditarSolicitudFianza", "Solicitud", new { id = solicitud.SfId })">
+                                            <i class=" ri-ball-pen-line label-icon align-middle fs-16 me-2"></i>
                                             Revisar
                                         </a>
                                     }
@@ -160,27 +174,27 @@
     <script>
         function abrirModal(sfdId, montoFianza, tposId) {
             console.log("Abriendo gestión documentos", { sfdId, montoFianza, tposId });
-
-            // Poner el ID de la solicitud en el campo oculto
             $('#sfdId').val(sfdId);
 
             const tipoFianza = getTipoFianzaNombre(tposId);
             const montoFormateado = parseFloat(montoFianza).toLocaleString('es-ES', { style: 'currency', currency: 'USD' });
+            // URL para la solicitud de fianza (generada en otra acción)
+            const generatePdfUrl = '@Url.Action("GeneratePdf", "Document")';
+            // Base URL para la descarga de documentos
+            const baseDownloadUrl = '@Url.Action("Download", "Document")';
+            const documentos = getDocumentosPorTipoFianza(tposId);
 
-            // Construir URLs de documentos
-            let documentosHtml = `<li><a href="${generarUrlSolicitud(tipoFianza, sfdId)}" download>Solicitud de Fianza (PDF)</a></li>`;
-            documentosHtml += `<li><a href="@Url.Action("Download", "Document", new { id = 1 })" download>Convenio de Fianza (PDF)</a></li>`;
-            documentosHtml += `<li><a href="@Url.Action("Download", "Document", new { id = 3 })" download>Pagaré (PDF)</a></li>`;
+            let documentosHtml = `<li><a href="${generatePdfUrl}?type=${getTipoFianzaQueryParam(tipoFianza)}&id=${sfdId}" download>Solicitud de Fianza (PDF)</a></li>`;
+            documentosHtml += `<li><a href="${baseDownloadUrl}?solicitudId=${sfdId}&docTypeId=${documentos[0].id}" download>${documentos[0].nombre} (PDF)</a></li>`;
+            documentosHtml += `<li><a href="${baseDownloadUrl}?solicitudId=${sfdId}&docTypeId=${documentos[1].id}" download>${documentos[1].nombre} (PDF)</a></li>`;
 
             if (parseFloat(montoFianza) > 416000) {
-                documentosHtml += `<li><a href="@Url.Action("Download", "Document", new { id = 4 })" download>Prenda (PDF)</a></li>`;
+                documentosHtml += `<li><a href="${baseDownloadUrl}?solicitudId=${sfdId}&docTypeId=${documentos[2].id}" download>${documentos[2].nombre} (PDF)</a></li>`;
             }
 
-            // Contenido HTML del modal
             let modalHtml = `<p><strong>Monto de la Fianza:</strong> ${montoFormateado}</p>`;
             modalHtml += `<h6>Documentos Disponibles:</h6><ul>${documentosHtml}</ul>`;
 
-            // Sección para subir documentos firmados
             modalHtml += `<h6>Subir Documentos Firmados:</h6>`;
             modalHtml += `
                 <div class="mb-3">
@@ -188,45 +202,23 @@
                     <input type="file" id="fileSolicitud" name="documentoSolicitud" class="form-control" />
                 </div>
                 <div class="mb-3">
-                    <label for="fileConvenio">Convenio de Fianza</label>
+                    <label for="fileConvenio">${documentos[0].nombre}</label>
                     <input type="file" id="fileConvenio" name="documentoConvenio" class="form-control" />
                 </div>
                 <div class="mb-3">
-                    <label for="filePagare">Pagaré</label>
+                    <label for="filePagare">${documentos[1].nombre}</label>
                     <input type="file" id="filePagare" name="documentoPagare" class="form-control" />
                 </div>`;
 
             if (parseFloat(montoFianza) > 416000) {
                 modalHtml += `
                     <div class="mb-3">
-                        <label for="filePrenda">Prenda</label>
+                        <label for="filePrenda">${documentos[2].nombre}</label>
                         <input type="file" id="filePrenda" name="documentoPrenda" class="form-control" />
                     </div>`;
             }
 
             $("#modalContent").html(modalHtml);
-        }
-
-        function generarUrlSolicitud(tipoFianza, solicitudId) {
-            let urlBase = '@Url.Action("GeneratePdf", "Document")';
-            let urlFinal = "";
-
-            switch (tipoFianza) {
-                case "BUEN USO DEL ANTICIPO":
-                    urlFinal = `${urlBase}?type=anticipo&id=${solicitudId}`;
-                    break;
-                case "FIEL CUMPLIMIENTO DEL CONTRATO":
-                    urlFinal = `${urlBase}?type=cumplimiento&id=${solicitudId}`;
-                    break;
-                case "GARANTIA ADUANERA":
-                    urlFinal = `${urlBase}?type=aduanera&id=${solicitudId}`;
-                    break;
-                default:
-                    urlFinal = `${urlBase}?type=anticipo&id=${solicitudId}`; // fallback
-                    break;
-            }
-
-            return urlFinal;
         }
 
         function getTipoFianzaNombre(tposId) {
@@ -238,7 +230,44 @@
             }
         }
 
-        // Cleanup del modal
+        function getTipoFianzaQueryParam(tipoFianza) {
+            switch (tipoFianza) {
+                case "BUEN USO DEL ANTICIPO": return "anticipo";
+                case "FIEL CUMPLIMIENTO DEL CONTRATO": return "cumplimiento";
+                case "GARANTIA ADUANERA": return "aduanera";
+                default: return "anticipo";
+            }
+        }
+
+        function getDocumentosPorTipoFianza(tposId) {
+            switch (parseInt(tposId)) {
+                case 1:
+                    return [
+                        { id: 1, nombre: 'Convenio de Fiel Cumplimiento' },
+                        { id: 3, nombre: 'Pagaré de Fiel Cumplimiento' },
+                        { id: 4, nombre: 'Prenda de Fiel Cumplimiento' }
+                    ];
+                case 2:
+                    return [
+                        { id: 5, nombre: 'Convenio de Garantía Aduanera' },
+                        { id: 6, nombre: 'Pagaré de Garantía Aduanera' },
+                        { id: 7, nombre: 'Prenda de Garantía Aduanera' }
+                    ];
+                case 3:
+                    return [
+                        { id: 8, nombre: 'Convenio de Buen Uso del Anticipo' },
+                        { id: 9, nombre: 'Pagaré de Buen Uso del Anticipo' },
+                        { id: 10, nombre: 'Prenda de Buen Uso del Anticipo' }
+                    ];
+                default:
+                    return [
+                        { id: 1, nombre: 'Convenio' },
+                        { id: 3, nombre: 'Pagaré' },
+                        { id: 4, nombre: 'Prenda' }
+                    ];
+            }
+        }
+
         $('#gestionDocumentosModal').on('hidden.bs.modal', function () {
             $('body').removeClass('modal-open');
             $('.modal-backdrop').remove();

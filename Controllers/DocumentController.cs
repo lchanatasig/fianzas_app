@@ -31,29 +31,90 @@ namespace fianzas_app.Controllers
         /// id = 1: Convenio, id = 2: Solicitud, id = 3: Pagaré, id = 4: Prenda.
         /// </summary>
         [HttpGet]
-        public IActionResult Download(int id)
+        public async Task<IActionResult> Download(int solicitudId, int docTypeId)
         {
-            // Mapeo de id a nombres de archivo (con extensión .pdf)
-            string[] fileNames = new string[]
+            // Se obtiene el detalle de la solicitud usando el id de la solicitud.
+            var solicitudDetalle = await _sfdService.ObtenerSolicitudPorIdAsync(solicitudId);
+            if (solicitudDetalle == null)
+                return NotFound("No se encontró la solicitud.");
+
+            // Se selecciona la plantilla según el docTypeId y se define el nombre base del documento.
+            string templateFile = string.Empty;
+            string docName = string.Empty;
+            if (docTypeId == 1 || docTypeId == 5 || docTypeId == 8)
             {
-                "CONVENIO_DE_FIANZAS_Form.pdf", // id = 1
-                "solicitud_form.pdf",           // id = 2
-                "pagare_form.pdf",              // id = 3
-                "prenda_form.pdf"               // id = 4
-            };
+                templateFile = "CONVENIO_DE_FIANZAS_Form.pdf";
+                docName = "Convenio";
+            }
+            else if (docTypeId == 3 || docTypeId == 6 || docTypeId == 9)
+            {
+                templateFile = "pagare_form.pdf";
+                docName = "Pagare";
+            }
+            else if (docTypeId == 4 || docTypeId == 7 || docTypeId == 10)
+            {
+                templateFile = "prenda_form.pdf";
+                docName = "Prenda";
+            }
+            else
+            {
+                return NotFound("Documento no reconocido.");
+            }
 
-            if (id < 1 || id > fileNames.Length)
-                return NotFound("El documento no existe.");
+            string templatePath = Path.Combine(_templateFolder, templateFile);
+            if (!System.IO.File.Exists(templatePath))
+                return NotFound("El template PDF no se encontró.");
 
-            string fileName = fileNames[id - 1];
-            string filePath = Path.Combine(_templateFolder, fileName);
+            // Usamos MemoryStream para trabajar en memoria y generar el PDF al vuelo.
+            using (MemoryStream outputStream = new MemoryStream())
+            {
+                using (PdfReader pdfReader = new PdfReader(templatePath))
+                using (PdfStamper pdfStamper = new PdfStamper(pdfReader, outputStream))
+                {
+                    AcroFields formFields = pdfStamper.AcroFields;
 
-            if (!System.IO.File.Exists(filePath))
-                return NotFound("El documento no se encontró.");
+                    // Rellenamos los campos según el tipo de documento.
+                    if (docTypeId == 1 || docTypeId == 5 || docTypeId == 8)
+                    {
+                        // Relleno para Convenio
+                        formFields.SetField("sf_id", solicitudDetalle.SfId.ToString());
+                        formFields.SetField("empresa_nombre", solicitudDetalle.EmpresaNombre);
+                        formFields.SetField("emp_ruc", solicitudDetalle.EmpRuc);
+                        // Completa con los demás campos requeridos...
+                    }
+                    else if (docTypeId == 3 || docTypeId == 6 || docTypeId == 9)
+                    {
+                        // Relleno para Pagaré
+                        formFields.SetField("txt_monto_contrato", solicitudDetalle.SfMontoFianza.HasValue
+                            ? solicitudDetalle.SfMontoFianza.Value.ToString("C")
+                            : "0");
+                        formFields.SetField("empresa_nombre", solicitudDetalle.EmpresaNombre);
+                        // Completa con los demás campos requeridos...
+                    }
+                    else if (docTypeId == 4 || docTypeId == 7 || docTypeId == 10)
+                    {
+                        // Relleno para Prenda
+                        formFields.SetField("sf_plazo_garantia_dias", solicitudDetalle.SfPlazoGarantiaDias.ToString());
+                        formFields.SetField("empresa_nombre", solicitudDetalle.EmpresaNombre);
+                        // Completa con los demás campos requeridos...
+                    }
 
-            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
-            return File(fileBytes, "application/pdf", fileName);
+                    // Opcional: Aplanamos el formulario para evitar que se editen los campos.
+                    pdfStamper.FormFlattening = true;
+                }
+
+                byte[] pdfBytes = outputStream.ToArray();
+
+                // Generamos un número aleatorio para el nombre del archivo.
+                Random rnd = new Random();
+                int randomNumber = rnd.Next(1000, 9999);
+
+                // Se construye el nombre del archivo usando el nombre base, el id de la solicitud y el número aleatorio.
+                string fileDownloadName = $"{docName}_{solicitudId}_{randomNumber}.pdf";
+                return File(pdfBytes, "application/pdf", fileDownloadName);
+            }
         }
+
 
         /// <summary>
         /// Genera dinámicamente un PDF a partir de una plantilla, usando iTextSharp.
@@ -124,8 +185,27 @@ namespace fianzas_app.Controllers
             formFields.SetField("txt_direccion_beneficiario", solicitudDetalle.BenDireccion);
             formFields.SetField("txt_ci_beneficiario", solicitudDetalle.BenCiRuc);
             formFields.SetField("txt_email_beneficiario", solicitudDetalle.BenEmail);
+            formFields.SetField("txt_lugar_fecha", $"{solicitudDetalle.EmpUbicacion} {solicitudDetalle.SfFechaSolicitud:dd/MM/yyyy}");
             formFields.SetField("txt_telefono_beneficiario", solicitudDetalle.BenTelefono);
-            formFields.SetField("campo_fecha", solicitudDetalle.SfFechaSolicitud.ToShortDateString());
+            // Extraemos día, mes y año con formato de dos dígitos para día y mes
+            if (solicitudDetalle.SfFinVigencia.HasValue)
+            {
+                string dia = solicitudDetalle.SfFinVigencia.Value.Day.ToString("D2");
+                string mes = solicitudDetalle.SfFinVigencia.Value.Month.ToString("D2");
+                string anio = solicitudDetalle.SfFinVigencia.Value.Year.ToString();
+
+                formFields.SetField("txt_dias", dia);
+                formFields.SetField("txt_mes", mes);
+                formFields.SetField("txt_anio", anio);
+            }
+            else
+            {
+                // Manejar el caso en el que SfFinVigencia es null, por ejemplo:
+                formFields.SetField("txt_dias", string.Empty);
+                formFields.SetField("txt_mes", string.Empty);
+                formFields.SetField("txt_anio", string.Empty);
+            }
+
 
             formFields.SetField("txt_objeto_contrato", solicitudDetalle.SfObjetoContrato);
             formFields.SetField("txt_plazo_dias", solicitudDetalle.SfPlazoGarantiaDias.ToString());
