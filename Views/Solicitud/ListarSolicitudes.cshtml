@@ -10,9 +10,7 @@
 }
 
 @section styles {
-    <!-- Datatable CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
-    <!-- Datatable Responsive CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
 }
@@ -20,10 +18,8 @@
 <div class="row">
     <div class="col-lg-12">
         <div class="card">
-            <a href="@Url.Action("RegistrarSolicitudFianza", "Solicitud")" class="btn btn-sm btn-info">
-                Crear Solicitud
-            </a>
-            <h2>Gestión de Solicitud</h2>
+            <a href="@Url.Action("RegistrarSolicitudFianza", "Solicitud")" class="btn btn-sm btn-info">Crear Solicitud</a>
+            <h2>Gestión de Solicitudes</h2>
             <div class="card-body">
                 <table id="alternative-pagination" class="table table-bordered dt-responsive nowrap table-striped align-middle" style="width:100%">
                     <thead>
@@ -50,34 +46,32 @@
                                     {
                                         case 1:
                                             <span class="badge bg-warning">En espera de aprobación</span>
-                                            break;
+                                            ; break;
                                         case 2:
                                             <span class="badge bg-info">Aprobada sin documentación</span>
-                                            break;
+                                            ; break;
                                         case 3:
                                             <span class="badge bg-success">Aprobada y documentada</span>
-                                            break;
+                                            ; break;
                                         case 4:
                                             <span class="badge bg-success">Liberada</span>
-                                            break;
+                                            ; break;
                                         case 5:
                                             <span class="badge bg-danger">Rechazada</span>
-                                            break;
+                                            ; break;
                                         default:
                                             <span class="badge bg-secondary">Sin estado</span>
-                                            break;
+                                            ; break;
                                     }
                                 </td>
                                 <td>@(string.IsNullOrEmpty(solicitud.SfhObservacion) ? "Sin observaciones" : solicitud.SfhObservacion)</td>
                                 <td>
                                     @if (solicitud.SfEstfId == 2 || solicitud.SfEstfId == 3)
                                     {
-                                        <!-- Guardamos el valor de SfTposId en un input oculto -->
-                                        <input type="hidden" class="hidden-tpos" value="@solicitud.SfTposId" />
                                         <button class="btn btn-primary btn-sm"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#gestionDocumentosModal"
-                                                onclick="abrirModal(@(solicitud.SfId), @(solicitud.SfEstfId), @(solicitud.SfMontoFianza), this)">
+                                                onclick="abrirModal(@solicitud.SfId, @solicitud.SfMontoFianza, @solicitud.SfTposId)">
                                             Gestión Documentos
                                         </button>
                                     }
@@ -111,13 +105,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <!-- Formulario para subir documentos firmados -->
                 <form id="uploadDocumentsForm" method="post" enctype="multipart/form-data" action="@Url.Action("InsertSfd", "Document")">
-                    <div id="modalContent">
-                        <!-- Se inyecta el contenido dinámico vía JavaScript -->
-                    </div>
-                    <!-- Campo oculto para identificar la solicitud -->
                     <input type="hidden" id="sfdId" name="sfdId" value="" />
+                    <div id="modalContent"></div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -129,9 +119,7 @@
 </div>
 
 @section scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
@@ -170,74 +158,87 @@
     }
 
     <script>
-        function abrirModal(sfdId, estfId, montoFianza, btn) {
-            // Obtener el valor de SfTposId desde el input oculto de la celda
-            var $td = $(btn).closest('td');
-            var tposid = $td.find('input.hidden-tpos').val();
-            // Establecer el id de la solicitud en el input oculto del formulario
+        function abrirModal(sfdId, montoFianza, tposId) {
+            console.log("Abriendo gestión documentos", { sfdId, montoFianza, tposId });
+
+            // Poner el ID de la solicitud en el campo oculto
             $('#sfdId').val(sfdId);
 
-            // Definir los nombres de documentos y el tipo de firma según tposid
-            var documentNames = [];
-            var firmaTipo = "";
-            switch (parseInt(tposid)) {
-                case 1: // Fiel Cumplimiento del Contrato
-                    documentNames = ['Solicitud Contrato', 'Convenio Contrato', 'Pagaré Contrato', 'Prenda Contrato'];
-                    firmaTipo = "Firma Digital";
-                    break;
-                case 2: // Garantía Aduanera
-                    documentNames = ['Solicitud Aduanera', 'Convenio Aduanera', 'Pagaré Aduanera', 'Garantía Aduanera'];
-                    firmaTipo = "Firma Manual";
-                    break;
-                case 3: // Buen Uso del Anticipo
-                    documentNames = ['Solicitud Anticipo', 'Convenio Anticipo', 'Pagaré Anticipo', 'Buen Uso Anticipo'];
-                    firmaTipo = "Firma Digital";
-                    break;
-                default:
-                    documentNames = ['Solicitud', 'Convenio', 'Pagaré', 'Prenda'];
-                    firmaTipo = "Firma Manual";
-                    break;
+            const tipoFianza = getTipoFianzaNombre(tposId);
+            const montoFormateado = parseFloat(montoFianza).toLocaleString('es-ES', { style: 'currency', currency: 'USD' });
+
+            // Construir URLs de documentos
+            let documentosHtml = `<li><a href="${generarUrlSolicitud(tipoFianza, sfdId)}" download>Solicitud de Fianza (PDF)</a></li>`;
+            documentosHtml += `<li><a href="@Url.Action("Download", "Document", new { id = 1 })" download>Convenio de Fianza (PDF)</a></li>`;
+            documentosHtml += `<li><a href="@Url.Action("Download", "Document", new { id = 3 })" download>Pagaré (PDF)</a></li>`;
+
+            if (parseFloat(montoFianza) > 416000) {
+                documentosHtml += `<li><a href="@Url.Action("Download", "Document", new { id = 4 })" download>Prenda (PDF)</a></li>`;
             }
 
-            // Se utiliza Url.Action para crear el template de la URL de descarga.
-            // Este template apuntará a la acción Download del controlador Documentos, la cual se encargará de retornar el PDF.
-            var downloadUrlTemplate = '@Url.Action("Download", "Document", new { id = "DOCUMENT_ID" })';
-            var montoFormateado = montoFianza.toLocaleString('es-ES', { style: 'currency', currency: 'USD' });
-            var modalHtml = "";
-            modalHtml += "<p>Monto de fianza: " + montoFormateado + "</p>";
+            // Contenido HTML del modal
+            let modalHtml = `<p><strong>Monto de la Fianza:</strong> ${montoFormateado}</p>`;
+            modalHtml += `<h6>Documentos Disponibles:</h6><ul>${documentosHtml}</ul>`;
 
-            // Sección: Documentos Disponibles para descargar
-            modalHtml += "<h6>Documentos Disponibles:</h6>";
-            var numDocumentos = (montoFianza > 416000) ? 4 : 3;
-            for (var i = 0; i < numDocumentos; i++) {
-                var urlDescarga = downloadUrlTemplate.replace("DOCUMENT_ID", (i + 1));
-                modalHtml += '<p><a href="' + urlDescarga + '" target="_blank">' + documentNames[i] + '</a></p>';
-            }
+            // Sección para subir documentos firmados
+            modalHtml += `<h6>Subir Documentos Firmados:</h6>`;
+            modalHtml += `
+                <div class="mb-3">
+                    <label for="fileSolicitud">Solicitud de Fianza</label>
+                    <input type="file" id="fileSolicitud" name="documentoSolicitud" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="fileConvenio">Convenio de Fianza</label>
+                    <input type="file" id="fileConvenio" name="documentoConvenio" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label for="filePagare">Pagaré</label>
+                    <input type="file" id="filePagare" name="documentoPagare" class="form-control" />
+                </div>`;
 
-            // Sección: Selección del tipo de firma
-            modalHtml += "<h6>Selecciona el tipo de firma:</h6>";
-            modalHtml += '<div class="form-check form-check-inline">';
-            modalHtml += '<input class="form-check-input" type="radio" name="firmaTipo" id="firmaDigital" value="Firma Digital" ' + (firmaTipo === "Firma Digital" ? "checked" : "") + '>';
-            modalHtml += '<label class="form-check-label" for="firmaDigital">Firma Digital</label>';
-            modalHtml += '</div>';
-            modalHtml += '<div class="form-check form-check-inline">';
-            modalHtml += '<input class="form-check-input" type="radio" name="firmaTipo" id="firmaManual" value="Firma Manual" ' + (firmaTipo === "Firma Manual" ? "checked" : "") + '>';
-            modalHtml += '<label class="form-check-label" for="firmaManual">Firma Manual</label>';
-            modalHtml += '</div>';
-
-            // Sección: Subir Documentos Firmados
-            modalHtml += "<h6>Subir Documentos Firmados:</h6>";
-            for (var j = 0; j < numDocumentos; j++) {
-                modalHtml += '<div class="mb-3">';
-                modalHtml += '<label for="fileInput' + (j + 1) + '">Documento ' + (j + 1) + ' (' + documentNames[j] + ')</label>';
-                modalHtml += '<input type="file" id="fileInput' + (j + 1) + '" name="documento' + (j + 1) + '" class="form-control" />';
-                modalHtml += '</div>';
+            if (parseFloat(montoFianza) > 416000) {
+                modalHtml += `
+                    <div class="mb-3">
+                        <label for="filePrenda">Prenda</label>
+                        <input type="file" id="filePrenda" name="documentoPrenda" class="form-control" />
+                    </div>`;
             }
 
             $("#modalContent").html(modalHtml);
         }
 
-        // Al cerrar el modal, eliminamos la clase "modal-open" y el backdrop para evitar interferencias visuales
+        function generarUrlSolicitud(tipoFianza, solicitudId) {
+            let urlBase = '@Url.Action("GeneratePdf", "Document")';
+            let urlFinal = "";
+
+            switch (tipoFianza) {
+                case "BUEN USO DEL ANTICIPO":
+                    urlFinal = `${urlBase}?type=anticipo&id=${solicitudId}`;
+                    break;
+                case "FIEL CUMPLIMIENTO DEL CONTRATO":
+                    urlFinal = `${urlBase}?type=cumplimiento&id=${solicitudId}`;
+                    break;
+                case "GARANTIA ADUANERA":
+                    urlFinal = `${urlBase}?type=aduanera&id=${solicitudId}`;
+                    break;
+                default:
+                    urlFinal = `${urlBase}?type=anticipo&id=${solicitudId}`; // fallback
+                    break;
+            }
+
+            return urlFinal;
+        }
+
+        function getTipoFianzaNombre(tposId) {
+            switch (parseInt(tposId)) {
+                case 1: return "FIEL CUMPLIMIENTO DEL CONTRATO";
+                case 2: return "GARANTIA ADUANERA";
+                case 3: return "BUEN USO DEL ANTICIPO";
+                default: return "DESCONOCIDO";
+            }
+        }
+
+        // Cleanup del modal
         $('#gestionDocumentosModal').on('hidden.bs.modal', function () {
             $('body').removeClass('modal-open');
             $('.modal-backdrop').remove();
