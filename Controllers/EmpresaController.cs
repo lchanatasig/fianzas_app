@@ -54,7 +54,7 @@ namespace fianzas_app.Controllers
         {
             if (request == null || string.IsNullOrWhiteSpace(request.EmpNombre) || string.IsNullOrWhiteSpace(request.EmpRUC))
             {
-                TempData["Error"] = "Datos inválidos para registrar la empresa.";
+                TempData["ErrorMessage"] = "Datos inválidos para registrar la empresa.";
                 return RedirectToAction(nameof(ListarEmpresas));
             }
 
@@ -62,11 +62,11 @@ namespace fianzas_app.Controllers
 
             if (response.Estado == "Error")
             {
-                TempData["Error"] = response.Mensaje;
+                TempData["ErrorMessage"] = response.Mensaje;
                 return RedirectToAction(nameof(RegistrarEmpresa));
             }
 
-            TempData["Success"] = response.Mensaje ?? "Empresa registrada exitosamente.";
+            TempData["SuccessMessage"] = response.Mensaje ?? "Empresa registrada exitosamente.";
             return RedirectToAction(nameof(ListarEmpresas));
         }
 

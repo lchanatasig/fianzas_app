@@ -15,7 +15,7 @@ function calcularCupo() {
     const pasivoDiferido = getNumberValue("EmpfPasivoDiferido");
     const capital = getNumberValue("EmpfCapital");
     const reserva = getNumberValue("EmpfReserva");
-    const otrasCuentasPatrimonio = getNumberValue("EmpfOtrasCuentasPatrimonio"); // Se corrigió el typo.
+    const otrasCuentasPatrimonio = getNumberValue("EmpfOtrasCuentasPatrimonio");
     const utilidadesAcumuladas = getNumberValue("EmpfUtilidadesAcumuladas");
     const utilidadEjercicio = getNumberValue("EmpfUtilidadEjercicio");
     const perdida = getNumberValue("EmpfPerdida");
@@ -23,7 +23,7 @@ function calcularCupo() {
     const ventas = getNumberValue("EmpfVentas");
     const utilidad = getNumberValue("EmpfUtilidad");
 
-    // Cálculo de totales y asignación a los inputs correspondientes (redondeados a 2 decimales).
+    // Cálculo de totales.
     const totalActivo = activoCorriente + activoFijo + activoDiferido + otrosActivos;
     document.getElementById("EmpfTotalActivos").value = totalActivo.toFixed(2);
 
@@ -39,7 +39,13 @@ function calcularCupo() {
     // Calcular base de cupo y cupo final.
     const baseCupo = (activoCorriente * 0.1) + (activoFijo * 0.05) + (ventas * 0.03) + (utilidad * 0.01) + (patrimonioNeto * 0.2);
     const cupoFinal = baseCupo * 0.10;
-    document.getElementById("EmpfCupoAsignado").value = cupoFinal.toFixed(2);
+
+    // Depuración: Mostrar en consola el valor calculado.
+    console.log("Cupo Final calculado:", cupoFinal);
+
+    // Asignar el valor redondeado al input.
+    const cupoRedondeado = cupoFinal.toFixed(2);
+    document.getElementById("EmpfCupoAsignado").value = cupoRedondeado;
 
     // Cálculo de ratios financieros con control de división por cero.
     const liquidez = pasivoCorriente !== 0 ? activoCorriente / pasivoCorriente : 0;
@@ -79,15 +85,15 @@ function validarCampo(inputId, valor, condicion) {
     }
 }
 
-// Se unifican los eventos de DOMContentLoaded para mayor eficiencia.
+// Unificar los eventos DOMContentLoaded.
 document.addEventListener('DOMContentLoaded', () => {
-    // Agregar el evento "input" a todos los campos numéricos.
+    // Asignar el evento "input" a todos los campos numéricos.
     const numericInputs = document.querySelectorAll("input[type='number']");
     numericInputs.forEach(input => {
         input.addEventListener("input", calcularCupo);
     });
 
-    // Agregar el evento "change" para los switches, garantizando que solo se seleccione uno.
+    // Configurar los switches para que solo uno se active.
     const switches = document.querySelectorAll('.form-check-input[type="checkbox"][role="switch"]');
     switches.forEach(checkbox => {
         checkbox.addEventListener('change', function () {
@@ -101,6 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Ejecutar el cálculo al cargar la página para establecer los valores iniciales.
+    // Ejecutar el cálculo al cargar la página para establecer valores iniciales.
     calcularCupo();
 });
