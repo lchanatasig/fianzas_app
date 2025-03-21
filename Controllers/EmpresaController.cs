@@ -105,11 +105,11 @@ namespace fianzas_app.Controllers
 
             if (response.Estado == "Error")
             {
-                TempData["Error"] = response.Mensaje ?? "No se pudo actualizar la empresa.";
+                TempData["ErrorMessage"] = response.Mensaje ?? "No se pudo actualizar la empresa.";
                 return RedirectToAction(nameof(ListarEmpresas));
             }
 
-            TempData["Success"] = response.Mensaje ?? "Empresa actualizada exitosamente.";
+            TempData["SuccessMessage"] = response.Mensaje ?? "Empresa actualizada exitosamente.";
             return RedirectToAction(nameof(ListarEmpresas));
         }
 
@@ -127,12 +127,12 @@ namespace fianzas_app.Controllers
 
             if (historial == null || historial.Count == 0)
             {
-                TempData["Error"] = "No se encontraron registros en el historial para la empresa.";
+                TempData["ErrorMessage"] = "No se encontraron registros en el historial para la empresa.";
                 return RedirectToAction(nameof(ListarEmpresas));
             }
 
-            ViewBag.MensajeExito = TempData["Success"];
-            ViewBag.MensajeError = TempData["Error"];
+            ViewBag.MensajeExito = TempData["SuccessMessage"];
+            ViewBag.MensajeError = TempData["ErrorMessage"];
 
             return View(historial); // Vista: Views/Empresas/HistorialEmpresa.cshtml
         }

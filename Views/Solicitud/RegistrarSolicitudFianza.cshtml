@@ -1,6 +1,5 @@
 ﻿@model List<EmpresaResponse>
 
-
 @{
     ViewBag.Title = "Solicitar Fianza";
     ViewBag.pTitle = "Fianzas";
@@ -9,15 +8,21 @@
     var successMessage = TempData["SuccessMessage"] as string;
     var errorMessage = TempData["ErrorMessage"] as string;
 }
+
 @using Microsoft.AspNetCore.Http
 @{
     var usuarioId = ViewContext.HttpContext.Session.GetInt32("UsuarioId");
     var perfilId = ViewContext.HttpContext.Session.GetInt32("PerfilId");
     var usuarioNombre = ViewContext.HttpContext.Session.GetString("UsuarioNombre");
     var usuarioCargo = ViewContext.HttpContext.Session.GetString("UsuarioPerfil");
-
 }
+
 @using System.Text.Json
+
+<!-- Se define la variable global para que el JS pueda utilizarla -->
+<script>
+    var empresasData = @Html.Raw(JsonSerializer.Serialize(ViewBag.Empresas));
+</script>
 
 <div class="row">
     <form id="solicitudFianzaForm" asp-action="CrearSolicitud" asp-controller="Solicitud" method="post" enctype="multipart/form-data" class="row g-3 needs-validation" novalidate>
@@ -27,7 +32,7 @@
             <div class="card mt-xxl-n5">
                 <div class="card-body p-4">
                     <h2 class="mb-0">Creación y Validación de Solicitud</h2>
-<hr />
+                    <hr />
                     <div class="tab-content">
                         <div class="tab-pane active" id="personalDetails" role="tabpanel">
                             <div class="row">
@@ -44,7 +49,7 @@
                                     <div class="invalid-feedback">Seleccione una empresa válida.</div>
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="cuposDisponible" class="form-label">Cupo Disponible ($)</label>
+                                    <label for="cupoDisponible" class="form-label">Cupo Disponible ($)</label>
                                     <input type="text" class="form-control" id="cupoDisponible" readonly>
                                 </div>
 
@@ -65,21 +70,19 @@
                                 <div id="datosContrato" class="d-none">
                                     <hr />
                                     <div class="row g-3">
-                                        <!-- Información del Solicitante (la empresa se carga de forma automática, no se envía) -->
+                                        <!-- Información del Solicitante (se autocompleta con datos de la empresa) -->
                                         <div class="divider-with-text">
                                             <span>Información del solicitante</span>
                                         </div>
                                         <div class="col-md-3">
                                             <label for="tipoSector" class="form-label">Tipo de Sector</label>
-                                            <!-- Este valor se usará para sectorFianza -->
                                             <select class="form-select" id="tipoSector" name="SfSectorFianza" required>
-                                                <option selected disabled  value="">Seleccione un tipo de sector...</option>
+                                                <option selected disabled value="">Seleccione un tipo de sector...</option>
                                                 <option value="Público">Público</option>
                                                 <option value="Privado">Privado</option>
                                             </select>
                                             <div class="invalid-feedback">Seleccione un tipo de sector válido.</div>
                                         </div>
-                                        <!-- Los siguientes campos de solicitante son solo informativos y se rellenan con la información de la empresa -->
                                         <div class="col-md-3">
                                             <label for="solicitante" class="form-label">Solicitante/Afianzado/Contratista</label>
                                             <input type="text" class="form-control" id="solicitante" readonly>
@@ -105,38 +108,32 @@
                                             <input type="text" class="form-control" id="telefonoSolicitante" readonly>
                                             <div class="invalid-feedback">Ingrese un teléfono o celular.</div>
                                         </div>
-
                                         <!-- Información del Beneficiario -->
                                         <div class="divider-with-text">
                                             <span>Información del beneficiario</span>
                                         </div>
                                         <div class="col-md-3">
                                             <label for="beneficiario" class="form-label">Beneficiario</label>
-                                            <!-- Mapeado a benefNombre -->
                                             <input type="text" class="form-control" id="beneficiario" name="BenNombre" required>
                                             <div class="invalid-feedback">Ingrese el nombre del beneficiario.</div>
                                         </div>
                                         <div class="col-md-3">
                                             <label for="direccionBeneficiario" class="form-label">Dirección</label>
-                                            <!-- Mapeado a benefDireccion -->
                                             <input type="text" class="form-control" id="direccionBeneficiario" name="BenDireccion" required>
                                             <div class="invalid-feedback">Ingrese la dirección del beneficiario.</div>
                                         </div>
                                         <div class="col-md-3">
                                             <label for="rucBeneficiario" class="form-label">CI/RUC</label>
-                                            <!-- Mapeado a benefCiRuc -->
                                             <input type="text" class="form-control" id="rucBeneficiario" name="BenCiRuc" required>
                                             <div class="invalid-feedback">Ingrese el CI o RUC del beneficiario.</div>
                                         </div>
                                         <div class="col-md-3">
                                             <label for="emailBeneficiario" class="form-label">E-mail</label>
-                                            <!-- Mapeado a benefEmail -->
                                             <input type="email" class="form-control" id="emailBeneficiario" name="BenEmail" required>
                                             <div class="invalid-feedback">Ingrese un e-mail válido.</div>
                                         </div>
                                         <div class="col-md-3">
                                             <label for="telefonoBeneficiario" class="form-label">Teléfono/Celular</label>
-                                            <!-- Mapeado a benefTelefono -->
                                             <input type="text" class="form-control" id="telefonoBeneficiario" name="BenTelefono" required>
                                             <div class="invalid-feedback">Ingrese un teléfono o celular.</div>
                                         </div>
@@ -149,40 +146,32 @@
                                             <div class="invalid-feedback">Ingrese el monto del contrato.</div>
                                             <small id="errorMontoContrato" class="text-danger d-none"></small>
                                         </div>
-
                                         <div class="col-md-3">
                                             <label for="montoFianza" class="form-label">Monto de la Fianza / Garantía ($)</label>
                                             <input type="number" class="form-control" id="montoFianza" name="SfMontoFianza" required disabled>
                                             <div class="invalid-feedback">Ingrese un monto válido.</div>
                                             <small id="errorMontoFianza" class="text-danger d-none"></small>
                                         </div>
-
-                                     
-                                    
                                         <div class="col-md-3">
                                             <label for="inicioVigencia" class="form-label">Inicio Vigencia</label>
                                             <input type="date" class="form-control" id="inicioVigencia" name="SfInicioVigencia" required>
                                         </div>
-
                                         <div class="col-md-3">
                                             <label for="finVigencia" class="form-label">Fin de Vigencia</label>
                                             <input type="date" class="form-control" id="finVigencia" name="SfFinVigencia" required>
                                         </div>
-
                                         <div class="col-md-3">
                                             <label for="plazoGarantiaDias" class="form-label">Plazo de Garantías (Días)</label>
                                             <input type="number" class="form-control" id="plazoGarantiaDias" name="SfPlazoGarantiaDias" readonly>
                                         </div>
-
                                         <div class="col-md-12">
                                             <label for="descripcionRiesgo" class="form-label">OBJETO DEL CONTRATO (descripción del riesgo a garantizar):</label>
-                                            <!-- Mapeado a objetoContrato -->
                                             <textarea class="form-control" rows="3" id="descripcionRiesgo" name="SfObjetoContrato" required></textarea>
                                             <div class="invalid-feedback">Ingrese la descripción del riesgo.</div>
                                         </div>
                                     </div>
                                 </div>
-                            
+
                                 <!-- Sección para Garantía Aduanera (GA) -->
                                 <div id="datosAduanera" class="d-none">
                                     <hr />
@@ -220,7 +209,7 @@
                                             <input type="text" class="form-control" id="telefonoSolicitanteGA" name="BenTelefono" required>
                                             <div class="invalid-feedback">Ingrese un teléfono o celular.</div>
                                         </div>
-                                        <!-- Información del Beneficiario (usa ids únicos en GA) -->
+                                        <!-- Información del Beneficiario (con ids únicos para GA) -->
                                         <div class="divider-with-text">
                                             <span>Información del beneficiario</span>
                                         </div>
@@ -277,11 +266,10 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Documentos Secundarios (Solo si monto > 416K) -->
+                                <!-- Documentos Secundarios (sólo si monto de fianza > $416,000) -->
                                 <div id="documentosSecundarios" class="d-none">
                                     <div class="alert alert-warning">
-                                        <strong>Importante:</strong> Para montos mayores a $416,000, seleccione <strong>la prenda real</strong>  que desea constituir :
+                                        <strong>Importante:</strong> Para montos mayores a $416,000, seleccione <strong>la prenda real</strong> que desea constituir:
                                     </div>
                                     <div class="form-check me-3">
                                         <input class="form-check-input docSecundario" type="radio" name="prenda" id="prendaComercial" value="Prenda Comercial">
@@ -295,29 +283,21 @@
                                         <input class="form-check-input docSecundario" type="radio" name="prenda" id="prendaHipotecaria" value="Prenda Hipotecaria">
                                         <label class="form-check-label" for="prendaHipotecaria">Prenda Hipotecaria</label>
                                     </div>
-
                                     <div class="form-check me-3">
                                         <input class="form-check-input docSecundario" type="radio" name="prenda" id="prendaCartaAval" value="Prenda Carta Aval">
                                         <label class="form-check-label" for="prendaCartaAval">Prenda Carta Aval</label>
                                     </div>
-
                                     <div class="invalid-feedback d-block" id="documentosSecundariosFeedback" style="display: none;">
                                         Seleccione un documento adicional.
                                     </div>
-
                                     <!-- Formulario adicional para Prenda Comercial -->
-                                    <!-- Formulario Prenda Comercial -->
                                     <div id="formPrendaComercial" class="d-none col-md-12">
                                         <hr />
                                         <h4>Datos para Prenda Comercial</h4>
-
-                                        
-                                        <!-- Handsontable Prendas -->
+                                        <!-- Handsontable para Prendas -->
                                         <div id="prendasExcel" class="col-md-12" style="width: 100%; height: 400px; overflow: hidden; margin-bottom: 20px;"></div>
-
-                                        <!-- Campo oculto para enviar los datos de Handsontable -->
+                                        <!-- Campo oculto para enviar los datos -->
                                         <input type="hidden" name="PrendasJson" id="PrendasJson" />
-
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label for="observacionesPH2" class="form-label">Subir Archivo</label>
@@ -325,7 +305,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                     <!-- Formulario adicional para Prenda Industrial -->
                                     <div id="formPrendaIndustrial" class="d-none">
                                         <hr>
@@ -337,7 +316,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                     <!-- Formulario adicional para Prenda Hipotecaria -->
                                     <div id="formPrendaHipotecaria" class="d-none">
                                         <hr>
@@ -349,8 +327,7 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    <!-- Formulario adicional para carta aval -->
+                                    <!-- Formulario adicional para Carta Aval -->
                                     <div id="formPrendaCartaAval" class="d-none">
                                         <hr>
                                         <h4>Datos para Carta Aval</h4>
@@ -361,9 +338,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-
-                               
                                 </div>
                             </div>
                         </div>
@@ -378,15 +352,8 @@
     </form>
 </div>
 
-
-
-
 @section scripts {
-    <script>
-        var empresasData = @Html.Raw(JsonSerializer.Serialize(ViewBag.Empresas));
-    </script>
     <script src="~/assets/js/Fianzas.js"></script>
-
 
     @if (!string.IsNullOrEmpty(successMessage))
     {

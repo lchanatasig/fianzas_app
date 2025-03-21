@@ -53,7 +53,7 @@ namespace fianzas_app.Controllers
         {
             if (request == null || request.SfEmpId <= 0 || request.SfMontoFianza <= 0)
             {
-                TempData["Error"] = "Datos inválidos para registrar la solicitud.";
+                TempData["ErrorMessage"] = "Datos inválidos para registrar la solicitud.";
                 return RedirectToAction(nameof(RegistrarSolicitudFianza));
             }
 
@@ -66,7 +66,7 @@ namespace fianzas_app.Controllers
                 }
                 catch (Exception ex)
                 {
-                    TempData["Error"] = "Error al procesar las prendas: " + ex.Message;
+                    TempData["ErrorMessage"] = "Error al procesar las prendas: " + ex.Message;
                     return RedirectToAction(nameof(RegistrarSolicitudFianza));
                 }
             }

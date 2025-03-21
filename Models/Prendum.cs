@@ -29,5 +29,9 @@ public partial class Prendum
 
     public int? PrenEstado { get; set; }
 
+    public int? PrenNumeroItem { get; set; }
+
+    public decimal? PrenValorTotal { get; set; }
+
     public virtual ICollection<SolicitudFianzaPrendum> SolicitudFianzaPrenda { get; set; } = new List<SolicitudFianzaPrendum>();
 }

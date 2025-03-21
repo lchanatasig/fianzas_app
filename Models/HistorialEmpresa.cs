@@ -78,4 +78,6 @@ public partial class HistorialEmpresa
     public string? HistClempClasificacion { get; set; }
 
     public string? HistClempRango { get; set; }
+
+    public byte[]? HistLempArchivoSoporte { get; set; }
 }

@@ -49,7 +49,7 @@ public partial class AppFianzasContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=localhost;Database=app_fianzas;User Id=sa;Password=Sur2o22--;TrustServerCertificate=True;");
+        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=app_fianzas;User Id=sa;Password=Sur2o22--;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -364,6 +364,7 @@ public partial class AppFianzasContext : DbContext
             entity.Property(e => e.HistFechaActualizacion)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnName("hist_fecha_actualizacion");
+            entity.Property(e => e.HistLempArchivoSoporte).HasColumnName("hist_lemp_archivo_soporte");
             entity.Property(e => e.HistObservacion)
                 .HasMaxLength(1000)
                 .HasColumnName("hist_observacion");
@@ -453,6 +454,7 @@ public partial class AppFianzasContext : DbContext
             entity.Property(e => e.PrenFechaCreacino)
                 .HasColumnType("datetime")
                 .HasColumnName("pren_fecha_creacino");
+            entity.Property(e => e.PrenNumeroItem).HasColumnName("pren_numero_item");
             entity.Property(e => e.PrenResponsableConstatacion)
                 .HasMaxLength(255)
                 .HasColumnName("pren_responsable_constatacion");
@@ -465,6 +467,10 @@ public partial class AppFianzasContext : DbContext
             entity.Property(e => e.PrenValor)
                 .HasColumnType("decimal(18, 2)")
                 .HasColumnName("pren_valor");
+            entity.Property(e => e.PrenValorTotal)
+                .HasDefaultValue(0m)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("pren_valor_total");
         });
 
         modelBuilder.Entity<SolicitudFianza>(entity =>
