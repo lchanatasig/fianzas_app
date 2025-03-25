@@ -78,8 +78,20 @@ namespace fianzas_app.Controllers
                     {
                         // Relleno para Convenio
                         formFields.SetField("sf_id", solicitudDetalle.SfId.ToString());
-                        formFields.SetField("empresa_nombre", solicitudDetalle.EmpresaNombre);
-                        formFields.SetField("emp_ruc", solicitudDetalle.EmpRuc);
+                        formFields.SetField("txt_empresa_nombre", solicitudDetalle.EmpresaNombre);
+                        formFields.SetField("txt_ci_empresa", solicitudDetalle.EmpRuc);
+                        formFields.SetField("txt_direccion_empresa", solicitudDetalle.EmpUbicacion);
+                        formFields.SetField("txt_telefono_empresa", solicitudDetalle.EmpTelefono);
+                        formFields.SetField("txt_beneficiario_nombre", solicitudDetalle.BenNombre);
+                        formFields.SetField("txt_direccion_beneficiario", solicitudDetalle.BenDireccion);
+                        formFields.SetField("txt_telefono_beneficiario", solicitudDetalle.BenTelefono);
+                        // Relleno para Pagaré
+                        formFields.SetField("txt_monto_garantia", solicitudDetalle.SfMontoFianza.HasValue
+                            ? solicitudDetalle.SfMontoFianza.Value.ToString("C")
+                            : "0");
+                        formFields.SetField("txt_dias_plazo", solicitudDetalle.SfPlazoGarantiaDias.ToString());
+                        formFields.SetField("txt_fecha_vigencia", solicitudDetalle.SfInicioVigencia.ToString());
+
                         // Completa con los demás campos requeridos...
                     }
                     else if (docTypeId == 3 || docTypeId == 6 || docTypeId == 9)
@@ -88,7 +100,7 @@ namespace fianzas_app.Controllers
                         formFields.SetField("txt_monto_contrato", solicitudDetalle.SfMontoFianza.HasValue
                             ? solicitudDetalle.SfMontoFianza.Value.ToString("C")
                             : "0");
-                        formFields.SetField("empresa_nombre", solicitudDetalle.EmpresaNombre);
+                        formFields.SetField("txt_empresa_nombre", solicitudDetalle.EmpresaNombre);
                         // Completa con los demás campos requeridos...
                     }
                     else if (docTypeId == 4 || docTypeId == 7 || docTypeId == 10)
