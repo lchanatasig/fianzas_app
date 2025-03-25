@@ -389,6 +389,8 @@ namespace fianzas_app.Services
             dt.Columns.Add("pren_fecha_constatacion", typeof(DateTime));
             dt.Columns.Add("pren_responsable_constatacion", typeof(string));
             dt.Columns.Add("pren_archivo", typeof(byte[]));  // VARBINARY(MAX)
+            dt.Columns.Add("pren_numero_item", typeof(int));  // int
+            dt.Columns.Add("pren_valor_total", typeof(decimal));  // int
 
             foreach (var prenda in prendas)
             {
@@ -413,7 +415,9 @@ namespace fianzas_app.Services
                     prenda.PrenCustodio,
                     fechaConstatacion,
                     prenda.PrenResponsableConstatacion,
-        prenda.PrenArchivo ?? (object)DBNull.Value
+        prenda.PrenArchivo ?? (object)DBNull.Value,
+        prenda.PrenNumeroItem,
+        prenda.PrenValorTotal ?? (object)DBNull.Value
                 );
             }
 

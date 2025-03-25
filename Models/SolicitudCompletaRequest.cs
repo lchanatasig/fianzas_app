@@ -55,6 +55,10 @@
         public DateTime? PrenFechaConstatacion { get; set; }
         public string PrenResponsableConstatacion { get; set; }
         public byte[] PrenArchivo { get; set; }
+        public int? PrenNumeroItem { get; set; }
+
+        public decimal? PrenValorTotal { get; set; }
+
     }
 
 }

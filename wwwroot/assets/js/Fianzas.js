@@ -1,8 +1,4 @@
-﻿// Porcentaje máximo de contrato según el tipo seleccionado
-let porcentajeMaximoContrato = 0;
-let contadorPrendas = 0;
-
-document.addEventListener('DOMContentLoaded', function () {
+﻿document.addEventListener('DOMContentLoaded', function () {
 
     // ---------- MOSTRAR FORMULARIOS DE PRENDA ----------
     function mostrarFormularioPrenda() {
@@ -261,94 +257,6 @@ document.addEventListener('DOMContentLoaded', function () {
         inputElem.classList.remove("is-invalid");
     }
 
-    // ---------- EVENTOS INPUT PARA VALIDACIÓN EN TIEMPO REAL ----------
-    const montocontratoElem = document.getElementById("montocontrato");
-    if (montocontratoElem) {
-        montocontratoElem.addEventListener("input", validarMontoContrato);
-    }
-
-    const montoFianzaInput = document.getElementById("montoFianza");
-    if (montoFianzaInput) {
-        montoFianzaInput.addEventListener("input", validarMontoFianza);
-    }
-    const montoFianzaGAInput = document.getElementById("montoFianzaGA");
-    if (montoFianzaGAInput) {
-        montoFianzaGAInput.addEventListener("input", validarMontoFianza);
-    }
-
-    // ============= HANDSONTABLE PARA LAS PRENDAS =============
-    const container = document.getElementById('prendasExcel');
-    const hot = new Handsontable(container, {
-        data: [],
-        colHeaders: [
-            'N. ÍTEM',
-            'BIEN',
-            'CONTENIDO/DESCRIPCIÓN',
-            'VALOR',
-            'UBICACIÓN',
-            'CUSTODIO',
-            'FECHA DE CONSTATACIÓN',
-            'RESPONSABLE DE CONSTATACIÓN'
-        ],
-        columns: [
-            { data: 'PrenNumeroItem', type: 'numeric' },
-            { data: 'PrenBien', type: 'text' },
-            { data: 'PrenDescripcion', type: 'text' },
-            { data: 'PrenValor', type: 'numeric', numericFormat: { pattern: '0,0.00' } },
-            { data: 'PrenUbicacion', type: 'text' },
-            { data: 'PrenCustodio', type: 'text' },
-            { data: 'PrenFechaConstatacion', type: 'date', dateFormat: 'YYYY-MM-DD' },
-            { data: 'PrenResponsableConstatacion', type: 'text' }
-        ],
-        rowHeaders: true,
-        minSpareRows: 1,
-        height: 'auto',
-        licenseKey: 'non-commercial-and-evaluation'
-    });
-
-    const form = document.getElementById('solicitudFianzaForm');
-
-    form.addEventListener('submit', function (event) {
-        event.preventDefault();
-
-        const prendasData = hot.getSourceData();
-
-        const prendasFiltradas = prendasData.filter(prenda =>
-            Object.values(prenda).some(x => x !== null && x !== '')
-        );
-
-        const tipoPrendaSeleccionada = document.querySelector('input[name="prenda"]:checked');
-
-        if (!tipoPrendaSeleccionada) {
-            const feedback = document.getElementById('documentosSecundariosFeedback');
-            feedback.style.display = 'block';
-            feedback.textContent = 'Seleccione un documento adicional.';
-            return;
-        }
-
-        const tipoPrenda = tipoPrendaSeleccionada.value;
-
-        prendasFiltradas.forEach((prenda, index) => {
-            prenda.PrenTipo = tipoPrenda;
-            prenda.PrenNumeroItem = index + 1;
-            prenda.PrenFechaCreacino = new Date().toISOString(); // ISO para formato SQL compatible
-        });
-
-        const valorTotal = prendasFiltradas.reduce((total, prenda) => {
-            return total + (parseFloat(prenda.PrenValor) || 0);
-        }, 0);
-
-        prendasFiltradas.forEach(prenda => {
-            prenda.PrenValorTotal = valorTotal;
-        });
-
-        const prendasJsonField = document.getElementById('PrendasJson');
-        prendasJsonField.value = JSON.stringify(prendasFiltradas);
-
-        form.submit();
-    });
-
-
     // ---------- DISPARAR EVENTOS 'CHANGE' AL CARGAR LA VISTA ----------
     if (typeof empresasData !== 'undefined') {
         const empresaSelect = document.getElementById("empresaSelect");
@@ -364,6 +272,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // ---------- BOOTSTRAP VALIDACIÓN GENERAL ----------
+// Se asegura que la validación se haga correctamente
 (function () {
     'use strict';
     window.addEventListener('load', function () {
