@@ -143,6 +143,33 @@
 
                 @if (perfilId == 3 || perfilId==4)
                 {
+                    <!-- Empresas -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="@Url.Action("RegistrarEmpresa", "Empresa")">
+                            <i data-feather="briefcase" class="icon-dual"></i> <span>Empresas</span>
+                        </a>
+                    </li>
+
+                    <!-- Fianzas -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarFianzas" data-bs-toggle="collapse" role="button">
+                            <i data-feather="file-text" class="icon-dual"></i> <span>Fianzas</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarFianzas">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a href="@Url.Action("RegistrarSolicitudFianza", "Solicitud")" class="nav-link">Solicitudes</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="@Url.Action("ListarSolicitudes", "Solicitud")" class="nav-link">Historial de Fianzas</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="@Url.Action("Renovaciones", "Fianzas")" class="nav-link">Renovaciones</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
                     <!-- Inspecciones -->
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="@Url.Action("RevisarSolicitudes", "Revision")">
@@ -150,22 +177,22 @@
                         </a>
                     </li>
 
-                    <!-- Alertas -->
+                   @*  <!-- Alertas -->
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="@Url.Action("Index", "Alertas")">
                             <i data-feather="bell" class="icon-dual"></i> <span>Alertas</span>
                         </a>
-                    </li>
+                    </li> *@
 
 
                 }
 
-                <!-- Configuración -->
+            @*     <!-- Configuración -->
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="@Url.Action("Index", "Configuracion")">
                         <i data-feather="settings" class="icon-dual"></i> <span>Configuración</span>
                     </a>
-                </li>
+                </li> *@
 
             </ul>
         </div>

@@ -38,14 +38,14 @@
                         <div class="tab-pane active" id="personalDetails" role="tabpanel">
                             <div class="row">
 
-                                <div class="col-lg-3">
+                                <div class="col-lg-3" hidden>
                                     <div class="mb-2">
                                         <label>Seleccione el tipo de empresa</label>
                                         <select class="form-control" asp-for="EmpTipoEmpresaId" data-choices data-choices-sorting-false required>
                                             <option value="">Seleccione una opción</option>
                                             @foreach (var tipoEmpresa in ViewBag.TipoEmpresa)
                                             {
-                                                <option value="@tipoEmpresa.TempId">@tipoEmpresa.TempNombre</option>
+                                                <option selected value="@tipoEmpresa.TempId">@tipoEmpresa.TempNombre</option>
                                             }
                                         </select>
                                     </div>
@@ -350,7 +350,34 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('crearEmpresaForm').addEventListener('submit', function (event) {
+                let form = event.target;
+                let missingFields = [];
 
+                // Recorrer todos los campos requeridos
+                form.querySelectorAll('[required]').forEach(function(input) {
+                    if (!input.checkValidity()) {
+                        // Obtenemos el nombre del campo (label o placeholder)
+                        let fieldName = input.previousElementSibling ? input.previousElementSibling.textContent.trim() : input.placeholder.trim();
+                        missingFields.push(fieldName);
+                    }
+                });
+
+                // Si hay campos faltantes, prevenir el submit y mostrar la alerta
+                if (missingFields.length > 0) {
+                    event.preventDefault(); // Prevenir el envío del formulario
+
+                    let missingFieldsMessage = 'Por favor complete los siguientes campos requeridos:\n\n' + missingFields.join(';\n');
+
+                    Swal.fire({
+                        title: '¡Error!',
+                        text: missingFieldsMessage,
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                    });
+                }
+            });    </script>
     @if (!string.IsNullOrEmpty(successMessage))
     {
         <script>

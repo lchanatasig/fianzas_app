@@ -1,34 +1,46 @@
-/*
-Template Name: Velzon - Admin & Dashboard Template
-Author: Themesbrand
-Website: https://Themesbrand.com/
-Contact: Themesbrand@gmail.com
-File: datatables init js
-*/
-
 function initializeTables() {
-    let example = new DataTable('#example',);
+    // Tabla básica
+    let example = new DataTable('#example', {
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+        }
+    });
 
+    // Scroll vertical
     let scrollVertical = new DataTable('#scroll-vertical', {
-        "scrollY": "210px",
-        "scrollCollapse": true,
-        "paging": false
+        scrollY: "210px",
+        scrollCollapse: true,
+        paging: false,
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+        }
     });
 
+    // Scroll horizontal
     let scrollHorizontal = new DataTable('#scroll-horizontal', {
-        "scrollX": true
+        scrollX: true,
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+        }
     });
 
+    // Paginación alternativa
     let alternativePagination = new DataTable('#alternative-pagination', {
-        "pagingType": "full_numbers"
+        pagingType: "full_numbers",
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+        }
     });
 
-    //fixed header
+    // Fixed header
     let fixedHeader = new DataTable('#fixed-header', {
-        "fixedHeader": true
+        fixedHeader: true,
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+        }
     });
 
-    //modal data data tables
+    // Modal data tables
     let modelDataTables = new DataTable('#model-datatables', {
         responsive: {
             details: {
@@ -42,23 +54,37 @@ function initializeTables() {
                     tableClass: 'table'
                 })
             }
+        },
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
         }
     });
 
-    //buttons examples
+    // Botones
     let buttonsDataTables = new DataTable('#buttons-datatables', {
         dom: 'Bfrtip',
         buttons: [
             'copy', 'csv', 'excel', 'print', 'pdf'
-        ]
+        ],
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+        }
     });
 
-    //buttons examples
+    // Ajax
     let ajaxDataTables = new DataTable('#ajax-datatables', {
-        "ajax": '/assets/json/datatable.json'
+        ajax: '/assets/json/datatable.json',
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+        }
     });
 
-    var t = $('#add-rows').DataTable();
+    // Ejemplo de añadir filas dinámicamente
+    var t = $('#add-rows').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+        }
+    });
     var counter = 1;
 
     $('#addRow').on('click', function () {
@@ -80,7 +106,7 @@ function initializeTables() {
         counter++;
     });
 
-    // Automatically add a first row of data
+    // Agregamos una fila al cargar
     $('#addRow').trigger('click');
 }
 
