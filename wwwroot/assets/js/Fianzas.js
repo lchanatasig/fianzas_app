@@ -1,4 +1,6 @@
 ﻿document.addEventListener('DOMContentLoaded', function () {
+    // Declaración global y variables
+    let porcentajeMaximoContrato = 0;
 
     // ---------- MOSTRAR FORMULARIOS DE PRENDA ----------
     function mostrarFormularioPrenda() {
@@ -34,7 +36,7 @@
         radio.addEventListener("change", mostrarFormularioPrenda);
     });
 
-    // ---------- FUNCIONES SEPARADAS PARA MAYOR CLARIDAD ----------
+    // ---------- FUNCIONES PARA MANEJO DE EMPRESA Y FIANZA ----------
     function cargarDatosEmpresa(empresaId) {
         const selectedId = parseInt(empresaId, 10);
         let cupo = 0;
@@ -69,6 +71,7 @@
             limpiarCamposEmpresa();
         }
 
+        // Ejecutar validaciones después de cargar los datos
         validarMontoContrato();
         validarMontoFianza();
     }
@@ -80,6 +83,7 @@
         document.getElementById("datosContrato").classList.add("d-none");
         document.getElementById("datosAduanera").classList.add("d-none");
 
+        // Reiniciar la variable
         porcentajeMaximoContrato = 0;
 
         if (tipoSeleccionado === 1) {
@@ -97,23 +101,27 @@
         document.getElementById("montoFianza").value = "";
         document.getElementById("montoFianzaGA").value = "";
 
+        // Ejecutar validaciones después de cambiar el tipo
         validarMontoContrato();
         validarMontoFianza();
     }
 
     // ---------- EVENTO CAMBIO DE TIPO DE FIANZA ----------
     const tipoFianzaSelect = document.getElementById("tipoFianza");
-    tipoFianzaSelect.addEventListener("change", function () {
-        cargarTipoFianza(this.value);
-    });
+    if (tipoFianzaSelect) {
+        tipoFianzaSelect.addEventListener("change", function () {
+            cargarTipoFianza(this.value);
+        });
+    }
 
     // ---------- EVENTO CAMBIO DE EMPRESA ----------
     if (typeof empresasData !== 'undefined') {
         const empresaSelect = document.getElementById("empresaSelect");
-
-        empresaSelect.addEventListener("change", function () {
-            cargarDatosEmpresa(this.value);
-        });
+        if (empresaSelect) {
+            empresaSelect.addEventListener("change", function () {
+                cargarDatosEmpresa(this.value);
+            });
+        }
     }
 
     function limpiarCamposEmpresa() {
@@ -158,7 +166,6 @@
         // Detectamos qué sección está activa
         if (!document.getElementById("datosAduanera").classList.contains("d-none")) {
             montoFianzaElem = document.getElementById("montoFianzaGA");
-            // Si tienes un error específico para GA, usa ese id; de lo contrario, reutiliza el común
             errorMontoFianza = document.getElementById("errorMontoFianzaGA") || document.getElementById("errorMontoFianza");
         } else {
             montoFianzaElem = document.getElementById("montoFianza");
@@ -189,8 +196,6 @@
     }
 
     // ---------- CÁLCULO AUTOMÁTICO DEL PLAZO DE GARANTÍA EN DÍAS ----------
-    // Para FCC/BUA: inicioVigencia, finVigencia, plazoGarantiaDias
-    // Para GA: inicioVigenciaGA, finVigenciaGA, plazoGarantiaDiasGA
     function calcularPlazoEnDias() {
         let inicio, fin, plazoElem;
 
@@ -225,7 +230,7 @@
         plazoElem.value = diferenciaDias;
     }
 
-    // Añadir event listeners para ambos conjuntos de campos de fecha
+    // Añadir event listeners para los inputs de fechas
     const inicioVigenciaElem = document.getElementById("inicioVigencia");
     const finVigenciaElem = document.getElementById("finVigencia");
     const inicioVigenciaGAElem = document.getElementById("inicioVigenciaGA");
@@ -244,6 +249,21 @@
         finVigenciaGAElem.addEventListener("change", calcularPlazoEnDias);
     }
 
+    // ---------- AGREGAR EVENT LISTENERS A LOS INPUTS DE MONTO ----------
+    const montocontratoElem = document.getElementById("montocontrato");
+    const montoFianzaElem = document.getElementById("montoFianza");
+    const montoFianzaGAElem = document.getElementById("montoFianzaGA");
+
+    if (montocontratoElem) {
+        montocontratoElem.addEventListener("input", validarMontoContrato);
+    }
+    if (montoFianzaElem) {
+        montoFianzaElem.addEventListener("input", validarMontoFianza);
+    }
+    if (montoFianzaGAElem) {
+        montoFianzaGAElem.addEventListener("input", validarMontoFianza);
+    }
+
     // ---------- FUNCIONES AUXILIARES ----------
     function mostrarError(errorElem, inputElem, mensaje) {
         errorElem.textContent = mensaje;
@@ -257,7 +277,7 @@
         inputElem.classList.remove("is-invalid");
     }
 
-    // ---------- DISPARAR EVENTOS 'CHANGE' AL CARGAR LA VISTA ----------
+    // Disparar eventos 'change' al cargar la vista
     if (typeof empresasData !== 'undefined') {
         const empresaSelect = document.getElementById("empresaSelect");
         if (empresaSelect && empresaSelect.value) {
@@ -269,10 +289,48 @@
         cargarTipoFianza(tipoFianzaSelect.value);
     }
 
+    // ---------- INICIALIZACIÓN DE HANDSONTABLE PARA PRENDA COMERCIAL ----------
+    var container = document.getElementById('prendasExcel');
+    if (container) {
+        var hot = new Handsontable(container, {
+            data: [], // Empieza con un array vacío
+            minSpareRows: 1, // Siempre deja una fila extra para nuevos datos
+            columns: [
+                { data: 'pren_tipo', type: 'text' },
+                { data: 'pren_numero_item', type: 'numeric' },
+                { data: 'pren_bien', type: 'text' },
+                { data: 'pren_descripcion', type: 'text' },
+                { data: 'pren_valor', type: 'numeric', numericFormat: { pattern: '0,0.00', culture: 'en-US' } },
+                { data: 'pren_ubicacion', type: 'text' },
+                { data: 'pren_custodio', type: 'text' },
+                { data: 'pren_fecha_constatacion', type: 'date', dateFormat: 'YYYY-MM-DD' },
+                { data: 'pren_responsable_constatacion', type: 'text' },
+            ],
+            colHeaders: [
+                'Tipo',
+                'Número Item',
+                'Bien',
+                'Contenido/Descripción',
+                'Valor',
+                'Ubicación',
+                'Custodio',
+                'Fecha Constatación',
+                'Responsable Constatación',
+            ],
+            rowHeaders: true,
+            stretchH: 'all',
+            licenseKey: 'non-commercial-and-evaluation'
+        });
+
+
+        // Si el formulario se muestra con una transición, refrescamos la tabla
+        document.getElementById("formPrendaComercial").addEventListener('transitionend', function () {
+            hot.render();
+        });
+    }
 });
 
 // ---------- BOOTSTRAP VALIDACIÓN GENERAL ----------
-// Se asegura que la validación se haga correctamente
 (function () {
     'use strict';
     window.addEventListener('load', function () {

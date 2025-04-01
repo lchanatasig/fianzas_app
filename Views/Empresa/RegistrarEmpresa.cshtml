@@ -190,8 +190,8 @@
 
                                 <div class="col-md-3">
                                     <label class="form-label">Pasivo Corriente</label>
-                                    <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfPasivoCorriente" asp-for="EmpfPasivoCorriente" required>
+                                    <div class="form-icon"> 
+                                        <input type="number" class="form-control form-control-icon" id="EmpfPasivoCorriente" asp-for="EmpfPasivoCorriente"  required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -461,6 +461,8 @@
                     });
                 }
             });    </script>
+
+
     @if (!string.IsNullOrEmpty(successMessage))
     {
         <script>
