@@ -1,8 +1,10 @@
 ﻿document.addEventListener('DOMContentLoaded', function () {
     // Declaración global y variables
     let porcentajeMaximoContrato = 0;
+    // Declarar la instancia de Handsontable en ámbito global dentro del DOMContentLoaded
+    let hotInstance;
 
-    // ---------- MOSTRAR FORMULARIOS DE PRENDA ----------
+    // ---------- MOSTRAR FORMULARIOS DE PRENDA Y ASIGNAR TIPO A LA TABLA ----------
     function mostrarFormularioPrenda() {
         document.getElementById("formPrendaComercial").classList.add("d-none");
         document.getElementById("formPrendaIndustrial").classList.add("d-none");
@@ -27,6 +29,15 @@
                     break;
                 default:
                     break;
+            }
+
+            // Actualizar la columna 'pren_tipo' en todas las filas de la tabla
+            if (hotInstance) {
+                let selectedType = prendaSeleccionada.value;
+                let rowCount = hotInstance.countRows();
+                for (let i = 0; i < rowCount; i++) {
+                    hotInstance.setDataAtRowProp(i, 'pren_tipo', selectedType);
+                }
             }
         }
     }
@@ -280,8 +291,8 @@
     // ---------- INICIALIZACIÓN DE HANDSONTABLE PARA PRENDA COMERCIAL ----------
     var container = document.getElementById('prendasExcel');
     if (container) {
-        // Agregamos dataSchema para que cada fila se cree como objeto con las propiedades definidas
-        var hot = new Handsontable(container, {
+        // Se define dataSchema para que cada fila se cree como objeto
+        hotInstance = new Handsontable(container, {
             data: [], // Array vacío inicial
             dataSchema: {
                 pren_tipo: "",
@@ -319,12 +330,29 @@
             ],
             rowHeaders: true,
             stretchH: 'all',
-            licenseKey: 'non-commercial-and-evaluation'
+            licenseKey: 'non-commercial-and-evaluation',
+            // Hook para recalcular el total de la columna pren_valor
+            afterChange: function (changes, source) {
+                if (source !== 'loadData' && changes) {
+                    let total = 0;
+                    let data = this.getSourceData();
+                    data.forEach(row => {
+                        if (row.pren_valor && !isNaN(row.pren_valor)) {
+                            total += parseFloat(row.pren_valor);
+                        }
+                    });
+                    // Actualizar el campo con id "totalPrendaValor"
+                    let totalInput = document.getElementById("totalPrendaValor");
+                    if (totalInput) {
+                        totalInput.value = total.toFixed(2);
+                    }
+                }
+            }
         });
 
         // Si el formulario se muestra con una transición, refrescamos la tabla
         document.getElementById("formPrendaComercial").addEventListener('transitionend', function () {
-            hot.render();
+            hotInstance.render();
         });
     }
 
@@ -333,7 +361,7 @@
     if (form) {
         form.addEventListener('submit', function () {
             // Usamos getSourceData() para obtener los objetos y no arrays
-            document.getElementById('PrendasJson').value = JSON.stringify(hot.getSourceData());
+            document.getElementById('PrendasJson').value = JSON.stringify(hotInstance.getSourceData());
         });
     }
 });
@@ -352,7 +380,6 @@
                     event.preventDefault();
                     event.stopPropagation();
                 }
-
                 form.classList.add('was-validated');
             }, false);
         });
