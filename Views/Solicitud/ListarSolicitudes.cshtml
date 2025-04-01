@@ -10,9 +10,9 @@
 }
 
 @section styles {
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css" />
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
 }
 
 <div class="row">
@@ -25,7 +25,7 @@
                     <thead>
                         <tr>
                             <th hidden>ID</th>
-                            <th>Beneficiario</th>
+                            <th>Afianzado/Contratista</th>
                             <th>Tipo de Fianza</th>
                             <th>Monto</th>
                             <th>Estado</th>
@@ -38,7 +38,7 @@
                         {
                             <tr>
                                 <td hidden>@solicitud.SfId</td>
-                                <td>@(solicitud.BeneficiarioNombre ?? "No definido")</td>
+                                <td>@(solicitud.EmpresaNombre ?? "No definido")</td>
                                 <td>@(solicitud.TipoSolicitudNombre ?? "Sin datos")</td>
                                 <td>@String.Format("{0:C}", solicitud.SfMontoFianza)</td>
                                 <td>
@@ -69,10 +69,11 @@
                                     @if (solicitud.SfEstfId == 2)
                                     {
                                         <button class="btn btn-primary btn-sm"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#gestionDocumentosModal"
-                                        onclick="abrirModal(@solicitud.SfId, @solicitud.SfMontoFianza, @solicitud.SfTposId)">
-                                            Gestión Documentos
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#gestionDocumentosModal"
+                                                onclick="abrirModal(@solicitud.SfId, @solicitud.SfMontoFianza, @solicitud.SfTposId)">
+
+                                            <i class=""></i>Descargar y subir documentación 
                                         </button>
                                     }
                                     else if (solicitud.SfEstfId == 3)
