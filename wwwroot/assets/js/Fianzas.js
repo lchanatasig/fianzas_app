@@ -127,10 +127,8 @@
     function limpiarCamposEmpresa() {
         const campos = ["solicitante", "direccionSolicitante", "rucSolicitante", "emailSolicitante", "telefonoSolicitante"];
         const camposGA = ["solicitanteGA", "direccionSolicitanteGA", "rucSolicitanteGA", "emailSolicitanteGA", "telefonoSolicitanteGA"];
-
         campos.forEach(id => document.getElementById(id).value = "");
         camposGA.forEach(id => document.getElementById(id).value = "");
-
         document.getElementById("montoFianza").disabled = true;
         document.getElementById("montoFianzaGA").disabled = true;
         document.getElementById("cupoDisponible").value = "";
@@ -142,7 +140,6 @@
         const montocontratoElem = document.getElementById("montocontrato");
         const cupoDisponibleElem = document.getElementById("cupoDisponible");
         const errorMontoContrato = document.getElementById("errorMontoContrato");
-
         const cupoDisponible = parseFloat(cupoDisponibleElem.dataset.valorNumerico) || 0;
         const montoContrato = parseFloat(montocontratoElem.value) || 0;
 
@@ -163,7 +160,6 @@
     // ---------- VALIDACIÓN DEL MONTO DE FIANZA ----------
     function validarMontoFianza() {
         let montoFianzaElem, errorMontoFianza;
-        // Detectamos qué sección está activa
         if (!document.getElementById("datosAduanera").classList.contains("d-none")) {
             montoFianzaElem = document.getElementById("montoFianzaGA");
             errorMontoFianza = document.getElementById("errorMontoFianzaGA") || document.getElementById("errorMontoFianza");
@@ -198,39 +194,32 @@
     // ---------- CÁLCULO AUTOMÁTICO DEL PLAZO DE GARANTÍA EN DÍAS ----------
     function calcularPlazoEnDias() {
         let inicio, fin, plazoElem;
-
         if (!document.getElementById("datosAduanera").classList.contains("d-none")) {
-            // Sección GA activa
             inicio = document.getElementById("inicioVigenciaGA").value;
             fin = document.getElementById("finVigenciaGA").value;
             plazoElem = document.getElementById("plazoGarantiaDiasGA");
         } else {
-            // Sección FCC/BUA activa
             inicio = document.getElementById("inicioVigencia").value;
             fin = document.getElementById("finVigencia").value;
             plazoElem = document.getElementById("plazoGarantiaDias");
         }
-
         if (!inicio || !fin) {
             plazoElem.value = "";
             return;
         }
-
         const inicioDate = new Date(inicio);
         const finDate = new Date(fin);
         const diferenciaMs = finDate - inicioDate;
         const diferenciaDias = Math.ceil(diferenciaMs / (1000 * 60 * 60 * 24));
-
         if (diferenciaDias < 0) {
             plazoElem.value = "";
             alert("La fecha de fin debe ser posterior a la de inicio.");
             return;
         }
-
         plazoElem.value = diferenciaDias;
     }
 
-    // Añadir event listeners para los inputs de fechas
+    // Añadir event listeners para inputs de fechas
     const inicioVigenciaElem = document.getElementById("inicioVigencia");
     const finVigenciaElem = document.getElementById("finVigencia");
     const inicioVigenciaGAElem = document.getElementById("inicioVigenciaGA");
@@ -284,7 +273,6 @@
             cargarDatosEmpresa(empresaSelect.value);
         }
     }
-
     if (tipoFianzaSelect && tipoFianzaSelect.value) {
         cargarTipoFianza(tipoFianzaSelect.value);
     }
@@ -292,9 +280,21 @@
     // ---------- INICIALIZACIÓN DE HANDSONTABLE PARA PRENDA COMERCIAL ----------
     var container = document.getElementById('prendasExcel');
     if (container) {
+        // Agregamos dataSchema para que cada fila se cree como objeto con las propiedades definidas
         var hot = new Handsontable(container, {
-            data: [], // Empieza con un array vacío
-            minSpareRows: 1, // Siempre deja una fila extra para nuevos datos
+            data: [], // Array vacío inicial
+            dataSchema: {
+                pren_tipo: "",
+                pren_numero_item: null,
+                pren_bien: "",
+                pren_descripcion: "",
+                pren_valor: null,
+                pren_ubicacion: "",
+                pren_custodio: "",
+                pren_fecha_constatacion: null,
+                pren_responsable_constatacion: ""
+            },
+            minSpareRows: 1, // Siempre una fila extra para nuevos datos
             columns: [
                 { data: 'pren_tipo', type: 'text' },
                 { data: 'pren_numero_item', type: 'numeric' },
@@ -304,7 +304,7 @@
                 { data: 'pren_ubicacion', type: 'text' },
                 { data: 'pren_custodio', type: 'text' },
                 { data: 'pren_fecha_constatacion', type: 'date', dateFormat: 'YYYY-MM-DD' },
-                { data: 'pren_responsable_constatacion', type: 'text' },
+                { data: 'pren_responsable_constatacion', type: 'text' }
             ],
             colHeaders: [
                 'Tipo',
@@ -315,17 +315,25 @@
                 'Ubicación',
                 'Custodio',
                 'Fecha Constatación',
-                'Responsable Constatación',
+                'Responsable Constatación'
             ],
             rowHeaders: true,
             stretchH: 'all',
             licenseKey: 'non-commercial-and-evaluation'
         });
 
-
         // Si el formulario se muestra con una transición, refrescamos la tabla
         document.getElementById("formPrendaComercial").addEventListener('transitionend', function () {
             hot.render();
+        });
+    }
+
+    // ---------- ENVIAR LOS DATOS DE LA TABLA AL INPUT OCULTO AL SUBMIT DEL FORMULARIO ----------
+    var form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function () {
+            // Usamos getSourceData() para obtener los objetos y no arrays
+            document.getElementById('PrendasJson').value = JSON.stringify(hot.getSourceData());
         });
     }
 });

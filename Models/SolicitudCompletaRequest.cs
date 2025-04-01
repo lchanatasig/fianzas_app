@@ -38,7 +38,8 @@
         // Prendas (múltiples)
         public string PrendasJson { get; set; }
 
-        public List<PrendaDto> Prendas { get; set; } = new List<PrendaDto>();
+        public List<PrendaDto> Prendas { get; set; }
+
     }
 
     public class PrendaDto
