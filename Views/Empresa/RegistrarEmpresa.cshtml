@@ -55,8 +55,12 @@
 
                                 <div class="col-md-4">
                                     <label class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" asp-for="EmpNombre" required>
-                                    <div class="invalid-feedback">Ingrese un nombre válido.</div>
+                                    <div class="form-icon">
+                                        <input type="text" class="form-control form-control-icon" asp-for="EmpNombre" required>
+                                        <div class="invalid-feedback">Ingrese un nombre válido.</div>
+                                        <i class="ri-building-2-line"></i>
+                                    </div>
+
                                 </div>
 
 
@@ -190,8 +194,8 @@
 
                                 <div class="col-md-3">
                                     <label class="form-label">Pasivo Corriente</label>
-                                    <div class="form-icon"> 
-                                        <input type="number" class="form-control form-control-icon" id="EmpfPasivoCorriente" asp-for="EmpfPasivoCorriente"  required>
+                                    <div class="form-icon">
+                                        <input type="number" class="form-control form-control-icon" id="EmpfPasivoCorriente" asp-for="EmpfPasivoCorriente" required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -404,12 +408,13 @@
 
                                 <br />
                                 <div class="col-md-12">
-
                                     <label>Subir archivo de evidencia</label>
-                                    <input type="file" class="form-control" asp-for="ClempArchivoSoporte" required />
+                                    <!-- Nota: quitamos "asp-for" para evitar conflictos;
+                                         puedes manejar el binding en el controlador o con JavaScript -->
+                                    <input type="file" id="filepond" name="ClempArchivoSoporte" required />
                                     <div class="invalid-feedback">Ingrese un valor válido.</div>
-
                                 </div>
+
 
                             </div>
                             <br />
