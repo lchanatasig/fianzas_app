@@ -145,18 +145,24 @@
                                 <div class="col-md-3">
                                     <label class="form-label">Activo Corriente</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfActivoCorriente" asp-for="EmpfActivoCorriente" required>
+                                        <!-- Campo visible: se muestra al usuario con formato -->
+                                        <input type="text" class="form-control form-control-icon autonumeric"
+                                               id="EmpfActivoCorrienteVisible" placeholder="Activo Corriente" required>
+                                        <!-- Campo oculto: almacena el valor numérico sin formato -->
+                                        <input type="hidden" id="EmpfActivoCorriente" name="EmpfActivoCorriente">
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
-
                                 </div>
+
                                 <!-- Input with Icon -->
 
                                 <div class="col-md-3">
                                     <label class="form-label">Activo Fijo</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control  form-control-icon" id="EmpfActivoFijo" asp-for="EmpfActivoFijo" required>
+                                        <input type="text" class="form-control  form-control-icon autonumeric"
+                                               id="EmpfActivoFijoVisible" placeholder="Activo Fijo" required>
+                                        <input type="hidden" id="EmpfActivoFijo" name="EmpfActivoFijo" />
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
 
@@ -166,7 +172,9 @@
                                 <div class="col-md-3">
                                     <label class="form-label">Activo Diferido</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfActivoDiferido" asp-for="EmpfActivoDiferido" required>
+                                        <input type="text" class="form-control form-control-icon autonumeric"
+                                               id="EmpfActivoDiferidoVisible" placeholder="Activo Diferido" required>
+                                        <input type="hidden" name="EmpfActivoDiferido" id="EmpfActivoDiferido" />
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -175,7 +183,9 @@
                                 <div class="col-md-3">
                                     <label class="form-label">Otros Activos</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfOtrosActivos" asp-for="EmpfOtrosActivos" required>
+                                        <input type="text" class="form-control form-control-icon autonumeric"
+                                               id="EmpfOtrosActivosVisible" placeholder="Otros Activos" required>
+                                        <input type="hidden" name="EmpfOtrosActivos" id="EmpfOtrosActivos" />
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -184,7 +194,7 @@
                                 <div class="col-md-3">
                                     <label class="form-label">Total Activos</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfTotalActivos" asp-for="EmpfTotalActivos" required>
+                                        <input type="number" class="form-control form-control-icon"  id="EmpfTotalActivos"  required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -433,6 +443,8 @@
 </div>
 
 @section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/autonumeric@4.5.4/dist/autoNumeric.min.js"></script>
+
     <script src="~/assets/js/empresas.js"></script>
     <script src="~/assets/js/maps.js"></script>
 

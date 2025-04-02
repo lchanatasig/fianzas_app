@@ -60,5 +60,39 @@ namespace fianzas_app.Services
                 throw;
             }
         }
+
+
+
+        //public async Task<SolicitudFianzaDocumentoDto> ObtenerDocumentoAsync(int sfd_sf_id, string tipoDocumento)
+        //{
+        //    SolicitudFianzaDocumentoDto resultado = null;
+
+        //    using (SqlConnection connection = new SqlConnection(_dbContext.Database.GetConnectionString()))
+        //    {
+        //        await connection.OpenAsync();
+        //        using (SqlCommand command = new SqlCommand("sp_ObtenerDocumento", connection))
+        //        {
+        //            command.CommandType = CommandType.StoredProcedure;
+        //            command.Parameters.AddWithValue("@sfd_sf_id", sfd_sf_id);
+        //            command.Parameters.AddWithValue("@tipoDocumento", tipoDocumento);
+
+        //            using (SqlDataReader reader = await command.ExecuteReaderAsync())
+        //            {
+        //                if (await reader.ReadAsync())
+        //                {
+        //                    resultado = new SolicitudFianzaDocumentoDto
+        //                    {
+        //                        Documento = reader["Documento"] != DBNull.Value ? reader["Documento"].ToString() : null,
+        //                        FechaSubida = reader["sfd_fecha_subida"] != DBNull.Value ? (DateTime)reader["sfd_fecha_subida"] : (DateTime?)null,
+        //                        FechaVencimiento = reader["sfd_fecha_vencimiento"] != DBNull.Value ? (DateTime)reader["sfd_fecha_vencimiento"] : (DateTime?)null,
+        //                        Poliza = reader["sfd_poliza"] != DBNull.Value ? reader["sfd_poliza"].ToString() : null
+        //                    };
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    return resultado;
+        //}
     }
 }
