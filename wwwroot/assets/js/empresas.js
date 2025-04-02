@@ -83,7 +83,7 @@ function calcularCupo() {
     console.log("Patrimonio Neto:", patrimonioNeto);
 
     const patrimonioPasivo = patrimonioNeto + totalPasivo;
-    document.getElementById("EmpfPasivoPatrimonio").value = patrimonioPasado.toFixed(2);
+    document.getElementById("EmpfPasivoPatrimonio").value = patrimonioPasivo.toFixed(2);
     console.log("Patrimonio + Pasivo:", patrimonioPasivo);
 
     // Calcular base de cupo y cupo final.

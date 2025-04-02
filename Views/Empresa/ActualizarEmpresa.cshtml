@@ -148,7 +148,8 @@
                                 <div class="col-md-3">
                                     <label class="form-label">Activo Corriente</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfActivoCorriente" asp-for="EmpfActivoCorriente" required>
+                                        <input type="text" class="form-control form-control-icon autonumeric" asp-for="EmpfActivoCorriente" id="EmpfActivoCorrienteVisible" placeholder="Activo Corriente" required>
+                                        <input type="hidden" id="EmpfActivoCorriente" name="EmpfActivoCorriente" required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -157,7 +158,8 @@
                                 <div class="col-md-3">
                                     <label class="form-label">Activo Fijo</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfActivoFijo" asp-for="EmpfActivoFijo" required>
+                                        <input type="text" class="form-control form-control-icon autonumeric" id="EmpfActivoFijoVisible" asp-for="EmpfActivoFijo" placeholder="Activo Fijo" required>
+                                        <input type="hidden" id="EmpfActivoFijo" asp-for="EmpfActivoFijo" required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -166,7 +168,8 @@
                                 <div class="col-md-3">
                                     <label class="form-label">Activo Diferido</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfActivoDiferido" asp-for="EmpfActivoDiferido" required>
+                                        <input type="text" class="form-control form-control-icon autonumeric" id="EmpfActivoDiferidoVisible" asp-for="EmpfActivoDiferido" placeholder="Activo Diferido" required>
+                                        <input type="hidden" id="EmpfActivoDiferido" asp-for="EmpfActivoDiferido" required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -175,7 +178,8 @@
                                 <div class="col-md-3">
                                     <label class="form-label">Otros Activos</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfOtrosActivos" asp-for="EmpfOtrosActivos" required>
+                                        <input type="text" class="form-control form-control-icon autonumeric" id="EmpfOtrosActivosVisible" asp-for="EmpfOtrosActivos" placeholder="Otros Activos" required>
+                                        <input type="hidden" id="EmpfOtrosActivos" asp-for="EmpfOtrosActivos" required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -195,7 +199,8 @@
                                 <div class="col-md-3">
                                     <label class="form-label">Pasivo Corriente</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfPasivoCorriente" asp-for="EmpfPasivoCorriente" required>
+                                        <input type="text" class="form-control form-control-icon autonumeric" id="EmpfPasivoCorrienteVisible" asp-for="EmpfPasivoCorriente" placeholder="Pasivo Corriente" required>
+                                        <input type="hidden" id="EmpfPasivoCorriente" asp-for="EmpfPasivoCorriente" required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -205,7 +210,8 @@
                                 <div class="col-md-3">
                                     <label class="form-label">Pasivo Largo Plazo</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfPasivoLargoPlazo" asp-for="EmpfPasivoLargoPlazo" required>
+                                        <input type="text" class="form-control form-control-icon autonumeric" id="EmpfPasivoLargoPlazoVisible" asp-for="EmpfPasivoLargoPlazo" placeholder="Pasivo Largo Plazo" required>
+                                        <input type="hidden" id="EmpfPasivoLargoPlazo" asp-for="EmpfPasivoLargoPlazo" required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -214,7 +220,8 @@
                                 <div class="col-md-3">
                                     <label class="form-label">Pasivo Diferido</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfPasivoDiferido" asp-for="EmpfPasivoDiferido" required>
+                                        <input type="text" class="form-control form-control-icon autonumeric" id="EmpfPasivoDiferidoVisible" asp-for="EmpfPasivoDiferido" placeholder="Pasivo Diferido" required>
+                                        <input type="hidden" id="EmpfPasivoDiferido" asp-for="EmpfPasivoDiferido" required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -223,7 +230,7 @@
                                 <div class="col-md-3">
                                     <label class="form-label">Total Pasivo</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfTotalPasivo" asp-for="EmpfTotalPasivo" readonly required>
+                                        <input type="number" class="form-control form-control-icon" id="EmpfTotalPasivo" asp-for="EmpfTotalPasivo" placeholder="Total Pasivo" readonly required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -234,7 +241,8 @@
                                 <div class="col-md-4">
                                     <label class="form-label">Capital</label>
                                     <div class=" form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfCapital" asp-for="EmpfCapital" required>
+                                        <input type="text" class="form-control form-control-icon autonumeric" id="EmpfCapitalVisible" asp-for="EmpfCapital" placeholder="Capital" required>
+                                        <input type="hidden" id="EmpfCapital" asp-for="EmpfCapital" required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -243,7 +251,8 @@
                                 <div class="col-md-4">
                                     <label class="form-label">Reserva</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfReserva" asp-for="EmpfReserva" required>
+                                        <input type="text" class="form-control form-control-icon autonumeric" id="EmpfReservaVisible" asp-for="EmpfReserva" placeholder="Reserva" required>
+                                        <input type="hidden" id="EmpfReserva" asp-for="EmpfReserva" required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -252,7 +261,8 @@
                                 <div class="col-md-4">
                                     <label class="form-label">Otras Cuentas Patrimonio</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfOtrasCuentasPatrimonio" asp-for="EmpfOtrasCuentasPatrimonio">
+                                        <input type="text" class="form-control form-control-icon autonumeric" id="EmpfOtrasCuentasPatrimonioVisible" asp-for="EmpfOtrasCuentasPatrimonio">
+                                        <input type="hidden" id="EmpfOtrasCuentasPatrimonio" asp-for="EmpfOtrasCuentasPatrimonio">
                                         @*                                     <div class="invalid-feedback">Ingrese un valor válido.</div>*@                               
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -261,7 +271,8 @@
                                 <div class="col-md-4">
                                     <label class="form-label">Utilidades Acumuladas</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfUtilidadesAcumuladas" asp-for="EmpfUtilidadesAcumuladas">
+                                        <input type="text" class="form-control form-control-icon autonumeric" id="EmpfUtilidadesAcumuladasVisible" asp-for="EmpfUtilidadesAcumuladas">
+                                        <input type="hidden" id="EmpfUtilidadesAcumuladas" asp-for="EmpfUtilidadesAcumuladas">
                                         @*                                     <div class="invalid-feedback">Ingrese un valor válido.</div>
  *@                               
 <i class="bx bx-dollar"></i>
@@ -271,7 +282,8 @@
                                 <div class="col-md-4">
                                     <label class="form-label">Utilidad Ejercicio</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfUtilidadEjercicio" asp-for="EmpfUtilidadEjercicio">
+                                        <input type="text" class="form-control form-control-icon autonumeric" id="EmpfUtilidadEjercicioVisible" asp-for="EmpfUtilidadEjercicio">
+                                        <input type="hidden" id="EmpfUtilidadEjercicio" asp-for="EmpfUtilidadEjercicio">
                                         @*                                     <div class="invalid-feedback">Ingrese un valor válido.</div>
  *@                                
                                         <i class="bx bx-dollar"></i>
@@ -281,7 +293,8 @@
                                 <div class="col-md-4">
                                     <label class="form-label">Pérdida</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfPerdida" asp-for="EmpfPerdida" required>
+                                        <input type="text" class="form-control form-control-icon autonumeric" id="EmpfPerdidaVisible" asp-for="EmpfPerdida" required>
+                                        <input type="hidden" id="EmpfPerdida" asp-for="EmpfPerdida" required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -289,15 +302,20 @@
                                 <div class="col-md-4">
                                     <label class="form-label">Otras Perdidas del Ejercicio</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfOtrasPerdidas" asp-for="EmpfOtrasPerdidas">
+                                        <input type="text" class="form-control form-control-icon autonumeric" id="EmpfOtrasPerdidasVisible" asp-for="EmpfOtrasPerdidas">
+                                        <input type="hidden" id="EmpfOtrasPerdidas" asp-for="EmpfOtrasPerdidas">
                                         @*    <div class="invalid-feedback">Ingrese un valor válido.</div> *@
                                         <i class="bx bx-dollar"></i>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Patrimonio Neto</label>
-                                    <input type="number" class="form-control" id="EmpfPatrimonioNeto" asp-for="EmpfPatrimonioNeto" readonly required>
-                                    <div class="invalid-feedback">Ingrese un valor válido.</div>
+                                    <div class="form-icon">
+                                        <input type="number" class="form-control form-control-icon" id="EmpfPatrimonioNeto" asp-for="EmpfPatrimonioNeto" readonly required>
+                                        <div class="invalid-feedback">Ingrese un valor válido.</div>
+                                        <i class="bx bx-dollar"></i>
+
+                                    </div>
                                 </div>
 
                                 <div class="col-md-4">
@@ -313,7 +331,8 @@
                                 <div class="col-md-3">
                                     <label class="form-label">Ventas</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfVentas" asp-for="EmpfVentas" required>
+                                        <input type="text" class="form-control form-control-icon autonumeric" id="EmpfVentas" asp-for="EmpfVentas" required>
+                                        <input type="hidden" id="EmpfVentas" asp-for="EmpfVentas" required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
@@ -322,7 +341,8 @@
                                 <div class="col-md-3">
                                     <label class="form-label">Utilidad</label>
                                     <div class="form-icon">
-                                        <input type="number" class="form-control form-control-icon" id="EmpfUtilidad" asp-for="EmpfUtilidad" required>
+                                        <input type="text" class="form-control form-control-icon autonumeric" id="EmpfUtilidadVisible" asp-for="EmpfUtilidad" required>
+                                        <input type="hidden" id="EmpfUtilidad" asp-for="EmpfUtilidad" required>
                                         <div class="invalid-feedback">Ingrese un valor válido.</div>
                                         <i class="bx bx-dollar"></i>
                                     </div>
