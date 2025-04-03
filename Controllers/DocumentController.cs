@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.PortableExecutable;
+using System.Globalization;
 
 namespace fianzas_app.Controllers
 {
@@ -30,17 +31,18 @@ namespace fianzas_app.Controllers
         /// Descarga documentos fijos según un mapeo de id a nombre de archivo.
         /// id = 1: Convenio, id = 2: Solicitud, id = 3: Pagaré, id = 4: Prenda.
         /// </summary>
-        [HttpGet]
+        [HttpGet("Download")]
         public async Task<IActionResult> Download(int solicitudId, int docTypeId)
         {
-            // Se obtiene el detalle de la solicitud usando el id de la solicitud.
+            // Se obtiene el detalle de la solicitud usando el id.
             var solicitudDetalle = await _sfdService.ObtenerSolicitudPorIdAsync(solicitudId);
             if (solicitudDetalle == null)
                 return NotFound("No se encontró la solicitud.");
 
-            // Se selecciona la plantilla según el docTypeId y se define el nombre base del documento.
+            // Selección del template y nombre base según docTypeId.
             string templateFile = string.Empty;
             string docName = string.Empty;
+
             if (docTypeId == 1 || docTypeId == 5 || docTypeId == 8)
             {
                 templateFile = "CONVENIO_DE_FIANZAS_Form.pdf";
@@ -65,7 +67,7 @@ namespace fianzas_app.Controllers
             if (!System.IO.File.Exists(templatePath))
                 return NotFound("El template PDF no se encontró.");
 
-            // Usamos MemoryStream para trabajar en memoria y generar el PDF al vuelo.
+            // Usamos MemoryStream para generar el PDF al vuelo.
             using (MemoryStream outputStream = new MemoryStream())
             {
                 using (PdfReader pdfReader = new PdfReader(templatePath))
@@ -73,7 +75,7 @@ namespace fianzas_app.Controllers
                 {
                     AcroFields formFields = pdfStamper.AcroFields;
 
-                    // Rellenamos los campos según el tipo de documento.
+                    // Relleno de campos según el tipo de documento
                     if (docTypeId == 1 || docTypeId == 5 || docTypeId == 8)
                     {
                         // Relleno para Convenio
@@ -84,49 +86,131 @@ namespace fianzas_app.Controllers
                         formFields.SetField("txt_telefono_empresa", solicitudDetalle.EmpTelefono);
                         formFields.SetField("txt_beneficiario_nombre", solicitudDetalle.BenNombre);
                         formFields.SetField("txt_direccion_beneficiario", solicitudDetalle.BenDireccion);
+                        formFields.SetField("txt_objeto_contrato", solicitudDetalle.SfObjetoContrato);
                         formFields.SetField("txt_telefono_beneficiario", solicitudDetalle.BenTelefono);
-                        // Relleno para Pagaré
                         formFields.SetField("txt_monto_garantia", solicitudDetalle.SfMontoFianza.HasValue
                             ? solicitudDetalle.SfMontoFianza.Value.ToString("C")
                             : "0");
                         formFields.SetField("txt_dias_plazo", solicitudDetalle.SfPlazoGarantiaDias.ToString());
-                        formFields.SetField("txt_fecha_vigencia", solicitudDetalle.SfInicioVigencia.ToString());
-
-                        // Completa con los demás campos requeridos...
+                        formFields.SetField("txt_fecha_vigencia", solicitudDetalle.SfInicioVigencia.ToString("dd/MM/yyyy"));
+                        formFields.SetField("txt_legal", (solicitudDetalle.SfAprobacionLegal.HasValue && solicitudDetalle.SfAprobacionLegal.Value == 1) ? "X" : "");
+                        formFields.SetField("txt_tecnica", (solicitudDetalle.SfAprobacionTecnica.HasValue && solicitudDetalle.SfAprobacionTecnica.Value == 1) ? "X" : "");
+                        formFields.SetField("txt_email_empresa", solicitudDetalle.EmpEmail);
+                        formFields.SetField("txt_email_beneficiario", solicitudDetalle.BenEmail);
+                        formFields.SetField("txt_lugar_fecha", $"{solicitudDetalle.EmpUbicacion} {solicitudDetalle.SfFechaSolicitud:dd/MM/yyyy}");
+                        var fechaActual = DateOnly.FromDateTime(DateTime.Now);
+                        string fechaFormateada = fechaActual.ToString("d 'de' MMMM 'de' yyyy", new CultureInfo("es-ES"));
+                        formFields.SetField("txt_fecha_emision", fechaFormateada);
                     }
                     else if (docTypeId == 3 || docTypeId == 6 || docTypeId == 9)
                     {
                         // Relleno para Pagaré
-                        formFields.SetField("txt_monto_contrato", solicitudDetalle.SfMontoFianza.HasValue
+                        formFields.SetField("sf_id", solicitudDetalle.SfId.ToString());
+                        formFields.SetField("txt_empresa_nombre", solicitudDetalle.EmpresaNombre);
+                        formFields.SetField("txt_ci_empresa", solicitudDetalle.EmpRuc);
+                        formFields.SetField("txt_direccion_empresa", solicitudDetalle.EmpUbicacion);
+                        formFields.SetField("txt_telefono_empresa", solicitudDetalle.EmpTelefono);
+                        formFields.SetField("txt_beneficiario_nombre", solicitudDetalle.BenNombre);
+                        formFields.SetField("txt_direccion_beneficiario", solicitudDetalle.BenDireccion);
+                        formFields.SetField("txt_telefono_beneficiario", solicitudDetalle.BenTelefono);
+                        formFields.SetField("txt_monto_garantia", solicitudDetalle.SfMontoFianza.HasValue
                             ? solicitudDetalle.SfMontoFianza.Value.ToString("C")
                             : "0");
-                        formFields.SetField("txt_empresa_nombre", solicitudDetalle.EmpresaNombre);
-                        // Completa con los demás campos requeridos...
+                        formFields.SetField("txt_monto_contrato", solicitudDetalle.SfMontoContrato.HasValue
+                            ? solicitudDetalle.SfMontoContrato.Value.ToString("C")
+                            : "0");
+                        formFields.SetField("txt_dias_plazo", solicitudDetalle.SfPlazoGarantiaDias.ToString());
+                        formFields.SetField("txt_fecha_vigencia", solicitudDetalle.SfInicioVigencia.ToString("dd/MM/yyyy"));
+                        formFields.SetField("txt_legal", (solicitudDetalle.SfAprobacionLegal.HasValue && solicitudDetalle.SfAprobacionLegal.Value == 1) ? "X" : "");
+                        formFields.SetField("txt_tecnica", (solicitudDetalle.SfAprobacionTecnica.HasValue && solicitudDetalle.SfAprobacionTecnica.Value == 1) ? "X" : "");
+                        formFields.SetField("txt_email_empresa", solicitudDetalle.EmpEmail);
+                        formFields.SetField("txt_email_beneficiario", solicitudDetalle.BenEmail);
+                        formFields.SetField("txt_lugar_fecha", $"{solicitudDetalle.EmpUbicacion} {solicitudDetalle.SfFechaSolicitud:dd/MM/yyyy}");
+                        var fechaActual = DateOnly.FromDateTime(DateTime.Now);
+                        string fechaFormateada = fechaActual.ToString("d 'de' MMMM 'de' yyyy", new CultureInfo("es-ES"));
+                        formFields.SetField("txt_fecha_emision", fechaFormateada);
                     }
                     else if (docTypeId == 4 || docTypeId == 7 || docTypeId == 10)
                     {
                         // Relleno para Prenda
-                        formFields.SetField("sf_plazo_garantia_dias", solicitudDetalle.SfPlazoGarantiaDias.ToString());
-                        formFields.SetField("empresa_nombre", solicitudDetalle.EmpresaNombre);
-                        // Completa con los demás campos requeridos...
+                        formFields.SetField("sf_id", solicitudDetalle.SfId.ToString());
+                        formFields.SetField("txt_empresa_nombre", solicitudDetalle.EmpresaNombre);
+                        formFields.SetField("txt_ci_empresa", solicitudDetalle.EmpRuc);
+                        formFields.SetField("txt_nombre_fianza", solicitudDetalle.TipoSolicitudNombre);
+                        formFields.SetField("txt_direccion_empresa", solicitudDetalle.EmpUbicacion);
+                        formFields.SetField("txt_telefono_empresa", solicitudDetalle.EmpTelefono);
+                        formFields.SetField("txt_beneficiario_nombre", solicitudDetalle.BenNombre);
+                        formFields.SetField("txt_direccion_beneficiario", solicitudDetalle.BenDireccion);
+                        formFields.SetField("txt_telefono_beneficiario", solicitudDetalle.BenTelefono);
+                        formFields.SetField("txt_fecha_emision", DateOnly.FromDateTime(DateTime.Now).ToString("dd/MM/yyyy"));
+                        formFields.SetField("txt_monto_garantia", solicitudDetalle.SfMontoFianza.HasValue
+                            ? solicitudDetalle.SfMontoFianza.Value.ToString("C")
+                            : "0");
+                        formFields.SetField("txt_dias_plazo", solicitudDetalle.SfPlazoGarantiaDias.ToString());
+                        formFields.SetField("txt_fecha_vigencia", solicitudDetalle.SfInicioVigencia.ToString("dd/MM/yyyy"));
+                        formFields.SetField("txt_legal", (solicitudDetalle.SfAprobacionLegal.HasValue && solicitudDetalle.SfAprobacionLegal.Value == 1) ? "X" : "");
+                        formFields.SetField("txt_tecnica", (solicitudDetalle.SfAprobacionTecnica.HasValue && solicitudDetalle.SfAprobacionTecnica.Value == 1) ? "X" : "");
+                        formFields.SetField("txt_email_empresa", solicitudDetalle.EmpEmail);
+                        formFields.SetField("txt_email_beneficiario", solicitudDetalle.BenEmail);
+                        formFields.SetField("txt_lugar_fecha", $"{solicitudDetalle.EmpUbicacion} {solicitudDetalle.SfFechaSolicitud:dd/MM/yyyy}");
+
+                        // Asignar información de la prenda
+                        if (solicitudDetalle.Prendas != null && solicitudDetalle.Prendas.Any())
+                        {
+                            var prenda = solicitudDetalle.Prendas.First();
+                            formFields.SetField("txt_prenda_tipo", prenda.PrenTipo);
+                            formFields.SetField("txt_prenda_bien", prenda.PrenBien);
+                            formFields.SetField("txt_prenda_descripcion", prenda.PrenDescripcion);
+                            formFields.SetField("txt_prenda_valor", prenda.PrenValor.ToString("C"));
+                            formFields.SetField("txt_prenda_ubicacion", prenda.PrenUbicacion);
+                            formFields.SetField("txt_prenda_custodio", prenda.PrenCustodio);
+                            formFields.SetField("txt_prenda_fecha_constatacion", prenda.PrenFechaConstatacion.ToString("dd/MM/yyyy"));
+                            formFields.SetField("txt_prenda_responsable", prenda.PrenResponsableConstatacion);
+                        }
+                        else
+                        {
+                            // En caso de no tener datos de prenda
+                            formFields.SetField("txt_prenda_tipo", "Sin datos");
+                            formFields.SetField("txt_prenda_bien", "Sin datos");
+                            formFields.SetField("txt_prenda_descripcion", "Sin datos");
+                            formFields.SetField("txt_prenda_valor", "Sin datos");
+                            formFields.SetField("txt_prenda_ubicacion", "Sin datos");
+                            formFields.SetField("txt_prenda_custodio", "Sin datos");
+                            formFields.SetField("txt_prenda_fecha_constatacion", "Sin datos");
+                            formFields.SetField("txt_prenda_responsable", "Sin datos");
+                        }
+
+                        // Si SfFinVigencia está definido, separamos día, mes y año
+                        if (solicitudDetalle.SfFinVigencia.HasValue)
+                        {
+                            string dia = solicitudDetalle.SfFinVigencia.Value.Day.ToString("D2");
+                            string mes = solicitudDetalle.SfFinVigencia.Value.Month.ToString("D2");
+                            string anio = solicitudDetalle.SfFinVigencia.Value.Year.ToString();
+                            formFields.SetField("txt_dias", dia);
+                            formFields.SetField("txt_mes", mes);
+                            formFields.SetField("txt_anio", anio);
+                        }
+                        else
+                        {
+                            formFields.SetField("txt_dias", string.Empty);
+                            formFields.SetField("txt_mes", string.Empty);
+                            formFields.SetField("txt_anio", string.Empty);
+                        }
                     }
 
-                    // Opcional: Aplanamos el formulario para evitar que se editen los campos.
+                    // Aplanamos el formulario para evitar ediciones posteriores.
                     pdfStamper.FormFlattening = true;
                 }
 
                 byte[] pdfBytes = outputStream.ToArray();
 
-                // Generamos un número aleatorio para el nombre del archivo.
+                // Se genera un número aleatorio para el nombre del archivo.
                 Random rnd = new Random();
                 int randomNumber = rnd.Next(1000, 9999);
-
-                // Se construye el nombre del archivo usando el nombre base, el id de la solicitud y el número aleatorio.
                 string fileDownloadName = $"{docName}_{solicitudId}_{randomNumber}.pdf";
                 return File(pdfBytes, "application/pdf", fileDownloadName);
             }
         }
-
 
         /// <summary>
         /// Genera dinámicamente un PDF a partir de una plantilla, usando iTextSharp.

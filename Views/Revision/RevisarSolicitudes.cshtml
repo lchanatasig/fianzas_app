@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
 }
+
 <div class="row">
     <div class="col-lg-12">
         <div class="card">
@@ -86,7 +87,7 @@
                     <h6>Documento Adicional:</h6>
                     <ul>
                         <li>
-                            <a href="@Url.Action("Download", "Document", new { id = 4 })" download>Documento Adicional (Prenda PDF)</a>
+                            <a id="documentoPrendaLink" href="#" download>Documento Adicional (Prenda PDF)</a>
                         </li>
                     </ul>
                 </div>
@@ -165,8 +166,8 @@
 
     <script>
         // Las URLs fijas para "Convenio" y "Pagaré"
-        const urlConvenio = '@Url.Action("Download", "Document", new { id = 1 })';
-        const urlPagare = '@Url.Action("Download", "Document", new { id = 3 })';
+        const urlConvenio = '@Url.Action("Download", "Document", new { docTypeId = 1 })';
+        const urlPagare = '@Url.Action("Download", "Document", new { docTypeId = 3 })';
 
         function abrirRevision(solicitudId, empresa, tipoFianza, montoFianza, fianzaNombre) {
             console.log("Tipo de Fianza:", tipoFianza);
@@ -190,17 +191,19 @@
                 urlSolicitud += '?type=anticipo&id=' + solicitudId;
             }
 
-            // Generar la lista de documentos: la URL de Solicitud es dinámica y las demás son fijas
+            // Generar la lista de documentos: la URL de Solicitud es dinámica y las demás son fijas,
+            // agregando el parámetro "solicitudId" en cada URL.
             let ul = document.getElementById("documentosListaModal");
             let html = "";
             html += `<li><a href="${urlSolicitud}" download>Solicitud de Fianza (PDF)</a></li>`;
-            html += `<li><a href="${urlConvenio}" download>Convenio de Fianza (PDF)</a></li>`;
-            html += `<li><a href="${urlPagare}" download>Pagaré (PDF)</a></li>`;
+            html += `<li><a href="${urlConvenio}&solicitudId=${solicitudId}" download>Convenio de Fianza (PDF)</a></li>`;
+            html += `<li><a href="${urlPagare}&solicitudId=${solicitudId}" download>Pagaré (PDF)</a></li>`;
             ul.innerHTML = html;
 
             // Mostrar documento adicional (Prenda) si el monto supera 416.000
             if (parseFloat(montoFianza) > 416000) {
                 document.getElementById("documentoPrendaContainer").classList.remove("d-none");
+                document.getElementById("documentoPrendaLink").href = '@Url.Action("Download", "Document", new { docTypeId = 4 })' + '&solicitudId=' + solicitudId;
             } else {
                 document.getElementById("documentoPrendaContainer").classList.add("d-none");
             }
@@ -271,8 +274,6 @@
             return input;
         }
     </script>
-
-
 
     @if (!string.IsNullOrEmpty(successMessage))
     {

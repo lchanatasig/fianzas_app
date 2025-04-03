@@ -354,34 +354,7 @@
 
 @section scripts {
     <script src="~/assets/js/Fianzas.js"></script>
-    <script>
-        document.getElementById('solicitudFianzaForm').addEventListener('submit', function (event) {
-                let form = event.target;
-                let missingFields = [];
 
-                // Recorrer todos los campos requeridos
-                form.querySelectorAll('[required]').forEach(function(input) {
-                    if (!input.checkValidity()) {
-                        // Obtenemos el nombre del campo (label o placeholder)
-                        let fieldName = input.previousElementSibling ? input.previousElementSibling.textContent.trim() : input.placeholder.trim();
-                        missingFields.push(fieldName);
-                    }
-                });
-
-                // Si hay campos faltantes, prevenir el submit y mostrar la alerta
-                if (missingFields.length > 0) {
-                    event.preventDefault(); // Prevenir el envío del formulario
-
-                    let missingFieldsMessage = 'Por favor complete los siguientes campos requeridos:\n\n' + missingFields.join(';\n');
-
-                    Swal.fire({
-                        title: '¡Error!',
-                        text: missingFieldsMessage,
-                        icon: 'error',
-                        confirmButtonText: 'OK',
-                    });
-                }
-            });    </script>
     @if (!string.IsNullOrEmpty(successMessage))
     {
         <script>

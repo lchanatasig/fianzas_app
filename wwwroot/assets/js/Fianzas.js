@@ -7,36 +7,55 @@ function debounce(fn, delay) {
     };
 }
 
+// Función para habilitar o deshabilitar formularios de forma dinámica
+function toggleFormState(formId, isVisible) {
+    const form = document.getElementById(formId);
+    if (form) {
+        if (isVisible) {
+            form.classList.remove("d-none");
+            form.querySelectorAll("input, select, textarea").forEach(el => {
+                el.disabled = false;
+            });
+        } else {
+            form.classList.add("d-none");
+            form.querySelectorAll("input, select, textarea").forEach(el => {
+                el.disabled = true;
+            });
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     let porcentajeMaximoContrato = 0;
     let hotInstance;
 
     // ---------- MOSTRAR FORMULARIOS DE PRENDA Y ASIGNAR TIPO A LA TABLA ----------
     function mostrarFormularioPrenda() {
-        document.getElementById("formPrendaComercial").classList.add("d-none");
-        document.getElementById("formPrendaIndustrial").classList.add("d-none");
-        document.getElementById("formPrendaHipotecaria").classList.add("d-none");
-        document.getElementById("formPrendaCartaAval").classList.add("d-none");
+        // Ocultar y deshabilitar todos los formularios de prenda
+        toggleFormState("formPrendaComercial", false);
+        toggleFormState("formPrendaIndustrial", false);
+        toggleFormState("formPrendaHipotecaria", false);
+        toggleFormState("formPrendaCartaAval", false);
 
         const prendaSeleccionada = document.querySelector('input[name="prenda"]:checked');
         if (prendaSeleccionada) {
             switch (prendaSeleccionada.value) {
                 case "Prenda Comercial":
-                    document.getElementById("formPrendaComercial").classList.remove("d-none");
+                    toggleFormState("formPrendaComercial", true);
                     break;
                 case "Prenda Industrial":
-                    document.getElementById("formPrendaIndustrial").classList.remove("d-none");
+                    toggleFormState("formPrendaIndustrial", true);
                     break;
                 case "Prenda Hipotecaria":
-                    document.getElementById("formPrendaHipotecaria").classList.remove("d-none");
+                    toggleFormState("formPrendaHipotecaria", true);
                     break;
                 case "Prenda Carta Aval":
-                    document.getElementById("formPrendaCartaAval").classList.remove("d-none");
+                    toggleFormState("formPrendaCartaAval", true);
                     break;
                 default:
                     break;
             }
-            // Asignar el mismo tipo de prenda a todas las filas
+            // Asigna el tipo de prenda a todas las filas de Handsontable
             if (hotInstance) {
                 let selectedType = prendaSeleccionada.value;
                 let rowCount = hotInstance.countRows();
@@ -84,18 +103,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     function cargarTipoFianza(tipoSeleccionado) {
         tipoSeleccionado = parseInt(tipoSeleccionado, 10);
-        document.getElementById("datosContrato").classList.add("d-none");
-        document.getElementById("datosAduanera").classList.add("d-none");
+        // Ocultar secciones y deshabilitar controles asociados
+        toggleFormState("datosContrato", false);
+        toggleFormState("datosAduanera", false);
         porcentajeMaximoContrato = 0;
         if (tipoSeleccionado === 1) {
             porcentajeMaximoContrato = 15;
-            document.getElementById("datosContrato").classList.remove("d-none");
+            toggleFormState("datosContrato", true);
         } else if (tipoSeleccionado === 2) {
             porcentajeMaximoContrato = 100;
-            document.getElementById("datosAduanera").classList.remove("d-none");
+            toggleFormState("datosAduanera", true);
         } else if (tipoSeleccionado === 3) {
             porcentajeMaximoContrato = 50;
-            document.getElementById("datosContrato").classList.remove("d-none");
+            toggleFormState("datosContrato", true);
         }
         document.getElementById("montocontrato").value = "";
         document.getElementById("montoFianza").value = "";
@@ -127,7 +147,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById("cupoDisponible").value = "";
         document.getElementById("cupoDisponible").dataset.valorNumerico = 0;
     }
-
     function mostrarError(errorElem, inputElem, mensaje) {
         errorElem.textContent = mensaje;
         errorElem.classList.remove("d-none");
@@ -209,7 +228,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         plazoElem.value = diferenciaDias;
     }
-
     const inicioVigenciaElem = document.getElementById("inicioVigencia");
     const finVigenciaElem = document.getElementById("finVigencia");
     const inicioVigenciaGAElem = document.getElementById("inicioVigenciaGA");
@@ -218,14 +236,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (finVigenciaElem) { finVigenciaElem.addEventListener("change", calcularPlazoEnDias); }
     if (inicioVigenciaGAElem) { inicioVigenciaGAElem.addEventListener("change", calcularPlazoEnDias); }
     if (finVigenciaGAElem) { finVigenciaGAElem.addEventListener("change", calcularPlazoEnDias); }
-
     const montocontratoElem = document.getElementById("montocontrato");
     const montoFianzaElem = document.getElementById("montoFianza");
     const montoFianzaGAElem = document.getElementById("montoFianzaGA");
     if (montocontratoElem) { montocontratoElem.addEventListener("input", validarMontoContrato); }
     if (montoFianzaElem) { montoFianzaElem.addEventListener("input", validarMontoFianza); }
     if (montoFianzaGAElem) { montoFianzaGAElem.addEventListener("input", validarMontoFianza); }
-
     if (typeof empresasData !== 'undefined') {
         const empresaSelect = document.getElementById("empresaSelect");
         if (empresaSelect && empresaSelect.value) { cargarDatosEmpresa(empresaSelect.value); }
@@ -247,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 PrenCustodio: "",
                 PrenFechaConstatacion: null,
                 PrenResponsableConstatacion: "",
-                PrenArchivo: null,      // Se maneja aparte
+                PrenArchivo: null,
                 PrenNumeroItem: null,
                 PrenValorTotal: null
             },
@@ -281,7 +297,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (source === 'loadData' || !changes) return;
                 let total = 0;
                 let data = this.getSourceData();
-                // Recorremos cada fila para sumar PrenValor (si existe)
                 for (let i = 0; i < data.length; i++) {
                     let cellValue = data[i].PrenValor;
                     if (cellValue != null) {
@@ -290,59 +305,76 @@ document.addEventListener('DOMContentLoaded', function () {
                             total += numVal;
                         }
                     }
-                    // Asignar fecha de creación si no existe
                     if (!data[i].PrenFechaCreacion) {
                         data[i].PrenFechaCreacion = new Date();
                     }
                 }
-                // Actualizar el input total (asegúrate de tener un elemento con id "totalPrendaValor")
                 let totalInput = document.getElementById("totalPrendaValor");
                 if (totalInput) {
                     totalInput.value = total.toFixed(2);
                 }
-                // Actualizar PrenValorTotal en cada fila con el total calculado
                 for (let i = 0; i < data.length; i++) {
                     this.setDataAtRowProp(i, 'PrenValorTotal', total);
                 }
             }, 300)
         });
-
         document.getElementById("formPrendaComercial").addEventListener('transitionend', function () {
             hotInstance.render();
         });
     }
 
-    // ---------- ENVIAR LOS DATOS DE LA TABLA AL INPUT OCULTO AL SUBMIT DEL FORMULARIO ----------
-    var form = document.querySelector('form');
-    if (form) {
-        form.addEventListener('submit', function () {
-            // Filtrar filas vacías (se consideran vacías si PrenTipo, PrenBien y PrenDescripcion están vacíos)
-            var allData = hotInstance.getSourceData();
-            var validData = allData.filter(function (row) {
-                return (row.PrenTipo && row.PrenTipo.trim() !== "") ||
-                    (row.PrenBien && row.PrenBien.trim() !== "") ||
-                    (row.PrenDescripcion && row.PrenDescripcion.trim() !== "");
+    // ---------- VALIDACIÓN UNIFICADA DEL FORMULARIO ----------
+    const mainForm = document.getElementById('solicitudFianzaForm');
+    if (mainForm) {
+        mainForm.addEventListener('submit', function (event) {
+            // Deshabilitar controles ocultos para que no sean validados
+            mainForm.querySelectorAll('.d-none input, .d-none select, .d-none textarea')
+                .forEach(control => control.disabled = true);
+
+            // Validación personalizada: recorrer solo los campos visibles con atributo required
+            let missingFields = [];
+            mainForm.querySelectorAll('[required]').forEach(function (field) {
+                if (field.offsetParent === null) return;
+                if (!field.checkValidity()) {
+                    let fieldName = "";
+                    if (field.id) {
+                        const label = mainForm.querySelector(`label[for="${field.id}"]`);
+                        fieldName = label ? label.textContent.trim() : "";
+                    }
+                    if (!fieldName && field.placeholder) {
+                        fieldName = field.placeholder.trim();
+                    }
+                    missingFields.push(fieldName);
+                }
             });
-            document.getElementById('PrendasJson').value = JSON.stringify(validData);
+
+            if (missingFields.length > 0) {
+                event.preventDefault();
+                const missingFieldsMessage = 'Por favor complete los siguientes campos requeridos:\n\n' + missingFields.join(';\n');
+                Swal.fire({
+                    title: '¡Error!',
+                    text: missingFieldsMessage,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    const firstInvalid = mainForm.querySelector('[required]:invalid');
+                    if (firstInvalid) {
+                        firstInvalid.focus();
+                    }
+                });
+                return;
+            }
+
+            // Si Handsontable está activo, filtrar filas vacías y asignar al input oculto
+            if (typeof hotInstance !== 'undefined') {
+                let allData = hotInstance.getSourceData();
+                let validData = allData.filter(function (row) {
+                    return (row.PrenTipo && row.PrenTipo.trim() !== "") ||
+                        (row.PrenBien && row.PrenBien.trim() !== "") ||
+                        (row.PrenDescripcion && row.PrenDescripcion.trim() !== "");
+                });
+                document.getElementById('PrendasJson').value = JSON.stringify(validData);
+            }
         });
     }
 });
-
-// ---------- BOOTSTRAP VALIDACIÓN GENERAL ----------
-(function () {
-    'use strict';
-    window.addEventListener('load', function () {
-        const forms = document.getElementsByClassName('needs-validation');
-        Array.prototype.filter.call(forms, function (form) {
-            form.addEventListener('submit', function (event) {
-                const hiddenControls = form.querySelectorAll('.d-none input, .d-none select, .d-none textarea');
-                hiddenControls.forEach(control => control.disabled = true);
-                if (form.checkValidity() === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-    }, false);
-})();
