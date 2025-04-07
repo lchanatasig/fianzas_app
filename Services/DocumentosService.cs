@@ -31,7 +31,8 @@ namespace fianzas_app.Services
             byte[] sfd_prenda,
             DateTime sfd_fecha_subida,
             DateTime sfd_fecha_vencimiento,
-            string sfd_poliza)
+            string sfd_poliza,
+            int sfd_usuario) // Nuevo parámetro para el ID de usuario
         {
             // ¡Preparando el viaje al futuro con precisión quirúrgica en cada inserción!
             try
@@ -44,10 +45,11 @@ namespace fianzas_app.Services
                     command.Parameters.AddWithValue("@sfd_solicitud", sfd_solicitud);
                     command.Parameters.AddWithValue("@sfd_convenio", sfd_convenio);
                     command.Parameters.AddWithValue("@sfd_pagare", sfd_pagare);
-                    command.Parameters.AddWithValue("@sfd_prenda", sfd_prenda);
+                    command.Parameters.AddWithValue("@sfd_prenda", sfd_prenda == null ? (object)DBNull.Value : sfd_prenda);
                     command.Parameters.AddWithValue("@sfd_fecha_subida", sfd_fecha_subida);
                     command.Parameters.AddWithValue("@sfd_fecha_vencimiento", sfd_fecha_vencimiento);
                     command.Parameters.AddWithValue("@sfd_poliza", sfd_poliza ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@sfd_usuario", sfd_usuario); // Se agrega el ID de usuario
 
                     await connection.OpenAsync();
                     var result = await command.ExecuteScalarAsync();
@@ -60,6 +62,7 @@ namespace fianzas_app.Services
                 throw;
             }
         }
+
 
 
 

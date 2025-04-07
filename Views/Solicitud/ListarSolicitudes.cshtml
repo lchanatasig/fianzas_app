@@ -198,25 +198,27 @@
 
             modalHtml += `<h6>Subir Documentos Firmados:</h6>`;
             modalHtml += `
-                <div class="mb-3">
-                    <label for="fileSolicitud">Solicitud de Fianza</label>
-                    <input type="file" id="fileSolicitud" name="documentoSolicitud" class="form-control" />
-                </div>
-                <div class="mb-3">
-                    <label for="fileConvenio">${documentos[0].nombre}</label>
-                    <input type="file" id="fileConvenio" name="documentoConvenio" class="form-control" />
-                </div>
-                <div class="mb-3">
-                    <label for="filePagare">${documentos[1].nombre}</label>
-                    <input type="file" id="filePagare" name="documentoPagare" class="form-control" />
-                </div>`;
+                        <div class="mb-3">
+            <label for="fileSolicitud">Solicitud de Fianza</label>
+            <input type="file" id="fileSolicitud" name="documento1" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label for="fileConvenio">${documentos[0].nombre}</label>
+            <input type="file" id="fileConvenio" name="documento2" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label for="filePagare">${documentos[1].nombre}</label>
+            <input type="file" id="filePagare" name="documento3" class="form-control" />
+        </div>
+        `;
 
             if (parseFloat(montoFianza) > 416000) {
                 modalHtml += `
-                    <div class="mb-3">
-                        <label for="filePrenda">${documentos[2].nombre}</label>
-                        <input type="file" id="filePrenda" name="documentoPrenda" class="form-control" />
-                    </div>`;
+                            <div class="mb-3">
+            <label for="filePrenda">${documentos[2].nombre}</label>
+            <input type="file" id="filePrenda" name="documento4" class="form-control" />
+        </div>
+        `;
             }
 
             $("#modalContent").html(modalHtml);

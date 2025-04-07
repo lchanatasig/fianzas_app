@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.PortableExecutable;
 using System.Globalization;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace fianzas_app.Controllers
 {
@@ -335,17 +336,19 @@ namespace fianzas_app.Controllers
 
             return File(memoryStream.ToArray(), "application/pdf", outputFileName);
         }
+
+
         /// <summary>
         /// Inserta los documentos subidos (convertidos a bytes) mediante un servicio.
         /// </summary>
         [HttpPost]
         public async Task<IActionResult> InsertSfd(
-            [FromForm] int sfdId,
-            [FromForm] DateTime? sfdFechaSubida,
-            IFormFile documento1,
-            IFormFile documento2,
-            IFormFile documento3,
-            IFormFile documento4)
+           [FromForm] int sfdId,
+           [FromForm] DateTime? sfdFechaSubida,
+           IFormFile documento1,
+           IFormFile documento2,
+           IFormFile documento3,
+           IFormFile documento4)
         {
             try
             {
@@ -391,7 +394,10 @@ namespace fianzas_app.Controllers
                     }
                 }
 
-                // Llamada al servicio pasando los bytes en lugar de rutas de archivo.
+                // Obtener el ID de usuario desde la sesión
+                var usuarioId = HttpContext.Session.GetInt32("UsuarioId") ?? 0;
+
+                // Llamada al servicio pasando el usuarioId y los bytes de los documentos
                 int insertedId = await _documentService.InsertSfdAsync(
                     sfdId,
                     documento1Bytes,
@@ -399,8 +405,10 @@ namespace fianzas_app.Controllers
                     documento3Bytes,
                     documento4Bytes,
                     sfdFechaSubida ?? DateTime.Now,
-                    DateTime.Now, // Ejemplo: fecha de vencimiento
-                    null);      // Ejemplo: sfdPoliza (ajusta según tu modelo)
+                    DateTime.Now, // Fecha de vencimiento (ejemplo)
+                    null,       // sfd_poliza (según tu modelo)
+                    usuarioId   // Nuevo parámetro para el ID de usuario
+                );
 
                 if (insertedId > 0)
                 {
@@ -415,8 +423,11 @@ namespace fianzas_app.Controllers
             {
                 TempData["ErrorMessage"] = "Error: " + ex.Message;
             }
+
             // Redirigir a la acción de Listar Solicitudes
             return RedirectToAction("ListarSolicitudes", "Solicitud");
         }
+
+
     }
 }
