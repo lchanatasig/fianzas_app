@@ -43,8 +43,11 @@ namespace fianzas_app.Controllers
         [HttpGet("Registrar-Empresa")]
         public async Task<IActionResult> RegistrarEmpresa()
         {
+            // Llenas el ViewBag con los tipos de empresa para el formulario
             var tipoEmpresas = await _listaService.ListarTipoEmpresaAsync();
+            var corredors = await _listaService.ListarCorredorAsync();
             ViewBag.TipoEmpresa = tipoEmpresas;
+            ViewBag.Corredores = corredors;
             return View();
         }
 
@@ -85,7 +88,9 @@ namespace fianzas_app.Controllers
 
             // Llenas el ViewBag con los tipos de empresa para el formulario
             var tipoEmpresas = await _listaService.ListarTipoEmpresaAsync();
+            var corredors = await _listaService.ListarCorredorAsync();
             ViewBag.TipoEmpresa = tipoEmpresas;
+            ViewBag.Corredores = corredors;
 
             // Retornas la vista para actualizar la empresa
             return View("ActualizarEmpresa", empresa); // Esta vista puede ser ActualizarEmpresa.cshtml

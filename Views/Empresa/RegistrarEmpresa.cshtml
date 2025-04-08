@@ -51,6 +51,20 @@
                                     </div>
                                 </div>
 
+
+                                <div class="col-lg-3" >
+                                    <div class="mb-2">
+                                        <label>Seleccione el tipo de empresa</label>
+                                        <select class="form-control" asp-for="EmpCorredorId" data-choices data-choices-sorting-false required>
+                                            <option value="">Seleccione una opción</option>
+                                            @foreach (var corredors in ViewBag.Corredores)
+                                            {
+                                                <option selected value="@corredors.CorredorId">@corredors.CorredorNombre</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <div class="divider-with-text"><i class="ri-community-fill"></i> Datos del Solicitante/Afianzado/Contratista</div>
 
                                 <div class="col-md-4">
@@ -269,8 +283,7 @@
                                     <div class="form-icon">
                                         <input type="text" class="form-control form-control-icon autonumeric" id="EmpfOtrasCuentasPatrimonioVisible" placeholder="Otras Cuentas Patrimonio">
                                         <input type="hidden" id="EmpfOtrasCuentasPatrimonio" name="EmpfOtrasCuentasPatrimonio">
-                                        @*                                     <div class="invalid-feedback">Ingrese un valor válido.</div>
- *@                                
+                                        @*<div class="invalid-feedback">Ingrese un valor válido.</div> *@                                
                                       <i class="bx bx-dollar"></i>
                                     </div>
                                 </div>
@@ -290,7 +303,7 @@
                                     <div class="form-icon">
                                         <input type="text" class="form-control form-control-icon autonumeric " id="EmpfUtilidadEjercicioVisible" placeholder="Utilidad Ejercicio">
                                         <input type="hidden"  id="EmpfUtilidadEjercicio" name="EmpfUtilidadEjercicio">
-                                        @*                                     <div class="invalid-feedback">Ingrese un valor válido.</div>*@                                
+                                        @* <div class="invalid-feedback">Ingrese un valor válido.</div>*@                                
                                          <i class="bx bx-dollar"></i>
                                     </div>
                                 </div>
@@ -311,7 +324,7 @@
                                     <div class="form-icon">
                                         <input type="text" class="form-control form-control-icon autonumeric" id="EmpfOtrasPerdidasVisible" placeholder="Otras perdidas del ejercicio">
                                         <input type="hidden"  id="EmpfOtrasPerdidas" name="EmpfOtrasPerdidas">
-                                        @*    <div class="invalid-feedback">Ingrese un valor válido.</div> *@
+                                        @*<div class="invalid-feedback">Ingrese un valor válido.</div> *@
                                         <i class="bx bx-dollar"></i>
                                     </div>
                                 </div>

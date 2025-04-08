@@ -21,6 +21,8 @@ public partial class AppFianzasContext : DbContext
 
     public virtual DbSet<ClasificacionEmpresa> ClasificacionEmpresas { get; set; }
 
+    public virtual DbSet<Corredor> Corredors { get; set; }
+
     public virtual DbSet<Empresa> Empresas { get; set; }
 
     public virtual DbSet<EmpresaFinanza> EmpresaFinanzas { get; set; }
@@ -49,7 +51,7 @@ public partial class AppFianzasContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=app_fianzas;User Id=sa;Password=Sur2o22--;TrustServerCertificate=True");
+        => optionsBuilder.UseSqlServer("Server=localhost;Database=app_fianzas;User Id=sa;Password=Sur2o22--;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -148,6 +150,31 @@ public partial class AppFianzasContext : DbContext
                 .HasConstraintName("FK_clasificacion_empresa_empresa");
         });
 
+        modelBuilder.Entity<Corredor>(entity =>
+        {
+            entity.HasKey(e => e.CorredorId).HasName("PK__corredor__802049B44404FD01");
+
+            entity.ToTable("corredor");
+
+            entity.Property(e => e.CorredorId).HasColumnName("corredor_id");
+            entity.Property(e => e.CorredorEmail)
+                .HasMaxLength(255)
+                .HasColumnName("corredor_email");
+            entity.Property(e => e.CorredorEstado)
+                .HasDefaultValue(1)
+                .HasColumnName("corredor_estado");
+            entity.Property(e => e.CorredorFechaCreacion)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("corredor_fecha_creacion");
+            entity.Property(e => e.CorredorNombre)
+                .HasMaxLength(255)
+                .HasColumnName("corredor_nombre");
+            entity.Property(e => e.CorredorNumero)
+                .HasMaxLength(255)
+                .HasColumnName("corredor_numero");
+        });
+
         modelBuilder.Entity<Empresa>(entity =>
         {
             entity.HasKey(e => e.EmpId).HasName("PK__empresa__1299A8617D71E496");
@@ -187,11 +214,16 @@ public partial class AppFianzasContext : DbContext
             entity.Property(e => e.EmpUbicacion)
                 .HasMaxLength(500)
                 .HasColumnName("emp_ubicacion");
+            entity.Property(e => e.EmpresaCorredorId).HasColumnName("empresa_corredor_id");
 
             entity.HasOne(d => d.EmpTipoEmpresa).WithMany(p => p.Empresas)
                 .HasForeignKey(d => d.EmpTipoEmpresaId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_empresa_tipo_id");
+
+            entity.HasOne(d => d.EmpresaCorredor).WithMany(p => p.Empresas)
+                .HasForeignKey(d => d.EmpresaCorredorId)
+                .HasConstraintName("FK_empresa_corredor");
         });
 
         modelBuilder.Entity<EmpresaFinanza>(entity =>

@@ -4,6 +4,7 @@
     {
         public int? EmpresaId { get; set; }  // ID para actualizaciones
         public int EmpTipoEmpresaId { get; set; }
+        public int EmpCorredorId { get; set; }
         public string EmpNombre { get; set; }
         public string EmpCiudad { get; set; }
         public string EmpUbicacion { get; set; }

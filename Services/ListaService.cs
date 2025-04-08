@@ -84,6 +84,38 @@ namespace fianzas_app.Services
             return tipoempresas;
         }
 
+        public async Task<List<Corredor>> ListarCorredorAsync()
+        {
+            var corredors = new List<Corredor>();
+
+            using (var connection = new SqlConnection(_dbContext.Database.GetConnectionString()))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand("sp_ListarCorredor", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var empresa = new Corredor
+                            {
+                                CorredorId = reader["corredor_id"] != DBNull.Value ? Convert.ToInt32(reader["corredor_id"]) : 0,
+                                CorredorNombre = reader["corredor_nombre"].ToString(),
+                                CorredorEstado = reader["corredor_estado"] != DBNull.Value ? Convert.ToByte(reader["corredor_estado"]) : (byte)0
+                            };
+
+                            corredors.Add(empresa);
+                        }
+                    }
+                }
+            }
+
+            return corredors;
+        }
+
+
         /// <summary>
         /// Ejecuta el SP sp_listar_tipos_fianza y retorna la lista de tipos de fianza.
         /// </summary>
