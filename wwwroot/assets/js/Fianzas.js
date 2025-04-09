@@ -1,4 +1,4 @@
-﻿// Función debounce: retrasa la ejecución de una función hasta que haya pasado 'delay' ms desde el último llamado
+﻿// Función debounce: retrasa la ejecución de una función hasta que hayan pasado 'delay' ms desde el último llamado
 function debounce(fn, delay) {
     let timer = null;
     return function () {
@@ -26,7 +26,8 @@ function toggleFormState(formId, isVisible) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    let porcentajeMaximoContrato = 0;
+    // Renombramos la variable para reflejar que se valida sobre el monto de la fianza
+    let porcentajeMaximoFianza = 0;
     let hotInstance;
 
     // ---------- MOSTRAR FORMULARIOS DE PRENDA Y ASIGNAR TIPO A LA TABLA ----------
@@ -90,6 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById("rucSolicitanteGA").value = emp.EmpRUC || "";
             document.getElementById("emailSolicitanteGA").value = emp.EmpEmail || "";
             document.getElementById("telefonoSolicitanteGA").value = emp.EmpTelefono || "";
+            // Habilitar campos de monto de fianza
             document.getElementById("montoFianza").disabled = false;
             document.getElementById("montoFianzaGA").disabled = false;
             const cupoInput = document.getElementById("cupoDisponible");
@@ -98,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             limpiarCamposEmpresa();
         }
-        validarMontoContrato();
+        // Se invoca la validación de fianza (ya no se utiliza para contrato)
         validarMontoFianza();
     }
     function cargarTipoFianza(tipoSeleccionado) {
@@ -106,21 +108,21 @@ document.addEventListener('DOMContentLoaded', function () {
         // Ocultar secciones y deshabilitar controles asociados
         toggleFormState("datosContrato", false);
         toggleFormState("datosAduanera", false);
-        porcentajeMaximoContrato = 0;
+        porcentajeMaximoFianza = 0;
         if (tipoSeleccionado === 1) {
-            porcentajeMaximoContrato = 15;
+            porcentajeMaximoFianza = 15;
             toggleFormState("datosContrato", true);
         } else if (tipoSeleccionado === 2) {
-            porcentajeMaximoContrato = 100;
+            porcentajeMaximoFianza = 100;
             toggleFormState("datosAduanera", true);
         } else if (tipoSeleccionado === 3) {
-            porcentajeMaximoContrato = 50;
+            porcentajeMaximoFianza = 50;
             toggleFormState("datosContrato", true);
         }
+        // Se limpian los campos para evitar inconsistencias
         document.getElementById("montocontrato").value = "";
         document.getElementById("montoFianza").value = "";
         document.getElementById("montoFianzaGA").value = "";
-        validarMontoContrato();
         validarMontoFianza();
     }
     const tipoFianzaSelect = document.getElementById("tipoFianza");
@@ -157,23 +159,8 @@ document.addEventListener('DOMContentLoaded', function () {
         errorElem.classList.add("d-none");
         inputElem.classList.remove("is-invalid");
     }
-    function validarMontoContrato() {
-        const montocontratoElem = document.getElementById("montocontrato");
-        const cupoDisponibleElem = document.getElementById("cupoDisponible");
-        const errorMontoContrato = document.getElementById("errorMontoContrato");
-        const cupoDisponible = parseFloat(cupoDisponibleElem.dataset.valorNumerico) || 0;
-        const montoContrato = parseFloat(montocontratoElem.value) || 0;
-        if (porcentajeMaximoContrato === 0 || cupoDisponible === 0) {
-            mostrarError(errorMontoContrato, montocontratoElem, "Debe seleccionar una empresa y un tipo de fianza.");
-            return;
-        }
-        const maxPermitido = (cupoDisponible * porcentajeMaximoContrato) / 100;
-        if (montoContrato > maxPermitido) {
-            mostrarError(errorMontoContrato, montocontratoElem, `El monto del contrato supera el ${porcentajeMaximoContrato}% del cupo disponible ($${maxPermitido.toFixed(2)}).`);
-        } else {
-            ocultarError(errorMontoContrato, montocontratoElem);
-        }
-    }
+
+    // Validación únicamente sobre el monto de la fianza
     function validarMontoFianza() {
         let montoFianzaElem, errorMontoFianza;
         if (!document.getElementById("datosAduanera").classList.contains("d-none")) {
@@ -186,15 +173,26 @@ document.addEventListener('DOMContentLoaded', function () {
         const cupoDisponibleElem = document.getElementById("cupoDisponible");
         const cupoDisponible = parseFloat(cupoDisponibleElem.dataset.valorNumerico) || 0;
         const montoFianza = parseFloat(montoFianzaElem.value) || 0;
-        if (cupoDisponible === 0) {
-            mostrarError(errorMontoFianza, montoFianzaElem, "Debe seleccionar una empresa válida.");
+
+        if (porcentajeMaximoFianza === 0 || cupoDisponible === 0) {
+            mostrarError(errorMontoFianza, montoFianzaElem, "Debe seleccionar una empresa y un tipo de fianza.");
             return;
         }
-        if (montoFianza > cupoDisponible) {
-            mostrarError(errorMontoFianza, montoFianzaElem, `El monto de la fianza no puede superar el cupo disponible ($${cupoDisponible.toFixed(2)}).`);
+
+        // Se calcula el máximo permitido basándose en el porcentaje para la fianza
+        const maxPermitido = (cupoDisponible * porcentajeMaximoFianza) / 100;
+        if (montoFianza > maxPermitido) {
+            mostrarError(errorMontoFianza, montoFianzaElem, `El monto de la fianza supera el ${porcentajeMaximoFianza}% del cupo disponible ($${maxPermitido.toFixed(2)}).`);
         } else {
             ocultarError(errorMontoFianza, montoFianzaElem);
         }
+
+        // Validación opcional para que el monto de la fianza no supere el cupo completo
+        if (montoFianza > cupoDisponible) {
+            mostrarError(errorMontoFianza, montoFianzaElem, `El monto de la fianza no puede superar el cupo disponible ($${cupoDisponible.toFixed(2)}).`);
+        }
+
+        // Mostrar u ocultar documentos secundarios según el monto de la fianza
         const documentosSecundarios = document.getElementById("documentosSecundarios");
         if (montoFianza > 416000) {
             documentosSecundarios.classList.remove("d-none");
@@ -202,6 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
             documentosSecundarios.classList.add("d-none");
         }
     }
+
     function calcularPlazoEnDias() {
         let inicio, fin, plazoElem;
         if (!document.getElementById("datosAduanera").classList.contains("d-none")) {
@@ -228,6 +227,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         plazoElem.value = diferenciaDias;
     }
+
+    // Asignar eventos para calcular el plazo
     const inicioVigenciaElem = document.getElementById("inicioVigencia");
     const finVigenciaElem = document.getElementById("finVigencia");
     const inicioVigenciaGAElem = document.getElementById("inicioVigenciaGA");
@@ -236,12 +237,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (finVigenciaElem) { finVigenciaElem.addEventListener("change", calcularPlazoEnDias); }
     if (inicioVigenciaGAElem) { inicioVigenciaGAElem.addEventListener("change", calcularPlazoEnDias); }
     if (finVigenciaGAElem) { finVigenciaGAElem.addEventListener("change", calcularPlazoEnDias); }
-    const montocontratoElem = document.getElementById("montocontrato");
+
+    // Se asignan eventos de validación únicamente a los campos de monto de fianza
     const montoFianzaElem = document.getElementById("montoFianza");
     const montoFianzaGAElem = document.getElementById("montoFianzaGA");
-    if (montocontratoElem) { montocontratoElem.addEventListener("input", validarMontoContrato); }
     if (montoFianzaElem) { montoFianzaElem.addEventListener("input", validarMontoFianza); }
     if (montoFianzaGAElem) { montoFianzaGAElem.addEventListener("input", validarMontoFianza); }
+
     if (typeof empresasData !== 'undefined') {
         const empresaSelect = document.getElementById("empresaSelect");
         if (empresaSelect && empresaSelect.value) { cargarDatosEmpresa(empresaSelect.value); }

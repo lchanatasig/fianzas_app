@@ -137,6 +137,7 @@ namespace fianzas_app.Services
                     command.Parameters.AddWithValue("@emp_telefono", request.EmpTelefono);
                     command.Parameters.AddWithValue("@emp_email", request.EmpEmail);
                     command.Parameters.AddWithValue("@emp_estado", request.EmpEstado ?? true);
+                    command.Parameters.AddWithValue("@emp_corredor", request.EmpCorredorId );
 
                     // Datos financieros - Activos
                     command.Parameters.AddWithValue("@empf_activo_corriente", request.EmpfActivoCorriente);
@@ -255,6 +256,7 @@ namespace fianzas_app.Services
                                 EmpTelefono = reader.GetString(reader.GetOrdinal("emp_telefono")),
                                 EmpEmail = reader.GetString(reader.GetOrdinal("emp_email")),
                                 EmpEstado = reader.GetBoolean(reader.GetOrdinal("emp_estado")),
+                                EmpCorredorId = reader.GetInt32(reader.GetOrdinal("empresa_corredor_id")),
 
 
                                 EmpfActivoCorriente = reader.GetDecimal(reader.GetOrdinal("empf_activo_corriente")),
@@ -332,6 +334,7 @@ namespace fianzas_app.Services
                     command.Parameters.AddWithValue("@emp_telefono", request.EmpTelefono);
                     command.Parameters.AddWithValue("@emp_email", request.EmpEmail);
                     command.Parameters.AddWithValue("@emp_estado", request.EmpEstado ?? true);
+                    command.Parameters.AddWithValue("@emp_corredor", request.EmpCorredorId);
 
                     // Datos financieros - Activos
                     command.Parameters.AddWithValue("@empf_activo_corriente", request.EmpfActivoCorriente);

@@ -51,6 +51,19 @@
                                     </div>
                                 </div>
 
+                                <div class="col-lg-3">
+                                    <div class="mb-2">
+                                        <label>Seleccione el tipo de broker</label>
+                                        <select class="form-control" asp-for="EmpCorredorId" data-choices data-choices-sorting-false required>
+                                            <option value="">Seleccione una opción</option>
+                                            @foreach (var corredors in ViewBag.Corredores)
+                                            {
+                                                <option  value="@corredors.CorredorId">@corredors.CorredorNombre</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <div class="divider-with-text"><i class="ri-community-fill"></i> Datos del Solicitante/Afianzado/Contratista</div>
 
                                 <div class="col-md-4">
